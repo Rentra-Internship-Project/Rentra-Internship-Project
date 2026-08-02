@@ -11,6 +11,7 @@ import HomePage from '../pages/public/Home'; // Fallback if needed somewhere els
 import TermsPage from '../pages/public/Terms';
 import PrivacyPage from '../pages/public/Privacy';
 import ContactPage from '../pages/public/Contact';
+import NotFound from '../pages/public/NotFound';
 
 const AppRoutes = () => (
   <Routes>
@@ -24,7 +25,7 @@ const AppRoutes = () => (
     {AdminRoutes()}
     {OwnerRoutes()}
     {CustomerRoutes()}
-    <Route path="*" element={<Navigate to="/" replace />} />
+    <Route path="*" element={<NotFound />} />
   </Routes>
 );
 
