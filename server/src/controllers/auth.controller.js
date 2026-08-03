@@ -26,7 +26,9 @@ async function createNotification(io, userId, data) {
 
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, role, phone } = req.body;
+    let { name, email, password, role, phone } = req.body;
+    name = name ? name.trim() : "";
+    email = email ? email.trim().toLowerCase() : "";
 
     if (!name || !email || !password) {
       return res.status(400).json({ error: 'Name, email, and password are required' });
@@ -68,7 +70,8 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    let { email, password } = req.body;
+    email = email ? email.trim().toLowerCase() : "";
 
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password are required' });
