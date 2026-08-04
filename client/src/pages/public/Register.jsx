@@ -125,6 +125,7 @@ const Register = () => {
                       type="text"
                       required
                       value={name}
+                      maxLength={50}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="Alex Carter"
                       className="w-full rounded-[14px] border border-[#E2E8F0] bg-[#F8FAFC] py-3 pl-10 pr-3 text-sm text-[#0F172A] outline-none transition focus:border-[#CCCCFF] focus:ring-2 focus:ring-[#CCCCFF]/30"
