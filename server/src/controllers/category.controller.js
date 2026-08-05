@@ -23,7 +23,7 @@ exports.seedDefaultCategories = async () => {
     const count = await Category.countDocuments();
     if (count === 0) {
       await Category.insertMany(DEFAULT_CATEGORIES);
-      console.log('✅ Default categories seeded');
+      
     }
   } catch (err) {
     console.error('Failed to seed categories:', err.message);
