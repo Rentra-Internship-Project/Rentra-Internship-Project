@@ -5,9 +5,9 @@ const AuthContext = createContext(null);
 const credentials = {
   owner: {
     name: 'Alicia Reyes',
-    email: 'owner@rentra.com',
-    password: 'owner123',
-    role: 'owner',
+    email: 'customer@rentra.com',
+    password: 'customer123',
+    role: 'customer',
     avatar: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&q=80&w=300',
     businessName: 'Titan Heavy Rentals Inc.'
   }
