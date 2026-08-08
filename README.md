@@ -4,7 +4,7 @@
 
 ---
 
-## �� 📋 Table of Contents
+## 📋 Table of Contents
 
 1. [Project Overview](#-project-overview)
 2. [Architecture &amp; Tech Stack](#-architecture--tech-stack)
@@ -22,7 +22,7 @@
 
 ---
 
-## �� 🎯 Project Overview
+## 🎯 Project Overview
 
 Rentra is a **three-sided marketplace** connecting:
 
@@ -39,7 +39,7 @@ graph TB
         B[Customer Portal<br/>:3001] --> D
         C[Owner Portal<br/>:3002] --> D
     end
-  
+
     D --> E[Tailwind CSS 4]
     D --> F[Framer Motion 12]
     D --> G[React Icons]
@@ -53,10 +53,120 @@ graph TB
 
 ---
 
-## �� 🏗��️ Architecture & Tech Stack
+## Complete System Architecture
 
-| Layer                | Technology       | Version | Purpose                             |
-| -------------------- | ---------------- | ------- | ----------------------------------- |
+```mermaid
+flowchart TB
+  subgraph "Client Layer (Browser)"
+    direction TB
+
+    subgraph "Admin Portal [:3000]"
+      A1[main.jsx] --> A2[App.jsx]
+      A2 --> A3[BrowserRouter]
+      A3 --> A4[AdminRoutes]
+      A4 --> A5[AdminLayout]
+      A5 --> A6[AdminSidebar]
+      A5 --> A7[AdminNavbar]
+      A5 --> A8[Outlet → Pages]
+      A8 --> A9[Dashboard]
+      A8 --> A10[Users]
+      A8 --> A11[Businesses]
+      A8 --> A12[Equipment]
+      A8 --> A13[Categories]
+      A8 --> A14[Bookings]
+      A8 --> A15[Profile]
+
+      A9 --> AC[AdminContext]
+      A10 --> AC
+      A11 --> AC
+      A12 --> AC
+      A13 --> AC
+      A14 --> AC
+      A15 --> AC
+
+      AC --> AD[mockData.js]
+    end
+
+    subgraph "Customer Portal [:3001]"
+      B1[main.jsx] --> B2[App.jsx]
+      B2 --> B3[BrowserRouter + Routes]
+      B3 --> B4[CustomerLayout]
+      B4 --> B5[CustomerSidebar]
+      B4 --> B6[CustomerNavbar]
+      B4 --> B7[Outlet → Pages]
+
+      B7 --> B8[Dashboard]
+      B7 --> B9[BrowseEquipment]
+      B7 --> B10[EquipmentDetails]
+      B7 --> B11[BookingSummary]
+      B7 --> B12[DepositPayment]
+      B7 --> B13[PaymentSuccess]
+      B7 --> B14[Wishlist]
+      B7 --> B15[Bookings]
+      B7 --> B16[BookingDetails]
+      B7 --> B17[Profile]
+      B7 --> B18[Notifications]
+
+      B4 --> CC[CustomerContext]
+      CC --> CD[customerMockData.js]
+    end
+
+    subgraph "Owner Portal [:3002]"
+      C1[main.jsx] --> C2[App.jsx]
+      C2 --> C3[BrowserRouter]
+      C3 --> C4[AuthProvider]
+      C4 --> C5[Routes]
+
+      C5 --> C6[/login → GuestRoute → LoginPage]
+      C5 --> C7[/owner/* → ProtectedRoute → OwnerLayout]
+
+      C7 --> C8[OwnerSidebar]
+      C7 --> C9[OwnerNavbar]
+      C7 --> C10[Outlet → Pages]
+
+      C10 --> C11[Dashboard]
+      C10 --> C12[RegisterBusiness]
+      C10 --> C13[BusinessStatus]
+      C10 --> C14[Equipment]
+      C10 --> C15[AddEquipment]
+      C10 --> C16[EditEquipment]
+      C10 --> C17[Bookings]
+      C10 --> C18[Earnings]
+      C10 --> C19[Profile]
+
+      C4 --> CO[AuthContext]
+      CO --> CP[ownerMockData.js]
+    end
+  end
+
+  subgraph "Shared Design System"
+    DS1[Tailwind CSS 4]
+    DS2[Framer Motion 12]
+    DS3[React Icons - Feather]
+    DS4[CSS Variables]
+    DS5[Component Patterns]
+  end
+
+  A5 --> DS1
+  A5 --> DS2
+  A5 --> DS3
+  A5 --> DS4
+  B4 --> DS1
+  B4 --> DS2
+  B4 --> DS3
+  B4 --> DS4
+  C7 --> DS1
+  C7 --> DS2
+  C7 --> DS3
+  C7 --> DS4
+```
+
+---
+
+## 🏗 ️ Architecture & Tech Stack
+
+| Layer          | Technology       | Version | Purpose                             |
+| -------------- | ---------------- | ------- | ----------------------------------- |
 | **Framework**  | React            | 19.2.8  | UI library with concurrent features |
 | **Build Tool** | Vite             | 8.2.0   | Lightning-fast dev server & bundler |
 | **Styling**    | Tailwind CSS     | 4.3.3   | Utility-first CSS (Vite plugin)     |
@@ -84,7 +194,7 @@ graph TB
 
 ---
 
-## �� 🏢 Three-Portal Architecture
+## 🏢 Three-Portal Architecture
 
 Each portal is a **complete, independent React application**:
 
@@ -97,7 +207,7 @@ flowchart LR
         A4[7 Pages]
         A5[AdminRoutes]
     end
-  
+
     subgraph "Customer Portal"
         B1[Port: 3001]
         B2[CustomerContext]
@@ -105,7 +215,7 @@ flowchart LR
         B4[11 Pages]
         B5[CustomerRoutes]
     end
-  
+
     subgraph "Owner Portal"
         C1[Port: 3002]
         C2[AuthContext]
@@ -113,15 +223,17 @@ flowchart LR
         C4[9 Pages]
         C5[OwnerRoutes + ProtectedRoute]
     end
-  
+
     A1 --> A2 --> A3
     A2 --> A4
+
     A4 --> A5
-  
+
+
     B1 --> B2 --> B3
     B2 --> B4
     B4 --> B5
-  
+
     C1 --> C2 --> C3
     C2 --> C4
     C4 --> C5
@@ -129,22 +241,22 @@ flowchart LR
 
 ### Portal Comparison Table
 
-| Feature                      | Admin Portal     | Customer Portal  | Owner Portal             |
-| ---------------------------- | ---------------- | ---------------- | ------------------------ |
-| **Port**               | 3000             | 3001             | 3002                     |
+| Feature                | Admin Portal     | Customer Portal  | Owner Portal       |
+| ---------------------- | ---------------- | ---------------- | ------------------ |
+| **Port**               | 3000             | 3001             | 3002               |
 | **Auth**               | None (simulated) | None (simulated) | **Login Required** |
-| **Pages**              | 7                | 11               | 9                        |
-| **Context**            | AdminContext     | CustomerContext  | AuthContext              |
-| **Mock Data**          | adminMockData    | customerMockData | ownerMockData            |
+| **Pages**              | 7                | 11               | 9                  |
+| **Context**            | AdminContext     | CustomerContext  | AuthContext        |
+| **Mock Data**          | adminMockData    | customerMockData | ownerMockData      |
 | **Protected Routes**   | No               | No               | **Yes**            |
-| **Real-time Search**   | � ✅               | � ✅               | � ✅                       |
-| **Notifications**      | � ✅               | � ✅               | � ✅                       |
-| **Wishlist**           | No               | � ✅               | No                       |
-| **Earnings/Analytics** | No               | No               | � ✅                       |
+| **Real-time Search**   | � ✅             | � ✅             | � ✅               |
+| **Notifications**      | � ✅             | � ✅             | � ✅               |
+| **Wishlist**           | No               | � ✅             | No                 |
+| **Earnings/Analytics** | No               | No               | � ✅               |
 
 ---
 
-## �� 📁 Directory Structure
+## 📁 Directory Structure
 
 ```
 client/
@@ -208,47 +320,47 @@ client/
 
 ---
 
-## �� 🗺��️ Routing & Navigation
+## 🗺 ️ Routing & Navigation
 
 ### Route Structure Diagram
 
 ```mermaid
 graph TD
     subgraph "Admin Routes (/admin/*)"
-        AD1[/admin/dashboard] --> AD2[Dashboard]
-        AD2 --> AD3[/admin/users]
-        AD2 --> AD4[/admin/businesses]
-        AD2 --> AD5[/admin/equipment]
-        AD2 --> AD6[/admin/categories]
-        AD2 --> AD7[/admin/bookings]
-        AD2 --> AD8[/admin/profile]
+      AD1["/admin/dashboard"] --> AD2[Dashboard]
+      AD2 --> AD3["/admin/users"]
+      AD2 --> AD4["/admin/businesses"]
+      AD2 --> AD5["/admin/equipment"]
+      AD2 --> AD6["/admin/categories"]
+      AD2 --> AD7["/admin/bookings"]
+      AD2 --> AD8["/admin/profile"]
     end
-  
+
     subgraph "Customer Routes (/customer/*)"
-        CD1[/customer/dashboard] --> CD2[Dashboard]
-        CD2 --> CD3[/customer/browse-equipment]
-        CD2 --> CD4[/customer/equipment/:id]
-        CD2 --> CD5[/customer/booking-summary/:id]
-        CD2 --> CD6[/customer/payment/:id]
-        CD2 --> CD7[/customer/payment-success]
-        CD2 --> CD8[/customer/wishlist]
-        CD2 --> CD9[/customer/bookings]
-        CD2 --> CD10[/customer/bookings/:id]
-        CD2 --> CD11[/customer/profile]
-        CD2 --> CD12[/customer/notifications]
+      CD1["/customer/dashboard"] --> CD2[Dashboard]
+      CD2 --> CD3["/customer/browse-equipment"]
+      CD2 --> CD4["/customer/equipment/:id"]
+      CD2 --> CD5["/customer/booking-summary/:id"]
+      CD2 --> CD6["/customer/payment/:id"]
+      CD2 --> CD7["/customer/payment-success"]
+      CD2 --> CD8["/customer/wishlist"]
+      CD2 --> CD9["/customer/bookings"]
+      CD2 --> CD10["/customer/bookings/:id"]
+      CD2 --> CD11["/customer/profile"]
+      CD2 --> CD12["/customer/notifications"]
     end
-  
+
     subgraph "Owner Routes (/owner/*)"
-        OD1[/login] --> OD2[LoginPage]
-        OD2 --> OD3[/owner/dashboard]
-        OD3 --> OD4[/owner/register-business]
-        OD3 --> OD5[/owner/business-status]
-        OD3 --> OD6[/owner/equipment]
-        OD3 --> OD7[/owner/add-equipment]
-        OD3 --> OD8[/owner/edit-equipment/:id]
-        OD3 --> OD9[/owner/bookings]
-        OD3 --> OD10[/owner/earnings]
-        OD3 --> OD11[/owner/profile]
+      OD1["/login"] --> OD2[LoginPage]
+      OD2 --> OD3["/owner/dashboard"]
+      OD3 --> OD4["/owner/register-business"]
+      OD3 --> OD5["/owner/business-status"]
+      OD3 --> OD6["/owner/equipment"]
+      OD3 --> OD7["/owner/add-equipment"]
+      OD3 --> OD8["/owner/edit-equipment/:id"]
+      OD3 --> OD9["/owner/bookings"]
+      OD3 --> OD10["/owner/earnings"]
+      OD3 --> OD11["/owner/profile"]
     end
 ```
 
@@ -285,7 +397,7 @@ graph TD
   <Route path="booking-summary/:id" element={<BookingSummary />} />
   <Route path="payment/:id" element={<DepositPayment />} />
   <Route path="payment-success" element={<PaymentSuccess />} />
-  <Route path="wishlist" element={<Wishlist />}/>
+  <Route path="wishlist" element={<Wishlist />} />
   <Route path="bookings" element={<Bookings />} />
   <Route path="bookings/:id" element={<BookingDetails />} />
   <Route path="profile" element={<Profile />} />
@@ -309,7 +421,7 @@ graph TD
         </GuestRoute>
       }
     />
-  
+
     {/* Protected: Owner Layout */}
     <Route
       path="/owner"
@@ -324,7 +436,7 @@ graph TD
       <Route path="register-business" element={<RegisterBusiness />} />
       {/* ... more routes */}
     </Route>
-  
+
     <Route path="/" element={<Navigate to="/login" replace />} />
     <Route path="*" element={<Navigate to="/login" replace />} />
   </Routes>
@@ -333,26 +445,26 @@ graph TD
 
 ---
 
-## �� 🧠 State Management
+## 🧠 State Management
 
 ### Context Architecture
 
 ```mermaid
 graph TB
     subgraph "Admin Portal"
-        AC[AdminContext] --> AS[adminState: {}]
+      AC[AdminContext] --> AS["adminState: {}"]
         AC --> SS[setAdminState: fn]
     end
-  
+
     subgraph "Customer Portal"
         CC[CustomerContext] --> CP[profile, equipmentList, wishlistIds, bookings, notifications]
         CC --> CA[actions: toggleWishlist, prepareBooking, confirmDeposit, payRemaining, cancelBooking]
         CC --> CN[notifications: markRead, markAllRead, delete]
         CC --> CU[profile: updateProfile]
     end
-  
+
     subgraph "Owner Portal"
-        OC[AuthContext] --> OU[user: null \| object]
+      OC[AuthContext] --> OU["user: null | object"]
         OC --> OA[isAuthenticated: boolean]
         OC --> OL[login, logout]
     end
@@ -364,37 +476,37 @@ graph TB
 // From CustomerContext.jsx — Complete state surface
 const CustomerContextValue = {
   // Data
-  profile,              // Customer profile object
-  equipmentList,        // All marketplace equipment
-  wishlistIds,          // Array of equipment IDs
-  wishlistEquipment,    // Filtered wishlist items
-  bookings,             // All customer bookings
-  draftBooking,         // Pending booking before payment
-  notifications,        // All notifications
-  unreadNotifCount,     // Computed unread count
-  globalSearch,         // Search query string
-  
+  profile, // Customer profile object
+  equipmentList, // All marketplace equipment
+  wishlistIds, // Array of equipment IDs
+  wishlistEquipment, // Filtered wishlist items
+  bookings, // All customer bookings
+  draftBooking, // Pending booking before payment
+  notifications, // All notifications
+  unreadNotifCount, // Computed unread count
+  globalSearch, // Search query string
+
   // Actions - Wishlist
-  toggleWishlist,       // (equipmentId) => void
-  removeFromWishlist,   // (equipmentId) => void
-  isInWishlist,         // (equipmentId) => boolean
-  
+  toggleWishlist, // (equipmentId) => void
+  removeFromWishlist, // (equipmentId) => void
+  isInWishlist, // (equipmentId) => boolean
+
   // Actions - Booking Flow
   prepareBookingSummary, // (bookingData) => bookingObject
   confirmDepositPayment, // (bookingId, paymentMethod) => bookingObject
-  payRemainingBalance,   // (bookingId, paymentMethod) => void
-  cancelBooking,         // (bookingId) => void
-  
+  payRemainingBalance, // (bookingId, paymentMethod) => void
+  cancelBooking, // (bookingId) => void
+
   // Actions - Notifications
-  markNotificationRead,      // (notifId) => void
-  markAllNotificationsRead,  // () => void
-  deleteNotification,        // (notifId) => void
-  
+  markNotificationRead, // (notifId) => void
+  markAllNotificationsRead, // () => void
+  deleteNotification, // (notifId) => void
+
   // Actions - Profile
-  updateProfile,        // (updatedData) => void
-  
+  updateProfile, // (updatedData) => void
+
   // Search
-  setGlobalSearch       // (query) => void
+  setGlobalSearch, // (query) => void
 };
 ```
 
@@ -403,32 +515,32 @@ const CustomerContextValue = {
 ```javascript
 // From AuthContext.jsx
 const AuthContextValue = {
-  user,                     // { name, email, role, avatar, businessName } | null
-  isAuthenticated,          // Boolean
-  login,                    // ({ email, password }) => { success, message }
-  logout                    // () => void
+  user, // { name, email, role, avatar, businessName } | null
+  isAuthenticated, // Boolean
+  login, // ({ email, password }) => { success, message }
+  logout, // () => void
 };
 
 // Credentials (hardcoded for demo)
 const credentials = {
   owner: {
-    email: 'owner@rentra.com',
-    password: 'owner123',
-    name: 'Alicia Reyes',
-    role: 'owner',
-    businessName: 'Titan Heavy Rentals Inc.'
-  }
+    email: "owner@rentra.com",
+    password: "owner123",
+    name: "Alicia Reyes",
+    role: "owner",
+    businessName: "Titan Heavy Rentals Inc.",
+  },
 };
 ```
 
 ---
 
-## �� 🧩 Component Library
+## 🧩 Component Library
 
 ### Shared Common Components (All Portals)
 
-| Component              | Location                               | Description                                                                                                  |
-| ---------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Component        | Location                             | Description                                                                                                  |
+| ---------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
 | **Button**       | `components/common/Button.jsx`       | Animated button with variants (primary, secondary, danger, success, warning, outline) and sizes (sm, md, lg) |
 | **Loader**       | `components/common/Loader.jsx`       | Spinner with customizable label                                                                              |
 | **SearchBar**    | `components/common/SearchBar.jsx`    | Search input + filter dropdown combo                                                                         |
@@ -438,8 +550,8 @@ const credentials = {
 
 ### Admin-Specific Components
 
-| Component                | Location                                | Description                                               |
-| ------------------------ | --------------------------------------- | --------------------------------------------------------- |
+| Component          | Location                              | Description                                               |
+| ------------------ | ------------------------------------- | --------------------------------------------------------- |
 | **AdminSidebar**   | `components/admin/AdminSidebar.jsx`   | Fixed sidebar with navigation, mobile drawer              |
 | **AdminNavbar**    | `components/admin/AdminNavbar.jsx`    | Top bar with real-time search, notifications, user avatar |
 | **DataTable**      | `components/admin/DataTable.jsx`      | Generic table wrapper with columns                        |
@@ -451,8 +563,8 @@ const credentials = {
 
 ### Customer-Specific Components
 
-| Component                  | Location                                     | Description                                      |
-| -------------------------- | -------------------------------------------- | ------------------------------------------------ |
+| Component            | Location                                   | Description                                      |
+| -------------------- | ------------------------------------------ | ------------------------------------------------ |
 | **CustomerSidebar**  | `components/customer/CustomerSidebar.jsx`  | Navigation + promotional "Become Owner" card     |
 | **CustomerNavbar**   | `components/customer/CustomerNavbar.jsx`   | Top bar with search, notifications, profile link |
 | **BookingCard**      | `components/customer/BookingCard.jsx`      | Booking summary with timeline                    |
@@ -464,8 +576,8 @@ const credentials = {
 
 ### Owner-Specific Components
 
-| Component               | Location                               | Description                        |
-| ----------------------- | -------------------------------------- | ---------------------------------- |
+| Component         | Location                             | Description                        |
+| ----------------- | ------------------------------------ | ---------------------------------- |
 | **OwnerSidebar**  | `components/owner/OwnerSidebar.jsx`  | Navigation for owner features      |
 | **OwnerNavbar**   | `components/owner/OwnerNavbar.jsx`   | Top bar with search, notifications |
 | **BookingCard**   | `components/owner/BookingCard.jsx`   | Booking request with accept/reject |
@@ -478,7 +590,7 @@ const credentials = {
 
 ---
 
-## �� 🎨 Design System
+## 🎨 Design System
 
 ### Color Palette
 
@@ -486,34 +598,34 @@ const credentials = {
 /* Tailwind CSS 4 - Defined in index.css */
 :root {
   /* Primary Brand */
-  --brand: #CCCCFF;           /* Primary purple */
-  --brand-hover: #B8B8FF;     /* Hover state */
-  --brand-text: #0F172A;      /* Text on brand */
-  
+  --brand: #ccccff; /* Primary purple */
+  --brand-hover: #b8b8ff; /* Hover state */
+  --brand-text: #0f172a; /* Text on brand */
+
   /* Semantic Colors */
-  --success: #22C55E;
-  --success-bg: #DCFCE7;
-  --warning: #F59E0B;
-  --warning-bg: #FEF3C7;
-  --danger: #EF4444;
-  --danger-bg: #FEE2E2;
-  --info: #3B82F6;
-  --info-bg: #DBEAFE;
-  
+  --success: #22c55e;
+  --success-bg: #dcfce7;
+  --warning: #f59e0b;
+  --warning-bg: #fef3c7;
+  --danger: #ef4444;
+  --danger-bg: #fee2e2;
+  --info: #3b82f6;
+  --info-bg: #dbeafe;
+
   /* Neutrals */
-  --bg: #F8FAFC;              /* Page background */
-  --surface: #FFFFFF;         /* Card background */
-  --border: #E2E8F0;          /* Border color */
-  --text-primary: #0F172A;    /* Headings */
-  --text-secondary: #64748B;  /* Body text */
-  --text-muted: #94A3B8;      /* Labels, captions */
+  --bg: #f8fafc; /* Page background */
+  --surface: #ffffff; /* Card background */
+  --border: #e2e8f0; /* Border color */
+  --text-primary: #0f172a; /* Headings */
+  --text-secondary: #64748b; /* Body text */
+  --text-muted: #94a3b8; /* Labels, captions */
 }
 ```
 
 ### Typography Scale
 
-| Element              | Font Family | Weight          | Size                | Line Height |
-| -------------------- | ----------- | --------------- | ------------------- | ----------- |
+| Element        | Font Family | Weight          | Size                | Line Height |
+| -------------- | ----------- | --------------- | ------------------- | ----------- |
 | **Display**    | Poppins     | 800 (Extrabold) | 2.5rem / 3rem       | 1.1         |
 | **H1**         | Poppins     | 700 (Bold)      | 1.875rem / 2.25rem  | 1.2         |
 | **H2**         | Poppins     | 700             | 1.5rem / 1.875rem   | 1.3         |
@@ -526,8 +638,8 @@ const credentials = {
 
 ### Border Radius Scale
 
-| Token            | Value | Usage                     |
-| ---------------- | ----- | ------------------------- |
+| Token          | Value | Usage                     |
+| -------------- | ----- | ------------------------- |
 | `--radius-xs`  | 6px   | Badges, pills             |
 | `--radius-sm`  | 8px   | Buttons, inputs           |
 | `--radius-md`  | 12px  | Cards, modals             |
@@ -540,10 +652,10 @@ const credentials = {
 ```css
 /* Defined as panel-card in Customer/Owner index.css */
 .panel-card {
-  border-radius: 28px;                    /* --radius-2xl */
-  border: 1px solid #E2E8F0;              /* --border */
-  background: white;                       /* --surface */
-  box-shadow: 0 25px 65px -35px rgba(15,23,42,0.12);
+  border-radius: 28px; /* --radius-2xl */
+  border: 1px solid #e2e8f0; /* --border */
+  background: white; /* --surface */
+  box-shadow: 0 25px 65px -35px rgba(15, 23, 42, 0.12);
 }
 ```
 
@@ -564,7 +676,7 @@ const credentials = {
 
 ---
 
-## �� 🔄 Data Flow & API Layer
+## 🔄 Data Flow & API Layer
 
 ### Data Flow Architecture
 
@@ -576,13 +688,13 @@ sequenceDiagram
     participant M as Mock Data
     participant S as Service Layer
     participant A as API (Future)
-  
+
     U->>C: Interaction (click, type, navigate)
     C->>CX: Dispatch action (useContext hook)
     CX->>M: Read/Write mock data (current)
     CX-->>C: Updated state
     C->>C: Re-render with new data
-  
+
     Note over S,A: Future: Replace mock with real API
     S->>A: fetch('/api/...')
     A-->>S: JSON Response
@@ -595,15 +707,15 @@ sequenceDiagram
 // adminService.js — Current placeholder
 export const fetchAdminDashboard = async () => {
   // TODO: replace with real API call
-  return Promise.resolve({ status: 'ok' });
+  return Promise.resolve({ status: "ok" });
 };
 
 // Future implementation pattern:
 export const fetchAdminDashboard = async () => {
-  const response = await fetch('/api/admin/dashboard', {
-    headers: { 'Authorization': `Bearer ${getToken()}` }
+  const response = await fetch("/api/admin/dashboard", {
+    headers: { Authorization: `Bearer ${getToken()}` },
   });
-  if (!response.ok) throw new Error('Failed to fetch dashboard');
+  if (!response.ok) throw new Error("Failed to fetch dashboard");
   return response.json();
 };
 ```
@@ -701,17 +813,17 @@ Owner:       ownerMockData.js    → profile, stats, equipment, bookings, earnin
 
 ### Animation Philosophy
 
-| Principle            | Implementation                                           |
-| -------------------- | -------------------------------------------------------- |
+| Principle      | Implementation                                           |
+| -------------- | -------------------------------------------------------- |
 | **Purposeful** | Every animation signals state change or guides attention |
-| **Performant** | Transform/opacity only — no layout thrashing            |
-| **Respectful** | Could add`prefers-reduced-motion` guard (future)       |
+| **Performant** | Transform/opacity only — no layout thrashing             |
+| **Respectful** | Could add`prefers-reduced-motion` guard (future)         |
 | **Consistent** | Shared transition configs across portals                 |
-| **Delightful** | Spring physics for natural feel (`type: 'spring'`)     |
+| **Delightful** | Spring physics for natural feel (`type: 'spring'`)       |
 
 ---
 
-## �� 🛠��️ Development Workflow
+## 🛠 ️ Development Workflow
 
 ### Getting Started
 
@@ -727,11 +839,11 @@ npm install --prefix Admin --prefix Customer --prefix Owner
 
 ### Development Commands
 
-| Portal             | Dev Server                  | Build             | Preview             | Lint                      |
-| ------------------ | --------------------------- | ----------------- | ------------------- | ------------------------- |
+| Portal       | Dev Server                | Build           | Preview           | Lint                    |
+| ------------ | ------------------------- | --------------- | ----------------- | ----------------------- |
 | **Admin**    | `npm run dev` (port 3000) | `npm run build` | `npm run preview` | `npm run lint` (Oxlint) |
-| **Customer** | `npm run dev` (port 3001) | `npm run build` | `npm run preview` | —                        |
-| **Owner**    | `npm run dev` (port 3002) | `npm run build` | `npm run preview` | —                        |
+| **Customer** | `npm run dev` (port 3001) | `npm run build` | `npm run preview` | —                       |
+| **Owner**    | `npm run dev` (port 3002) | `npm run build` | `npm run preview` | —                       |
 
 ### Running Multiple Portals
 
@@ -750,16 +862,13 @@ npm install --prefix Admin --prefix Customer --prefix Owner
 
 ```javascript
 // vite.config.js — Identical across portals
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  plugins: [
-    react(),
-    tailwindcss(),
-  ],
-})
+  plugins: [react(), tailwindcss()],
+});
 ```
 
 ### Environment Variables
@@ -773,7 +882,7 @@ VITE_PORTAL_NAME=admin|customer|owner
 
 ---
 
-## �� 📦 Build & Deployment
+## 📦 Build & Deployment
 
 ### Production Build
 
@@ -800,13 +909,13 @@ dist/
 
 ### Deployment Targets
 
-| Platform                      | Configuration                                          |
-| ----------------------------- | ------------------------------------------------------ |
-| **Vercel**              | Auto-detects Vite, set root to`client/Admin` etc.    |
-| **Netlify**             | Build:`npm run build`, Publish: `dist`             |
-| **AWS S3 + CloudFront** | Upload`dist/`, configure SPA redirect                |
-| **Docker**              | Multi-stage build with`nginx` to serve static files  |
-| **GitHub Pages**        | Set base in`vite.config.js`: `base: '/repo-name/'` |
+| Platform                | Configuration                                       |
+| ----------------------- | --------------------------------------------------- |
+| **Vercel**              | Auto-detects Vite, set root to`client/Admin` etc.   |
+| **Netlify**             | Build:`npm run build`, Publish: `dist`              |
+| **AWS S3 + CloudFront** | Upload`dist/`, configure SPA redirect               |
+| **Docker**              | Multi-stage build with`nginx` to serve static files |
+| **GitHub Pages**        | Set base in`vite.config.js`: `base: '/repo-name/'`  |
 
 ### Docker Example (Single Portal)
 
@@ -832,11 +941,11 @@ server {
   listen 80;
   root /usr/share/nginx/html;
   index index.html;
-  
+
   location / {
     try_files $uri $uri/ /index.html;
   }
-  
+
   # Cache static assets
   location /assets/ {
     expires 1y;
@@ -847,12 +956,12 @@ server {
 
 ---
 
-## �� 🔮 Future Enhancements
+## 🔮 Future Enhancements
 
 ### Planned Features
 
-| Feature                             | Priority | Portal(s)   | Notes                               |
-| ----------------------------------- | -------- | ----------- | ----------------------------------- |
+| Feature                       | Priority | Portal(s)   | Notes                               |
+| ----------------------------- | -------- | ----------- | ----------------------------------- |
 | **Real API Integration**      | High     | All         | Replace mock data with GraphQL/REST |
 | **TypeScript Migration**      | High     | All         | Add strict typing                   |
 | **Unit/Integration Tests**    | Medium   | All         | Vitest + React Testing Library      |
@@ -874,7 +983,7 @@ server {
 
 ---
 
-## �� 📚 Quick Reference
+## 📚 Quick Reference
 
 ### Common Commands
 
@@ -895,8 +1004,8 @@ cd client/Admin && npm run lint
 
 ### Key Files to Know
 
-| Purpose                            | File                                                |
-| ---------------------------------- | --------------------------------------------------- |
+| Purpose                      | File                                              |
+| ---------------------------- | ------------------------------------------------- |
 | **Admin Entry**              | `client/Admin/src/main.jsx`                       |
 | **Customer Entry**           | `client/Customer/src/main.jsx`                    |
 | **Owner Entry**              | `client/Owner/src/main.jsx`                       |
@@ -915,10 +1024,10 @@ cd client/Admin && npm run lint
 
 ---
 
-## �� 📄 License & Credits
+## 📄 License & Credits
 
 **Rentra** — Heavy Equipment Rental Marketplace
-Client-side applications built with �� ❤��️ using modern React ecosystem.
+Client-side applications built with ❤ ️ using modern React ecosystem.
 
 ### Key Libraries
 
@@ -932,7 +1041,7 @@ Client-side applications built with �� ❤��️ using modern React ecosy
 
 ---
 
-*Documentation generated from codebase analysis — Last updated: 2026-08-08*
+_Documentation generated from codebase analysis — Last updated: 2026-08-08_
 
 ---
 
@@ -940,13 +1049,13 @@ Client-side applications built with �� ❤��️ using modern React ecosy
 
 > Supplementary visual documentation for the client-side architecture
 
-## �� 🏗��️ Complete System Architecture
+## Complete System Architecture
 
 ```mermaid
 flowchart TB
     subgraph "Client Layer (Browser)"
         direction TB
-        
+
         subgraph "Admin Portal [:3000]"
             A1[main.jsx] --> A2[App.jsx]
             A2 --> A3[BrowserRouter]
@@ -962,7 +1071,7 @@ flowchart TB
             A8 --> A13[Categories]
             A8 --> A14[Bookings]
             A8 --> A15[Profile]
-            
+
             A9 --> AC[AdminContext]
             A10 --> AC
             A11 --> AC
@@ -970,10 +1079,10 @@ flowchart TB
             A13 --> AC
             A14 --> AC
             A15 --> AC
-            
+
             AC --> AD[mockData.js]
         end
-        
+
         subgraph "Customer Portal [:3001]"
             B1[main.jsx] --> B2[App.jsx]
             B2 --> B3[BrowserRouter + Routes]
@@ -981,7 +1090,7 @@ flowchart TB
             B4 --> B5[CustomerSidebar]
             B4 --> B6[CustomerNavbar]
             B4 --> B7[Outlet → Pages]
-            
+
             B7 --> B8[Dashboard]
             B7 --> B9[BrowseEquipment]
             B7 --> B10[EquipmentDetails]
@@ -993,24 +1102,24 @@ flowchart TB
             B7 --> B16[BookingDetails]
             B7 --> B17[Profile]
             B7 --> B18[Notifications]
-            
+
             B4 --> CC[CustomerContext]
             CC --> CD[customerMockData.js]
         end
-        
+
         subgraph "Owner Portal [:3002]"
             C1[main.jsx] --> C2[App.jsx]
             C2 --> C3[BrowserRouter]
             C3 --> C4[AuthProvider]
             C4 --> C5[Routes]
-            
+
             C5 --> C6[/login → GuestRoute → LoginPage]
             C5 --> C7[/owner/* → ProtectedRoute → OwnerLayout]
-            
+
             C7 --> C8[OwnerSidebar]
             C7 --> C9[OwnerNavbar]
             C7 --> C10[Outlet → Pages]
-            
+
             C10 --> C11[Dashboard]
             C10 --> C12[RegisterBusiness]
             C10 --> C13[BusinessStatus]
@@ -1020,12 +1129,12 @@ flowchart TB
             C10 --> C17[Bookings]
             C10 --> C18[Earnings]
             C10 --> C19[Profile]
-            
+
             C4 --> CO[AuthContext]
             CO --> CP[ownerMockData.js]
         end
     end
-    
+
     subgraph "Shared Design System"
         DS1[Tailwind CSS 4]
         DS2[Framer Motion 12]
@@ -1033,7 +1142,7 @@ flowchart TB
         DS4[CSS Variables]
         DS5[Component Patterns]
     end
-    
+
     A5 --> DS1
     A5 --> DS2
     A5 --> DS3
@@ -1050,7 +1159,7 @@ flowchart TB
 
 ---
 
-## �� 🔄 Booking Flow — Customer Portal
+## 🔄 Booking Flow — Customer Portal
 
 ```mermaid
 sequenceDiagram
@@ -1060,17 +1169,17 @@ sequenceDiagram
     participant CX as CustomerContext
     participant M as Mock Data
     participant O as Owner Portal
-    
+
     C->>UI: Browse Equipment
     UI->>CX: equipmentList
     CX-->>UI: mockEquipment[]
-    
+
     C->>UI: Click "Book Now" on Equipment
     UI->>UI: Navigate /customer/booking-summary/:id
     UI->>CX: prepareBookingSummary(bookingData)
     CX->>CX: Create draftBooking with ID, dates, pricing
     CX-->>UI: bookingSummary
-    
+
     C->>UI: Review & Confirm Deposit
     UI->>CX: confirmDepositPayment(bookingId, paymentMethod)
     CX->>CX: Create booking with status "Pending Owner Approval"
@@ -1078,24 +1187,24 @@ sequenceDiagram
     CX->>CX: Add to bookings[], clear draftBooking
     CX->>CX: Create notification
     CX-->>UI: createdBooking
-    
+
     UI->>C: Show PaymentSuccess page
-    
+
     Note over O: Owner receives notification
     O->>O: Accept/Reject booking
     O->>CX: (via shared backend in future)
     CX->>CX: Update booking status
     CX->>CX: Create notification for customer
-    
+
     C->>UI: Pay Remaining Balance
     UI->>CX: payRemainingBalance(bookingId, paymentMethod)
     CX->>CX: status = "Rental Active"
     CX->>CX: remainingBalance = 0
     CX->>CX: Update timeline
     CX->>CX: Create notification
-    
+
     Note over C,O: Rental period
-    
+
     C->>UI: Rental Completes
     CX->>CX: refundStatus = "Deposit Refunded"
     CX->>CX: Create notification
@@ -1103,24 +1212,24 @@ sequenceDiagram
 
 ---
 
-## �� 🔐 Owner Authentication Flow
+## 🔐 Owner Authentication Flow
 
 ```mermaid
 stateDiagram-v2
     [*] --> Unauthenticated: App Load
-    
+
     Unauthenticated --> LoginPage: Navigate to /login
     LoginPage --> Validating: Submit credentials
-    
+
     Validating --> Authenticated: Success (owner@rentra.com / owner123)
     Validating --> LoginPage: Failure (show error)
-    
+
     Authenticated --> OwnerDashboard: Redirect to /owner/dashboard
     Authenticated --> ProtectedRoute: Any /owner/* route
-    
+
     ProtectedRoute --> OwnerLayout: isAuthenticated = true
     ProtectedRoute --> LoginPage: isAuthenticated = false (redirect)
-    
+
     OwnerLayout --> Dashboard: /
     OwnerLayout --> RegisterBusiness: /register-business
     OwnerLayout --> BusinessStatus: /business-status
@@ -1130,10 +1239,10 @@ stateDiagram-v2
     OwnerLayout --> Bookings: /bookings
     OwnerLayout --> Earnings: /earnings
     OwnerLayout --> Profile: /profile
-    
+
     Authenticated --> Unauthenticated: Logout clicked
     Unauthenticated --> LoginPage: Redirect to /login
-    
+
     note right of Authenticated
         AuthContext provides:
         - user object
@@ -1145,7 +1254,7 @@ stateDiagram-v2
 
 ---
 
-## �� 🧩 Component Composition — Dashboard Pages
+## 🧩 Component Composition — Dashboard Pages
 
 ### Admin Dashboard Component Tree
 
@@ -1156,20 +1265,20 @@ graph TD
     AD --> PA[Pending Actions ×2]
     AD --> QA[QuickActions]
     AD --> RA[RecentActivity]
-    
+
     SC --> SC1[Total Users]
     SC --> SC2[Total Businesses]
     SC --> SC3[Total Equipment]
     SC --> SC4[Total Bookings]
-    
+
     PA --> PA1[Pending Business Verifications]
     PA --> PA2[Pending Equipment Approvals]
-    
+
     QA --> QA1[Button: Review Users]
     QA --> QA2[Button: Manage Businesses]
     QA --> QA3[Button: Moderate Equipment]
     QA --> QA4[Button: View Bookings]
-    
+
     RA --> RAI[ActivityItem ×5]
 ```
 
@@ -1181,22 +1290,22 @@ graph TD
     CD --> SC[StatsCard Grid ×4]
     CD --> QAB[Quick Actions Bar ×4]
     CD --> MAIN[Main Grid]
-    
+
     SC --> SC1[Total Bookings]
     SC --> SC2[Active Rentals]
     SC --> SC3[Wishlist Items]
     SC --> SC4[Notifications]
-    
+
     QAB --> QAB1[Browse Equipment]
     QAB --> QAB2[View Bookings]
     QAB --> QAB3[Saved Wishlist]
     QAB --> QAB4[Update Profile]
-    
+
     MAIN --> RB[Recent Bookings ×3]
     MAIN --> RN[Recent Notifications ×3]
-    
+
     CD --> REC[Recommended Equipment ×4]
-    
+
     REC --> REC1[EquipmentCard]
     REC --> REC2[EquipmentCard]
     REC --> REC3[EquipmentCard]
@@ -1213,24 +1322,24 @@ graph TD
     OD --> QA[Quick Actions ×4]
     OD --> RB[Recent Booking Requests ×3]
     OD --> RE[Recent Equipment Listings ×3]
-    
+
     SC --> SC1[Total Equipment]
     SC --> SC2[Active Bookings]
     SC --> SC3[Pending Requests]
     SC --> SC4[Monthly Earnings]
-    
+
     QA --> QA1[Add Equipment]
     QA --> QA2[Manage Equipment]
     QA --> QA3[View Bookings]
     QA --> QA4[View Earnings]
-    
+
     RB --> RBC[BookingCard ×3]
     RE --> REC[EquipmentRow ×3]
 ```
 
 ---
 
-## �� 📱 Responsive Breakpoint Behavior
+## 📱 Responsive Breakpoint Behavior
 
 ```mermaid
 graph LR
@@ -1241,7 +1350,7 @@ graph LR
         M4[Hidden Search]
         M5[Condensed Navbar]
     end
-    
+
     subgraph "Tablet (768px - 1024px)"
         T1[Hamburger Menu]
         T2[Drawer Sidebar]
@@ -1249,7 +1358,7 @@ graph LR
         T4[Inline Search]
         T5[Full Navbar]
     end
-    
+
     subgraph "Desktop (> 1024px)"
         D1[Fixed Sidebar]
         D2[Always Visible]
@@ -1257,7 +1366,7 @@ graph LR
         D4[Full Search Bar]
         D5[Full Navbar + Avatar]
     end
-    
+
     M1 --> T1 --> D1
     M2 --> T2 --> D2
     M3 --> T3 --> D3
@@ -1290,12 +1399,12 @@ p-4.md:p-8              /* Mobile 16px, Desktop 32px */
 
 ---
 
-## �� 🎬 Animation Choreography
+## 🎬 Animation Choreography
 
 ```mermaid
 timeline
     title Page Load Animation Sequence
-    
+
     0ms : Page Mount
     50ms : Layout Paint (no motion)
     100ms : Dashboard Container animate in (opacity 0→1, y 12→0)
@@ -1314,46 +1423,46 @@ timeline
 const pageVariants = {
   initial: { opacity: 0, y: 12 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.3 }
+  transition: { duration: 0.3 },
 };
 
 // Staggered children
 const containerVariants = {
   animate: {
-    transition: { staggerChildren: 0.05 }
-  }
+    transition: { staggerChildren: 0.05 },
+  },
 };
 
 // Card hover
 const cardHover = {
   whileHover: { y: -3 },
-  transition: { type: 'spring', stiffness: 300, damping: 20 }
+  transition: { type: "spring", stiffness: 300, damping: 20 },
 };
 
 // Button press
 const buttonTap = {
   whileHover: { y: -1 },
-  whileTap: { scale: 0.98 }
+  whileTap: { scale: 0.98 },
 };
 
 // Modal/drawer
 const drawerVariants = {
-  initial: { x: '-100%' },
+  initial: { x: "-100%" },
   animate: { x: 0 },
-  exit: { x: '-100%' },
-  transition: { type: 'spring', damping: 25, stiffness: 200 }
+  exit: { x: "-100%" },
+  transition: { type: "spring", damping: 25, stiffness: 200 },
 };
 
 const backdropVariants = {
   initial: { opacity: 0 },
   animate: { opacity: 1 },
-  exit: { opacity: 0 }
+  exit: { opacity: 0 },
 };
 ```
 
 ---
 
-## �� 📊 Data Relationships
+## 📊 Data Relationships
 
 ```mermaid
 erDiagram
@@ -1363,20 +1472,20 @@ erDiagram
     ADMIN_EQUIPMENT ||--o{ MOCK_EQUIPMENT : moderates
     ADMIN_CATEGORY ||--o{ MOCK_CATEGORY : manages
     ADMIN_BOOKING ||--o{ MOCK_BOOKING : monitors
-    
+
     %% Customer Domain
     CUSTOMER_PROFILE ||--o{ CUSTOMER_BOOKING : makes
     CUSTOMER_PROFILE }|--o{ CUSTOMER_WISHLIST : saves
     CUSTOMER_EQUIPMENT ||--o{ CUSTOMER_BOOKING : books
     CUSTOMER_NOTIFICATION }|--o{ CUSTOMER_PROFILE : receives
-    
+
     %% Owner Domain
     OWNER_PROFILE ||--o{ OWNER_EQUIPMENT : lists
     OWNER_EQUIPMENT ||--o{ OWNER_BOOKING : receives
     OWNER_BOOKING }|--o{ OWNER_EARNINGS : generates
     OWNER_NOTIFICATION }|--o{ OWNER_PROFILE : receives
     OWNER_BUSINESS_STATUS ||--|| OWNER_PROFILE : belongs_to
-    
+
     %% Cross-Domain (Future API)
     ADMIN_BUSINESS }|--|| OWNER_PROFILE : approves
     ADMIN_EQUIPMENT }|--|| OWNER_EQUIPMENT : approves
@@ -1385,7 +1494,7 @@ erDiagram
 
 ---
 
-## �� 🔀 State Synchronization (Future)
+## 🔀 State Synchronization (Future)
 
 ```mermaid
 sequenceDiagram
@@ -1393,29 +1502,29 @@ sequenceDiagram
     participant API as Backend API
     participant O as Owner Portal
     participant A as Admin Portal
-    
+
     Note over C,A: Current: Independent mock data (no sync)
-    
+
     Note over C,O: Future: Real-time sync via API
-    
+
     C->>API: POST /bookings (create booking)
     API->>API: Validate, create record
     API->>O: WebSocket: new booking request
     API->>C: HTTP 201 + booking object
     C->>C: Update local state (optimistic)
-    
+
     O->>API: PATCH /bookings/:id (accept)
     API->>API: Update status
     API->>C: WebSocket: booking accepted
     API->>O: HTTP 200 + updated booking
-    
+
     Note over C,O: Both portals receive real-time updates
     Note over A: Admin sees all via polling or WebSocket
 ```
 
 ---
 
-## �� 📦 Bundle Analysis (Estimated)
+## 📦 Bundle Analysis (Estimated)
 
 ```mermaid
 pie title Estimated Bundle Sizes (gzipped)
@@ -1429,14 +1538,15 @@ pie title Estimated Bundle Sizes (gzipped)
 
 ### Optimization Opportunities
 
-| Technique | Impact | Status |
-|-----------|--------|--------|
-| Code Splitting (React.lazy) | -30% initial JS | �� ⏳ Planned |
-| Tree Shaking Icons | -50% icon bundle | � ✅ Auto (ESM) |
-| Dynamic Import Routes | -40% route chunks | �� ⏳ Planned |
-| Compression (gzip/brotli) | -70% transfer | � ✅ Server config |
-| Cache Headers | Repeat visits ~0 | � ✅ Nginx/Vercel |
-| Preload Critical CSS | Faster FCP | �� ⏳ Planned |
+| Technique                   | Impact            | Status             |
+| --------------------------- | ----------------- | ------------------ |
+| Code Splitting (React.lazy) | -30% initial JS   | ⏳ Planned         |
+| Tree Shaking Icons          | -50% icon bundle  | � ✅ Auto (ESM)    |
+| Dynamic Import Routes       | -40% route chunks | ⏳ Planned         |
+| Compression (gzip/brotli)   | -70% transfer     | � ✅ Server config |
+| Cache Headers               | Repeat visits ~0  | � ✅ Nginx/Vercel  |
+| Preload Critical CSS        | Faster FCP        | ⏳ Planned         |
 
 ---
-*Visual documentation generated from codebase analysis*
+
+_Visual documentation generated from codebase analysis_
