@@ -145,3 +145,4 @@ vite.config.ts.timestamp-*
 .codegraph
 .impeccable
 .claude
+cspell.json
