@@ -296,4 +296,5 @@ const AdminNavbar = ({ setMobileOpen }) => {
   );
 };
 
+
 export default AdminNavbar;
