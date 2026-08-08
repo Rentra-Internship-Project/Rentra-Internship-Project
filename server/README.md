@@ -1,29 +1,29 @@
 # Rentra — Backend Technical Architecture & Master Build Blueprint
 
-> **Complete Implementation Specification & Developer Guide for Rentra Backend**  
-> Technology Stack: **Node.js, Express 5, MongoDB (Mongoose 9), Redis, Socket.IO, Multer, Cloudinary, Stripe**  
+> **Complete Implementation Specification & Developer Guide for Rentra Backend**
+> Technology Stack: **Node.js, Express 5, MongoDB (Mongoose 9), Redis, Socket.IO, Multer, Cloudinary, Stripe**
 > Designed for a **4-Developer Team**.
 
 ---
 
 ## Table of Contents
 
-1. [Exhaustive Backend File & Directory Structure](#1-exhaustive-backend-file--directory-structure)
+1. [Exhaustive Backend File &amp; Directory Structure](#1-exhaustive-backend-file--directory-structure)
 2. [Database Schema Definitions (Mongoose Models)](#2-database-schema-definitions-mongoose-models)
-3. [Core Business Logic Algorithms & Implementation Code](#3-core-business-logic-algorithms--implementation-code)
+3. [Core Business Logic Algorithms &amp; Implementation Code](#3-core-business-logic-algorithms--implementation-code)
    - [A. Date Overlap Availability Search Engine](#a-date-overlap-availability-search-engine)
    - [B. Booking Financial Breakdown Calculator](#b-booking-financial-breakdown-calculator)
-   - [C. Payment Gateway & Escrow Webhook Handler](#c-payment-gateway--escrow-webhook-handler)
+   - [C. Payment Gateway &amp; Escrow Webhook Handler](#c-payment-gateway--escrow-webhook-handler)
    - [D. Multi-File Cloud Storage Middleware](#d-multi-file-cloud-storage-middleware)
    - [E. Socket.IO Real-Time Notification Server](#e-socketio-real-time-notification-server)
    - [F. Admin Analytics Aggregation Pipelines](#f-admin-analytics-aggregation-pipelines)
 4. [Granular Step-by-Step Build Instructions for Team of 4](#4-granular-step-by-step-build-instructions-for-team-of-4)
-   - [Member 1: Core Architecture, Auth, Security & User Governance](#member-1-core-architecture-auth-security--user-governance)
-   - [Member 2: Equipment Catalog, Media Storage & Search Engine](#member-2-equipment-catalog-media-storage--search-engine)
-   - [Member 3: Booking State Machine, Payment Gateway & Escrow Engine](#member-3-booking-state-machine-payment-gateway--escrow-engine)
-   - [Member 4: Business KYC, Admin Moderation, Socket.IO & Analytics](#member-4-business-kyc-admin-moderation-socketio--analytics)
+   - [Member 1: Core Architecture, Auth, Security &amp; User Governance](#member-1-core-architecture-auth-security--user-governance)
+   - [Member 2: Equipment Catalog, Media Storage &amp; Search Engine](#member-2-equipment-catalog-media-storage--search-engine)
+   - [Member 3: Booking State Machine, Payment Gateway &amp; Escrow Engine](#member-3-booking-state-machine-payment-gateway--escrow-engine)
+   - [Member 4: Business KYC, Admin Moderation, Socket.IO &amp; Analytics](#member-4-business-kyc-admin-moderation-socketio--analytics)
 5. [Complete API Endpoints Specification](#5-complete-api-endpoints-specification)
-6. [Production Deployment & Database Seeding Blueprint](#6-production-deployment--database-seeding-blueprint)
+6. [Production Deployment &amp; Database Seeding Blueprint](#6-production-deployment--database-seeding-blueprint)
 
 ---
 
@@ -119,6 +119,7 @@ server/
 ## 2. Database Schema Definitions (Mongoose Models)
 
 ### `User.js` (`src/modules/users/user.model.js`)
+
 ```javascript
 const mongoose = require('mongoose');
 
@@ -140,6 +141,7 @@ module.exports = mongoose.model('User', userSchema);
 ```
 
 ### `Business.js` (`src/modules/businesses/business.model.js`)
+
 ```javascript
 const mongoose = require('mongoose');
 
@@ -161,6 +163,7 @@ module.exports = mongoose.model('Business', businessSchema);
 ```
 
 ### `Equipment.js` (`src/modules/equipment/equipment.model.js`)
+
 ```javascript
 const mongoose = require('mongoose');
 
@@ -198,6 +201,7 @@ module.exports = mongoose.model('Equipment', equipmentSchema);
 ```
 
 ### `Booking.js` (`src/modules/bookings/booking.model.js`)
+
 ```javascript
 const mongoose = require('mongoose');
 
@@ -483,32 +487,35 @@ module.exports = { getDashboardStats };
 ## 4. Granular Step-by-Step Build Instructions for Team of 4
 
 ### Member 1: Core Architecture, Auth, Security & User Governance
+
 **Scope**: Server setup, database connectivity, authentication system, user profiles, admin user access control, security middleware.
 
 #### 📝 Step-by-Step Coding Checklist:
+
 1. **Initialize Project Foundation**:
+
    - Create `server/package.json` with scripts (`"start": "node index.js"`, `"dev": "nodemon index.js"`).
    - Install dependencies: `express`, `mongoose`, `dotenv`, `cors`, `helmet`, `morgan`, `jsonwebtoken`, `bcryptjs`, `ioredis`.
    - Write `src/config/db.js` for MongoDB connection string management.
    - Write `src/app.js` with `cors()`, `helmet()`, `express.json()`, and global error handler.
-
 2. **Implement User & Auth Module**:
+
    - Write `src/modules/users/user.model.js` with fields (`name`, `email`, `passwordHash`, `role`, `status`).
    - Write `src/modules/auth/auth.service.js`:
      - `registerUser({ name, email, password, role, phone })`: Hash password using `bcryptjs` with salt rounds 10.
      - `loginUser({ email, password })`: Validate email, compare bcrypt password, issue Access Token (15m) and Refresh Token (7d).
    - Write `src/middleware/authMiddleware.js`: Verify JWT header `Bearer <token>`, check user status in MongoDB, attach `req.user`.
    - Write `src/middleware/rbacMiddleware.js`: Higher-order function `authorize(...roles)` that checks `req.user.role`.
-
 3. **Implement User & Admin User Controllers**:
+
    - Write `src/modules/users/user.controller.js`:
      - `getProfile`: Return `req.user`.
      - `updateProfile`: Update name, phone, address, avatar URL.
    - Write `src/modules/admin/admin.controller.js` (User portion):
      - `getAllUsers`: Paginated user list with role filter.
      - `toggleUserStatus`: Block/Unblock user and invalidate active tokens in Redis.
-
 4. **Testing Checklist**:
+
    - Test `POST /api/v1/auth/register` with Postman.
    - Test `POST /api/v1/auth/login` to confirm JWT token response.
    - Verify protected routes reject requests without valid Bearer tokens.
@@ -516,20 +523,23 @@ module.exports = { getDashboardStats };
 ---
 
 ### Member 2: Equipment Catalog, Media Storage & Search Engine
+
 **Scope**: Categories, equipment listings, Cloudinary upload integration, search engine with date availability, wishlist APIs.
 
 #### 📝 Step-by-Step Coding Checklist:
+
 1. **Implement Category Module**:
+
    - Write `src/modules/categories/category.model.js` (`name`, `slug`, `icon`, `description`).
    - Write CRUD controllers for Admin in `src/modules/categories/category.controller.js`.
    - Write public route `GET /api/v1/categories`.
-
 2. **Implement Image Storage & Equipment Models**:
+
    - Configure `src/config/cloudinary.js`.
    - Create `src/middleware/uploadMiddleware.js` using `multer.memoryStorage()` and Cloudinary stream pipe.
    - Write `src/modules/equipment/equipment.model.js` with specs, price per day, deposit amount, location, approval status.
-
 3. **Implement Equipment CRUD & Search Logic**:
+
    - Write `src/modules/equipment/equipment.service.js`:
      - `createEquipment`: Set `approvalStatus = 'Pending'`, associate `ownerId` and `businessId`.
      - `updateEquipment`: Allow owner to edit specs, price, images, availability.
@@ -537,62 +547,68 @@ module.exports = { getDashboardStats };
    - Write `src/modules/equipment/equipment.controller.js`:
      - `search`: Endpoint `GET /api/v1/equipment/search`.
      - `getById`: Endpoint `GET /api/v1/equipment/:id`.
-
 4. **Implement Wishlist Module**:
+
    - Write `src/modules/wishlist/wishlist.model.js` (`userId`, `equipmentIds[]`).
    - Write `src/modules/wishlist/wishlist.controller.js` to toggle wishlist items and populate saved equipment cards.
 
 ---
 
 ### Member 3: Booking State Machine, Payment Gateway & Escrow Engine
+
 **Scope**: Booking request preparation, financial calculations, Stripe/Razorpay payment gateway, escrow deposit lifecycle, owner earnings payouts.
 
 #### 📝 Step-by-Step Coding Checklist:
+
 1. **Implement Booking Model & Calculation Service**:
+
    - Write `src/modules/bookings/booking.model.js` with status state machine (`Pending Deposit` ➔ `Pending Owner Approval` ➔ `Approved` ➔ `Rental Active` ➔ `Completed` ➔ `Cancelled`).
    - Write `src/modules/bookings/booking.service.js`:
      - `prepareBooking({ equipmentId, startDate, endDate })`: Calculate total days, rent total, 5% platform fee, grand total, and return draft receipt.
-
 2. **Implement Escrow & Payment Gateway Integration**:
+
    - Configure `src/config/stripe.js`.
    - Write `src/modules/escrow/escrow.service.js`:
      - `createDepositPaymentIntent(bookingId)`: Generate Stripe PaymentIntent with metadata `{ bookingId }`.
      - `refundDeposit(bookingId)`: Call Stripe Refund API if booking is cancelled or rejected.
    - Write Stripe Webhook controller in `src/modules/escrow/escrow.controller.js` to handle `payment_intent.succeeded`.
-
 3. **Implement Owner Action & Rental Lifecycle**:
+
    - Write `src/modules/bookings/booking.controller.js`:
      - `handleOwnerAction`: Accept or Reject incoming booking requests.
      - `payRemainingBalance`: Transition status from `Approved` to `Rental Active`.
      - `completeRental`: Mark item returned and queue owner earnings payout.
-
 4. **Implement Owner Earnings & Payout Module**:
+
    - Write `src/modules/payouts/payout.model.js`.
    - Write `src/modules/payouts/payout.controller.js` for fetching earnings balance and executing withdraw transfers.
 
 ---
 
 ### Member 4: Business KYC, Admin Moderation, Socket.IO & Analytics
+
 **Scope**: Owner business verification, admin content moderation dashboard, real-time WebSocket notifications, platform analytics aggregation.
 
 #### 📝 Step-by-Step Coding Checklist:
+
 1. **Implement Business KYC Module**:
+
    - Write `src/modules/businesses/business.model.js` (`businessName`, `gstNumber`, `kycStatus`, `kycDocuments[]`).
    - Write `src/modules/businesses/business.controller.js`:
      - `registerBusiness`: Handle PDF/Document upload and store record with `kycStatus = 'Pending'`.
      - `getMyBusinessStatus`: Fetch verification status for owner portal.
-
 2. **Implement Admin Verification & Moderation Controllers**:
+
    - Write admin verification endpoints in `src/modules/admin/admin.controller.js`:
      - `verifyBusiness`: Approve or Reject owner business registration with optional rejection reason.
      - `moderateEquipment`: Approve or Reject new equipment listings before public search visibility.
-
 3. **Implement Socket.IO Real-Time Engine**:
+
    - Write `src/modules/notifications/socket.js` to manage active client connections.
    - Write `src/modules/notifications/notification.service.js`:
      - `sendNotification({ userId, title, message, type, link })`: Save notification in MongoDB AND emit real-time event over Socket.IO socket.
-
 4. **Implement Admin Analytics Aggregation**:
+
    - Write `src/modules/admin/admin.service.js` with MongoDB aggregation pipelines:
      - Compute total revenue, total users, total businesses, pending KYC counts, and active rental stats.
 
@@ -601,18 +617,21 @@ module.exports = { getDashboardStats };
 ## 5. Complete API Endpoints Specification
 
 ### Authentication & Users
+
 - `POST /api/v1/auth/register` — Public user signup (`customer` / `owner`).
 - `POST /api/v1/auth/login` — Authenticate and receive JWT tokens.
 - `GET /api/v1/users/profile` — Get logged-in user details.
 - `PUT /api/v1/users/profile` — Update profile info & avatar image.
 
 ### Businesses & KYC (Owner / Admin)
+
 - `POST /api/v1/businesses/register` — Owner business registration & document upload.
 - `GET /api/v1/businesses/my-status` — Fetch owner KYC status.
 - `GET /api/v1/admin/businesses` — Admin list pending business verifications.
 - `PATCH /api/v1/admin/businesses/:id/verify` — Admin approve/reject business KYC.
 
 ### Equipment & Categories
+
 - `GET /api/v1/categories` — Fetch all machinery categories.
 - `POST /api/v1/admin/categories` — Admin create category.
 - `GET /api/v1/equipment/search` — Search machinery with filters & date availability.
@@ -623,6 +642,7 @@ module.exports = { getDashboardStats };
 - `PATCH /api/v1/admin/equipment/:id/moderate` — Admin approve/reject equipment listing.
 
 ### Bookings, Payments & Escrow
+
 - `POST /api/v1/bookings/prepare` — Calculate booking price breakdown.
 - `POST /api/v1/bookings/pay-deposit` — Process escrow deposit payment intent.
 - `GET /api/v1/bookings/customer` — Customer view booking history.
@@ -632,6 +652,7 @@ module.exports = { getDashboardStats };
 - `POST /api/v1/bookings/:id/cancel` — Cancel booking and trigger deposit refund.
 
 ### Wishlist, Notifications & Analytics
+
 - `POST /api/v1/wishlist/toggle` — Toggle saved equipment item.
 - `GET /api/v1/wishlist` — Fetch customer wishlist.
 - `GET /api/v1/notifications` — Fetch user notification feed.
@@ -643,7 +664,9 @@ module.exports = { getDashboardStats };
 ## 6. Production Deployment & Database Seeding Blueprint
 
 ### Database Seeder (`src/utils/seedData.js`)
+
 Create a seed script that inserts default initial data for testing:
+
 1. **Admin User**: `admin@rentra.com` / `AdminPass123!`.
 2. **Owner User & Approved Business**: `owner@rentra.com` / `owner123` with verified business `Titan Heavy Rentals Inc.`.
 3. **Customer User**: `customer@rentra.com` / `customer123`.
@@ -651,11 +674,13 @@ Create a seed script that inserts default initial data for testing:
 5. **Initial Approved Equipment**: Hydraulic Excavators, Boom Lifts, Tractors with high quality image URLs.
 
 Run seeder command:
+
 ```bash
 node src/utils/seedData.js
 ```
 
 ### Production Deployment Setup
+
 - **App Hosting**: Render / Railway / AWS EC2 with Node.js v20.
 - **Database**: MongoDB Atlas Cluster with replica sets enabled.
 - **Cache**: Redis Cloud / Upstash Redis instance.
