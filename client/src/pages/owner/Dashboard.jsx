@@ -41,7 +41,7 @@ const Dashboard = () => {
         <StatsCard
           title="Total Equipment"
           value={ownerStats.totalEquipment}
-          change="16.7%"
+          change="16.8%"
           isPositive={true}
           icon={FiTruck}
           accentBg="bg-purple-50"

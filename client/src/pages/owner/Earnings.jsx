@@ -18,6 +18,7 @@ const Earnings = () => {
       <div>
         <h1 className="text-2xl font-extrabold text-[#0F172A]">Earnings & Revenue</h1>
         <p className="text-sm text-[#64748B] mt-1">Track your equipment rental income and payment history.</p>
+        
       </div>
 
       {/* Earnings Stats */}
