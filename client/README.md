@@ -51,7 +51,7 @@ flowchart LR
     class A,B,C marketplace;
 ```
 
-Each portal (Admin, Customer, Owner) is a **standalone Vite + React application** that shares a unified design system and UI kit, but maintains independent routing, state management, and mock‑data layers. This architecture allows each portal to evolve independently while providing a consistent look and feel across the whole platform.
+All three portals (Admin, Customer, Owner) are organized within a single client application that shares a unified design system and UI kit, but maintains distinct routing, state management, and mock‑data layers for each portal. This architecture allows each portal to evolve independently while providing a consistent look and feel across the whole platform.
 
 ---
 
@@ -99,7 +99,9 @@ Each portal (Admin, Customer, Owner) is a **standalone Vite + React application*
 
 ---
 
-## System ArchitecturePortal Comparison
+## System Architecture
+
+### Portal Comparison
 
 | Feature                      | Admin Portal     | Customer Portal  | Owner Portal             |
 | ---------------------------- | ---------------- | ---------------- | ------------------------ |
@@ -157,65 +159,116 @@ sequenceDiagram
 
 ```
 client/
-├── Admin/                     # Admin Portal (Port 3000)
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── admin/          # Admin‑specific components
-│   │   │   └── common/         # Shared UI components used by all portals
-│   │   ├── context/            # AdminContext (React Context)
-│   │   ├── data/               # mockData.js (admin mock data)
-│   │   ├── hooks/              # Custom hooks (e.g., useAdminData.js)
-│   │   ├── layouts/            # AdminLayout (Sidebar + Navbar)
-│   │   ├── pages/
-│   │   │   └── admin/          # 7 admin pages (Dashboard, Users, etc.)
-│   │   ├── routes/             # AdminRoutes.jsx
-│   │   ├── services/           # adminService.js (API‑layer placeholder)
-│   │   ├── utils/              # adminUtils.js
-│   │   ├── App.jsx
-│   │   ├── main.jsx
-│   │   └── index.css
-│   ├── index.html
-│   ├── package.json
-│   └── vite.config.js
-│
-├── Customer/                  # Customer Portal (Port 3001)
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── common/         # Shared UI components
-│   │   │   └── customer/       # Customer‑specific components
-│   │   ├── context/            # CustomerContext (React Context)
-│   │   ├── data/               # customerMockData.js
-│   │   ├── layouts/            # CustomerLayout
-│   │   ├── pages/
-│   │   │   └── customer/       # 11 customer pages
-│   │   ├── routes/             # CustomerRoutes.jsx
-│   │   ├── App.jsx
-│   │   ├── main.jsx
-│   │   └── index.css
-│   ├── index.html
-│   ├── package.json
-│   └── vite.config.js
-│
-               └── Owner/                     # Owner Portal (Port 3002)
-    ├── src/
-    │   ├── components/
-    │   │   ├── common/         # Shared UI components
-    │   │   └── owner/          # Owner‑specific components
-    │   ├── context/            # AuthContext (with login)
-    │   ├── data/               # ownerMockData.js
-    │   ├── layouts/            # OwnerLayout
-    │   ├── pages/
-    │   │   └── owner/          # 9 owner pages
-    │   ├── routes/             # OwnerRoutes.jsx + ProtectedRoute.jsx
-    │   ├── App.jsx
-    │   ├── main.jsx
-    │   └── index.css
-    ├── index.html
-    ├── package.json
-    └── vite.config.js
+├── index.html
+├── package.json
+├── package-lock.json
+├── vite.config.js
+├── public/
+│   └── favicon.svg
+└── src/
+    ├── assets/
+    │   ├── Folder structure.jpeg
+    │   ├── hero.png
+    │   ├── react.svg
+    │   └── vite.svg
+    ├── components/
+    │   ├── admin/
+    │   │   ├── AdminNavbar.jsx
+    │   │   ├── AdminSidebar.jsx
+    │   │   ├── DataTable.jsx
+    │   │   ├── ProfileCard.jsx
+    │   │   ├── QuickActions.jsx
+    │   │   ├── RecentActivity.jsx
+    │   │   └── StatusBadge.jsx
+    │   ├── common/
+    │   │   ├── Button.jsx
+    │   │   ├── ConfirmModal.jsx
+    │   │   ├── EmptyState.jsx
+    │   │   ├── Loader.jsx
+    │   │   ├── Modal.jsx
+    │   │   └── SearchBar.jsx
+    │   ├── customer/
+    │   │   ├── BookingCard.jsx
+    │   │   ├── CustomerNavbar.jsx
+    │   │   ├── CustomerSidebar.jsx
+    │   │   ├── EquipmentCard.jsx
+    │   │   ├── NotificationCard.jsx
+    │   │   ├── ProfileCard.jsx
+    │   │   ├── StatsCard.jsx
+    │   │   └── WishlistCard.jsx
+    │   └── owner/
+    │       ├── BookingCard.jsx
+    │       ├── BusinessCard.jsx
+    │       ├── EarningsCard.jsx
+    │       ├── EquipmentCard.jsx
+    │       ├── OwnerNavbar.jsx
+    │       ├── OwnerSidebar.jsx
+    │       ├── ProfileCard.jsx
+    │       ├── StatsCard.jsx
+    │       └── StatusCard.jsx
+    ├── context/
+    │   ├── AdminContext.jsx
+    │   ├── AuthContext.jsx
+    │   └── CustomerContext.jsx
+    ├── data/
+    │   ├── adminMockData.js
+    │   ├── customerMockData.js
+    │   └── ownerMockData.js
+    ├── hooks/
+    │   └── useAdminData.js
+    ├── layouts/
+    │   ├── AdminLayout.jsx
+    │   ├── CustomerLayout.jsx
+    │   └── OwnerLayout.jsx
+    ├── pages/
+    │   ├── admin/
+    │   │   ├── Bookings.jsx
+    │   │   ├── Businesses.jsx
+    │   │   ├── Categories.jsx
+    │   │   ├── Dashboard.jsx
+    │   │   ├── Equipment.jsx
+    │   │   ├── Profile.jsx
+    │   │   └── Users.jsx
+    │   ├── customer/
+    │   │   ├── BookingDetails.jsx
+    │   │   ├── BookingSummary.jsx
+    │   │   ├── Bookings.jsx
+    │   │   ├── BrowseEquipment.jsx
+    │   │   ├── Dashboard.jsx
+    │   │   ├── DepositPayment.jsx
+    │   │   ├── EquipmentDetails.jsx
+    │   │   ├── Notifications.jsx
+    │   │   ├── PaymentSuccess.jsx
+    │   │   ├── Profile.jsx
+    │   │   └── Wishlist.jsx
+    │   ├── owner/
+    │   │   ├── AddEquipment.jsx
+    │   │   ├── Bookings.jsx
+    │   │   ├── BusinessStatus.jsx
+    │   │   ├── Dashboard.jsx
+    │   │   ├── Earnings.jsx
+    │   │   ├── EditEquipment.jsx
+    │   │   ├── Equipment.jsx
+    │   │   ├── Profile.jsx
+    │   │   └── RegisterBusiness.jsx
+    │   └── public/
+    │       ├── Home.jsx
+    │       ├── Login.jsx
+    │       └── Register.jsx
+    ├── routes/
+    │   ├── AdminRoutes.jsx
+    │   ├── AppRoutes.jsx
+    │   ├── CustomerRoutes.jsx
+    │   ├── OwnerRoutes.jsx
+    │   └── ProtectedRoute.jsx
+    ├── services/
+    │   └── adminService.js
+    ├── index.css
+    ├── App.jsx
+    └── main.jsx
 ```
 
-Each portal is a self‑contained Vite project; dependencies are installed per‑portal (or from the root `client/` folder using `--prefix`).
+This is a single client application with all three portals (Admin, Customer, Owner) organized within the `src/` directory.
 
 ---
 
@@ -290,35 +343,27 @@ Each portal is a self‑contained Vite project; dependencies are installed per�
    git clone <repository‑url>
    cd Rentra-Internship-Project
    ```
-2. Install dependencies for all three portals:
+2. Install dependencies:
 
    ```bash
-   # Option A: install each portal individually
-   cd client/Admin && npm install
-   cd ../Customer && npm install
-   cd ../Owner && npm install
-
-   # Option B: install all at once from the client/ folder
-   cd client
-   npm install --prefix Admin --prefix Customer --prefix Owner
+   npm install
    ```
 
 ### Running the Applications
 
-Open **three separate terminal windows** (or tabs) and run the dev server for each portal:
+Since this is a single client application with all three portals organized within the same codebase, you can run the development server and access each portal through different routes:
 
-- **Admin Portal** (http://localhost:3000)
-  ```bash
-  cd client/Admin && npm run dev
-  ```
-- **Customer Portal** (http://localhost:3001)
-  ```bash
-  cd client/Customer && npm run dev
-  ```
-- **Owner Portal** (http://localhost:3002)
-  ```bash
-  cd client/Owner && npm run dev
-  ```
+```bash
+npm run dev
+```
+
+Then access the portals at:
+
+- **Admin Portal**: http://localhost:5173/admin (or as configured in routes)
+- **Customer Portal**: http://localhost:5173/customer
+- **Owner Portal**: http://localhost:5173/owner
+
+*Note: The actual ports and routes may vary based on your Vite configuration and routing setup. The application uses React Router for client-side routing between portals.*
 
 The Vite dev server provides hot‑module replacement (HMR), so edits to JSX, CSS, or config update instantly in the browser.
 
@@ -326,22 +371,21 @@ The Vite dev server provides hot‑module replacement (HMR), so edits to JSX, CS
 
 ## Development Workflow
 
-### Available Scripts (per portal)
+### Available Scripts
 
 | Script              | Description                                                           |
 | ------------------- | --------------------------------------------------------------------- |
-| `npm run dev`     | Starts the Vite development server (default ports: 3000/3001/3002)    |
+| `npm run dev`     | Starts the Vite development server                                    |
 | `npm run build`   | Produces a production‑ready bundle in the`dist/` folder            |
 | `npm run preview` | Serves the built`dist/` locally for previewing the production build |
-| `npm run lint`    | (Admin only) Runs Oxlint to check for code-quality issues             |
+| `npm run lint`    | Runs Oxlint to check for code-quality issues                          |
 
 ### Environment Variables
 
-Create a `.env.local` file inside each portal’s root (optional). Example:
+Create a `.env.local` file in the project root (optional). Example:
 
 ```env
 VITE_API_BASE_URL=http://localhost:4000/api
-VITE_PORTAL_NAME=admin   # or customer / owner
 ```
 
 These variables are accessible via `import.meta.env.VITE_*` in the source code.
@@ -548,6 +592,3 @@ This project is licensed under the **MIT License** – see the [LICENSE](LICENSE
 ---
 
 > _Documentation generated from codebase analysis – Last updated: 2026‑08‑08_
-
-
-
