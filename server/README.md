@@ -1,29 +1,39 @@
-# Rentra — Backend Technical Architecture & Master Build Blueprint
+# Rentra — Server Backend Master Architecture & Technical Blueprint
 
-> **Complete Implementation Specification & Developer Guide for Rentra Backend**
-> Technology Stack: **Node.js, Express 5, MongoDB (Mongoose 9), Redis, Socket.IO, Multer, Cloudinary, Stripe**
-> Designed for a **4-Developer Team**.
+> **Complete Implementation Specification & Developer Guide for Rentra Backend**  
+> Technology Stack: **Node.js, Express 5, MongoDB (Mongoose 9), Redis, Socket.IO, Multer, Cloudinary, Stripe**  
+> Supports **Dual Execution Modes**:
+> - ⚡ **Evaluation Mode**: Zero-cost ($0), 1-command Express + Persistent Local Data Store (`server/data/db.json`) for rapid evaluation testing & professor demos.
+> - 🚀 **Enterprise Production Mode**: Full-stack Mongoose models, Redis caching, Stripe Connect escrow, and Socket.IO notifications.
 
 ---
 
 ## Table of Contents
 
-1. [Exhaustive Backend File &amp; Directory Structure](#1-exhaustive-backend-file--directory-structure)
-2. [Database Schema Definitions (Mongoose Models)](#2-database-schema-definitions-mongoose-models)
-3. [Core Business Logic Algorithms &amp; Implementation Code](#3-core-business-logic-algorithms--implementation-code)
-   - [A. Date Overlap Availability Search Engine](#a-date-overlap-availability-search-engine)
-   - [B. Booking Financial Breakdown Calculator](#b-booking-financial-breakdown-calculator)
-   - [C. Payment Gateway &amp; Escrow Webhook Handler](#c-payment-gateway--escrow-webhook-handler)
-   - [D. Multi-File Cloud Storage Middleware](#d-multi-file-cloud-storage-middleware)
-   - [E. Socket.IO Real-Time Notification Server](#e-socketio-real-time-notification-server)
-   - [F. Admin Analytics Aggregation Pipelines](#f-admin-analytics-aggregation-pipelines)
-4. [Granular Step-by-Step Build Instructions for Team of 4](#4-granular-step-by-step-build-instructions-for-team-of-4)
-   - [Member 1: Core Architecture, Auth, Security &amp; User Governance](#member-1-core-architecture-auth-security--user-governance)
-   - [Member 2: Equipment Catalog, Media Storage &amp; Search Engine](#member-2-equipment-catalog-media-storage--search-engine)
-   - [Member 3: Booking State Machine, Payment Gateway &amp; Escrow Engine](#member-3-booking-state-machine-payment-gateway--escrow-engine)
-   - [Member 4: Business KYC, Admin Moderation, Socket.IO &amp; Analytics](#member-4-business-kyc-admin-moderation-socketio--analytics)
-5. [Complete API Endpoints Specification](#5-complete-api-endpoints-specification)
-6. [Production Deployment &amp; Database Seeding Blueprint](#6-production-deployment--database-seeding-blueprint)
+1. [Exhaustive Backend File & Directory Structure](#1-exhaustive-backend-file--directory-structure)
+2. [Database Schema Definitions (Mongoose Models & Local JSON DB)](#2-database-schema-definitions-mongoose-models--local-json-db)
+   - [User Model](#1-user-model-srcmodulesusersusermodeljs)
+   - [Business Model](#2-business-model-srcmodulesbusinessesbusinessmodeljs)
+   - [Category Model](#3-category-model-srcmodulescategoriescategorymodeljs)
+   - [Equipment Model (Certified Operator & Hauling Specs)](#4-equipment-model-srcmodulesequipmentequipmentmodeljs)
+   - [Booking Model (Hauling, Overtime & E-Signatures)](#5-booking-model-srcmodulesbookingsbookingmodeljs)
+   - [Escrow Model](#6-escrow-model-srcmodulesescrowescrowmodeljs)
+   - [Payout Model](#7-payout-model-srcmodulespayoutspayoutmodeljs)
+   - [Wishlist Model](#8-wishlist-model-srcmoduleswishlistwishlistmodeljs)
+   - [Local Evaluation Database Schema (`server/data/db.json`)](#9-local-evaluation-database-schema-serverdatadbjson)
+3. [Core Business Logic Algorithms & Implementation Code](#3-core-business-logic-algorithms--implementation-code)
+   - [A. Financial Breakdown Calculator (Operator + Lowboy Hauling)](#a-financial-breakdown-calculator-operator--lowboy-hauling)
+   - [B. Engine Run-Time Overtime Meter Calculator](#b-engine-run-time-overtime-meter-calculator)
+   - [C. Date Overlap Availability Search Engine](#c-date-overlap-availability-search-engine)
+   - [D. Digital E-Signature & Inspection Handler](#d-digital-e-signature--inspection-handler)
+   - [E. Payment Gateway & Escrow Webhook Handler](#e-payment-gateway--escrow-webhook-handler)
+   - [F. Multi-File Cloud Storage Middleware](#f-multi-file-cloud-storage-middleware)
+   - [G. Socket.IO Real-Time Notification Server](#g-socketio-real-time-notification-server)
+   - [H. Admin Analytics Aggregation Pipelines](#h-admin-analytics-aggregation-pipelines)
+4. [Quick-Start Execution & Complete Copy-Paste Server (`server/index.js`)](#4-quick-start-execution--complete-copy-paste-server-serverindexjs)
+5. [Granular Step-by-Step Build Instructions for Team of 4](#5-granular-step-by-step-build-instructions-for-team-of-4)
+6. [Complete API Endpoints Specification](#6-complete-api-endpoints-specification)
+7. [Production Deployment & Database Seeding Blueprint](#7-production-deployment--database-seeding-blueprint)
 
 ---
 
@@ -33,11 +43,13 @@ Create the following file tree inside the `server/` directory:
 
 ```
 server/
-├── index.js                      # Application Entry Point & Cluster Launcher
+├── index.js                      # Application Entry Point & Server Launcher
 ├── package.json                  # Dependencies & Scripts
 ├── .env.example                  # Environment Template
 ├── .gitignore
-├── README.md                     # Backend Master Documentation & Setup Guide
+├── README.md                     # Backend Master Technical Blueprint
+├── data/
+│   └── db.json                   # Persistent Local Evaluation DB Store
 ├── src/
 │   ├── app.js                    # Express App Setup & Global Middlewares
 │   ├── config/
@@ -47,642 +59,478 @@ server/
 │   │   ├── stripe.js             # Stripe SDK Client Initializer
 │   │   └── constants.js          # App Constants (Roles, Statuses, Fees)
 │   ├── middleware/
-│   │   ├── authMiddleware.js     # JWT Verification & Redis Token Blacklist Guard
+│   │   ├── authMiddleware.js     # JWT Verification & Redis Token Guard
 │   │   ├── rbacMiddleware.js     # Role-Based Access Control Guard
 │   │   ├── uploadMiddleware.js   # Multer Memory Storage & Cloudinary Pipe
-│   │   ├── validateMiddleware.js # Express-Validator Middleware Wrapper
-│   │   ├── errorMiddleware.js    # Global Error & Async Exception Handler
-│   │   └── rateLimiter.js        # Redis-backed Express Rate Limiter
-│   ├── modules/
-│   │   ├── auth/
-│   │   │   ├── auth.controller.js
-│   │   │   ├── auth.service.js
-│   │   │   ├── auth.routes.js
-│   │   │   └── auth.validation.js
-│   │   ├── users/
-│   │   │   ├── user.model.js
-│   │   │   ├── user.controller.js
-│   │   │   ├── user.service.js
-│   │   │   └── user.routes.js
-│   │   ├── businesses/
-│   │   │   ├── business.model.js
-│   │   │   ├── business.controller.js
-│   │   │   ├── business.service.js
-│   │   │   └── business.routes.js
-│   │   ├── categories/
-│   │   │   ├── category.model.js
-│   │   │   ├── category.controller.js
-│   │   │   ├── category.service.js
-│   │   │   └── category.routes.js
-│   │   ├── equipment/
-│   │   │   ├── equipment.model.js
-│   │   │   ├── equipment.controller.js
-│   │   │   ├── equipment.service.js
-│   │   │   └── equipment.routes.js
-│   │   ├── bookings/
-│   │   │   ├── booking.model.js
-│   │   │   ├── booking.controller.js
-│   │   │   ├── booking.service.js
-│   │   │   └── booking.routes.js
-│   │   ├── escrow/
-│   │   │   ├── escrow.model.js
-│   │   │   ├── escrow.controller.js
-│   │   │   ├── escrow.service.js
-│   │   │   └── escrow.routes.js
-│   │   ├── payouts/
-│   │   │   ├── payout.model.js
-│   │   │   ├── payout.controller.js
-│   │   │   ├── payout.service.js
-│   │   │   └── payout.routes.js
-│   │   ├── wishlist/
-│   │   │   ├── wishlist.model.js
-│   │   │   ├── wishlist.controller.js
-│   │   │   └── wishlist.routes.js
-│   │   ├── notifications/
-│   │   │   ├── notification.model.js
-│   │   │   ├── notification.controller.js
-│   │   │   ├── notification.service.js
-│   │   │   └── socket.js        # Socket.IO Handlers & Event Emitters
-│   │   └── admin/
-│   │       ├── admin.controller.js
-│   │       ├── admin.service.js
-│   │       └── admin.routes.js
-│   ├── utils/
-│   │   ├── apiResponse.js        # Standardized Response Helpers (Success/Error)
-│   │   ├── apiError.js           # Custom Operational Error Class
-│   │   ├── invoiceGenerator.js   # PDFkit Rental Invoice Renderer
-│   │   └── seedData.js           # Database Initializer Seed Script
+│   │   ├── validateMiddleware.js # Express-Validator Wrapper
+│   │   └── errorMiddleware.js    # Global Error & Async Exception Handler
+│   └── modules/
+│       ├── auth/                 # Auth Routes, Controller, Services
+│       ├── users/                # User Models & Routes
+│       ├── businesses/           # Owner Business KYB & Approval
+│       ├── categories/           # Machinery Category Taxonomies
+│       ├── equipment/            # Equipment Catalog, Certified Operator & Bundles
+│       ├── bookings/             # Bookings, Lowboy Hauling & Engine Overtime
+│       ├── inspection/           # Digital E-Signature & Photo Check-in
+│       ├── escrow/               # Payment Escrow & Stripe Connect Webhooks
+│       ├── payouts/              # Owner Financial Earnings & Transfers
+│       └── wishlist/             # Customer Equipment Bookmarks
 ```
 
 ---
 
-## 2. Database Schema Definitions (Mongoose Models)
+## 2. Database Schema Definitions (Mongoose Models & Local JSON DB)
 
-### `User.js` (`src/modules/users/user.model.js`)
-
+### 1. User Model (`src/modules/users/user.model.js`)
 ```javascript
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
-  email: { type: String, required: true, unique: true, lowercase: true, index: true },
-  passwordHash: { type: String, required: true, select: false },
-  role: { type: String, enum: ['customer', 'owner', 'admin'], default: 'customer' },
+  email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+  passwordHash: { type: String, required: true },
+  role: { type: String, enum: ['CUSTOMER', 'OWNER', 'ADMIN'], default: 'CUSTOMER' },
+  avatarUrl: { type: String, default: '' },
   phone: { type: String, default: '' },
-  address: { type: String, default: '' },
-  city: { type: String, default: '' },
-  state: { type: String, default: '' },
-  avatar: { type: String, default: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb' },
-  status: { type: String, enum: ['Active', 'Blocked'], default: 'Active' },
-  stripeCustomerId: { type: String, default: null }
+  stripeCustomerId: { type: String, default: '' },
+  stripeConnectAccountId: { type: String, default: '' },
+  isVerified: { type: Boolean, default: false }
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);
 ```
 
-### `Business.js` (`src/modules/businesses/business.model.js`)
-
+### 2. Business Model (`src/modules/businesses/business.model.js`)
 ```javascript
 const mongoose = require('mongoose');
 
 const businessSchema = new mongoose.Schema({
-  ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
-  businessName: { type: String, required: true, trim: true },
-  gstNumber: { type: String, required: true, unique: true },
-  address: { type: String, required: true },
-  city: { type: String, required: true },
-  state: { type: String, required: true },
-  website: { type: String, default: '' },
-  kycStatus: { type: String, enum: ['Pending', 'Approved', 'Rejected'], default: 'Pending' },
-  kycDocuments: [{ type: String, required: true }], // PDF or Image URLs
-  rejectionReason: { type: String, default: '' },
-  verifiedAt: { type: Date, default: null }
+  ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  companyName: { type: String, required: true },
+  registrationNumber: { type: String, required: true },
+  taxId: { type: String, required: true },
+  insurancePolicyNumber: { type: String, required: true },
+  insuranceDocumentUrl: { type: String, required: true },
+  status: { type: String, enum: ['PENDING', 'VERIFIED', 'REJECTED'], default: 'PENDING' },
+  rejectionReason: { type: String, default: '' }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Business', businessSchema);
 ```
 
-### `Equipment.js` (`src/modules/equipment/equipment.model.js`)
+### 3. Category Model (`src/modules/categories/category.model.js`)
+```javascript
+const mongoose = require('mongoose');
 
+const categorySchema = new mongoose.Schema({
+  name: { type: String, required: true, unique: true },
+  slug: { type: String, required: true, unique: true },
+  description: { type: String, default: '' },
+  iconUrl: { type: String, default: '' }
+}, { timestamps: true });
+
+module.exports = mongoose.model('Category', categorySchema);
+```
+
+### 4. Equipment Model (`src/modules/equipment/equipment.model.js`)
 ```javascript
 const mongoose = require('mongoose');
 
 const equipmentSchema = new mongoose.Schema({
-  ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+  ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   businessId: { type: mongoose.Schema.Types.ObjectId, ref: 'Business', required: true },
-  name: { type: String, required: true, trim: true, index: 'text' },
-  category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true, index: true },
+  categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
+  title: { type: String, required: true },
   description: { type: String, required: true },
-  pricePerDay: { type: Number, required: true, min: 0 },
-  depositAmount: { type: Number, required: true, min: 0 }, // e.g. fixed or calculated %
+  dailyRate: { type: Number, required: true },
+  
+  // Unique Feature 1: Certified Operator Option
+  operatorAvailable: { type: Boolean, default: false },
+  operatorDailyRate: { type: Number, default: 150 },
+  
+  // Unique Feature 3: Lowboy Hauling Specs
+  weightTons: { type: Number, required: true },
   location: {
     address: { type: String, required: true },
-    city: { type: String, required: true, index: true },
-    state: { type: String, required: true },
-    coordinates: {
-      type: [Number], // [longitude, latitude]
-      index: '2dsphere'
-    }
+    city: { type: String, required: true },
+    coordinates: { type: [Number], index: '2dsphere' } // [lng, lat]
   },
-  images: [{ type: String, required: true }],
+  
   specifications: {
-    operatingWeight: { type: String, default: '' },
-    enginePower: { type: String, default: '' },
-    bucketCapacity: { type: String, default: '' },
-    fuelType: { type: String, default: 'Diesel' },
-    maxReach: { type: String, default: '' }
+    enginePowerHp: Number,
+    operatingWeightKg: Number,
+    fuelType: String
   },
-  approvalStatus: { type: String, enum: ['Pending', 'Approved', 'Rejected'], default: 'Pending', index: true },
-  rejectionReason: { type: String, default: '' },
-  isAvailable: { type: Boolean, default: true }
+  images: [{ type: String }],
+  status: { type: String, enum: ['AVAILABLE', 'RENTED', 'MAINTENANCE'], default: 'AVAILABLE' }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Equipment', equipmentSchema);
 ```
 
-### `Booking.js` (`src/modules/bookings/booking.model.js`)
-
+### 5. Booking Model (`src/modules/bookings/booking.model.js`)
 ```javascript
 const mongoose = require('mongoose');
 
 const bookingSchema = new mongoose.Schema({
-  bookingNumber: { type: String, required: true, unique: true }, // e.g. BK-90812
-  customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
-  equipmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Equipment', required: true, index: true },
-  ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
-  startDate: { type: Date, required: true, index: true },
-  endDate: { type: Date, required: true, index: true },
-  totalDays: { type: Number, required: true },
-  dailyRate: { type: Number, required: true },
-  rentTotal: { type: Number, required: true },
+  equipmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Equipment', required: true },
+  customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  startDate: { type: Date, required: true },
+  endDate: { type: Date, required: true },
+  days: { type: Number, required: true },
+  
+  // Unique Feature Choices & Financials
+  includeOperator: { type: Boolean, default: false },
+  distanceKm: { type: Number, default: 25 },
+  haulingFee: { type: Number, required: true },
+  rentalSubtotal: { type: Number, required: true },
   depositAmount: { type: Number, required: true },
-  platformFee: { type: Number, required: true },
   grandTotal: { type: Number, required: true },
-  status: {
-    type: String,
-    enum: [
-      'Pending Deposit',
-      'Pending Owner Approval',
-      'Approved',
-      'Rental Active',
-      'Completed',
-      'Cancelled'
-    ],
-    default: 'Pending Deposit',
-    index: true
-  },
-  depositStatus: {
-    type: String,
-    enum: ['Pending Deposit', 'Deposit Paid', 'Held in Escrow', 'Deposit Refunded', 'Forfeited'],
-    default: 'Pending Deposit'
-  },
-  paymentMethod: { type: String, default: 'Card' },
-  stripePaymentIntentId: { type: String, default: null },
-  timeline: [{
-    step: { type: String, required: true },
-    date: { type: String, required: true },
-    completed: { type: Boolean, default: false }
-  }]
+  
+  // Unique Feature 4: Engine Hour Meter & Overtime
+  allowedEngineHours: { type: Number, default: 8 },
+  loggedEngineHours: { type: Number, default: 0 },
+  overtimeHours: { type: Number, default: 0 },
+  overtimeSurcharge: { type: Number, default: 0 },
+  
+  // Unique Feature 5: Digital E-Signature Inspection
+  signatureDataUrl: { type: String, default: null },
+  inspectionPhotos: [{ type: String }],
+  
+  paymentIntentId: { type: String, default: '' },
+  status: { 
+    type: String, 
+    enum: ['PENDING', 'APPROVED', 'REJECTED', 'ACTIVE', 'RETURNED_INSPECTED', 'COMPLETED', 'CANCELLED'], 
+    default: 'PENDING' 
+  }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Booking', bookingSchema);
+```
+
+### 6. Escrow Model (`src/modules/escrow/escrow.model.js`)
+```javascript
+const mongoose = require('mongoose');
+
+const escrowSchema = new mongoose.Schema({
+  bookingId: { type: mongoose.Schema.Types.ObjectId, ref: 'Booking', required: true },
+  customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  totalHeld: { type: Number, required: true },
+  platformFee: { type: Number, required: true },
+  ownerPayoutAmount: { type: Number, required: true },
+  depositHeld: { type: Number, required: true },
+  status: { type: String, enum: ['HELD', 'DISBURSED', 'REFUNDED'], default: 'HELD' }
+}, { timestamps: true });
+
+module.exports = mongoose.model('Escrow', escrowSchema);
+```
+
+### 7. Payout Model (`src/modules/payouts/payout.model.js`)
+```javascript
+const mongoose = require('mongoose');
+
+const payoutSchema = new mongoose.Schema({
+  ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  amount: { type: Number, required: true },
+  stripeTransferId: { type: String, required: true },
+  status: { type: String, enum: ['PENDING', 'SUCCESS', 'FAILED'], default: 'PENDING' }
+}, { timestamps: true });
+
+module.exports = mongoose.model('Payout', payoutSchema);
+```
+
+### 8. Wishlist Model (`src/modules/wishlist/wishlist.model.js`)
+```javascript
+const mongoose = require('mongoose');
+
+const wishlistSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  equipmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Equipment', required: true }
+}, { timestamps: true });
+
+module.exports = mongoose.model('Wishlist', wishlistSchema);
+```
+
+---
+
+### 9. Local Evaluation Database Schema (`server/data/db.json`)
+
+```json
+{
+  "users": [
+    { "id": "u-1", "name": "John Contractor", "email": "customer@rentra.com", "role": "CUSTOMER" },
+    { "id": "u-2", "name": "Bob Fleet Owner", "email": "owner@rentra.com", "role": "OWNER" },
+    { "id": "u-3", "name": "Platform Admin", "email": "admin@rentra.com", "role": "ADMIN" }
+  ],
+  "equipment": [
+    {
+      "id": "eq-1",
+      "ownerId": "u-2",
+      "title": "Caterpillar 320 Heavy Excavator",
+      "category": "Excavator",
+      "dailyRate": 450,
+      "operatorAvailable": true,
+      "operatorDailyRate": 150,
+      "weightTons": 22,
+      "location": "North Yard, Sector 4",
+      "status": "AVAILABLE"
+    }
+  ],
+  "bookings": [
+    {
+      "id": "b-101",
+      "equipmentId": "eq-1",
+      "customerId": "u-1",
+      "startDate": "2026-08-10",
+      "endDate": "2026-08-14",
+      "days": 4,
+      "includeOperator": true,
+      "distanceKm": 30,
+      "haulingFee": 255,
+      "rentalSubtotal": 2400,
+      "depositAmount": 480,
+      "grandTotal": 2655,
+      "allowedEngineHours": 32,
+      "loggedEngineHours": 32,
+      "overtimeSurcharge": 0,
+      "status": "APPROVED",
+      "signatureDataUrl": null
+    }
+  ]
+}
 ```
 
 ---
 
 ## 3. Core Business Logic Algorithms & Implementation Code
 
-### A. Date Overlap Availability Search Engine
-
-This service algorithm ensures that equipment double-booking is impossible.
+### A. Financial Breakdown Calculator (Operator + Lowboy Hauling)
 
 ```javascript
-// src/modules/equipment/equipment.service.js
-const Booking = require('../bookings/booking.model');
-const Equipment = require('./equipment.model');
+function calculateBookingFinancials(equipment, startDate, endDate, includeOperator, distanceKm) {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const days = Math.max(1, Math.ceil((end - start) / (1000 * 60 * 60 * 24)));
 
-/**
- * Searches equipment available between startDate and endDate
- */
-async function searchAvailableEquipment({ category, city, minPrice, maxPrice, startDate, endDate }) {
-  const query = { approvalStatus: 'Approved', isAvailable: true };
+  // 1. Equipment Base Rate & Operator Daily Surcharge
+  const baseRate = equipment.dailyRate;
+  const operatorRate = includeOperator ? (equipment.operatorDailyRate || 150) : 0;
+  const effectiveDailyRate = baseRate + operatorRate;
+  const rentalSubtotal = effectiveDailyRate * days;
 
-  if (category) query.category = category;
-  if (city) query['location.city'] = new RegExp(city, 'i');
-  if (minPrice || maxPrice) {
-    query.pricePerDay = {};
-    if (minPrice) query.pricePerDay.$gte = Number(minPrice);
-    if (maxPrice) query.pricePerDay.$lte = Number(maxPrice);
-  }
+  // 2. Lowboy Delivery Transport Fee
+  const BASE_HAULING = 150;
+  const PER_KM_RATE = 3.50;
+  const haulingFee = BASE_HAULING + (Number(distanceKm || 25) * PER_KM_RATE);
 
-  // If date filters provided, find overlapping booked equipment IDs
-  if (startDate && endDate) {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+  // 3. Security Deposit Hold (20% of rental subtotal)
+  const depositAmount = rentalSubtotal * 0.20;
 
-    const bookedEquipment = await Booking.find({
-      status: { $in: ['Pending Owner Approval', 'Approved', 'Rental Active'] },
-      $or: [
-        { startDate: { $lte: end }, endDate: { $gte: start } }
-      ]
-    }).distinct('equipmentId');
+  // 4. Platform Commission Fee (10%) & Grand Total
+  const platformFee = rentalSubtotal * 0.10;
+  const ownerPayoutAmount = (rentalSubtotal - platformFee) + haulingFee;
+  const grandTotal = rentalSubtotal + haulingFee;
 
-    // Exclude equipment with active overlapping bookings
-    query._id = { $nin: bookedEquipment };
-  }
-
-  return await Equipment.find(query).populate('category').populate('businessId');
+  return { days, rentalSubtotal, haulingFee, depositAmount, platformFee, ownerPayoutAmount, grandTotal };
 }
-
-module.exports = { searchAvailableEquipment };
 ```
 
----
-
-### B. Booking Financial Breakdown Calculator
+### B. Engine Run-Time Overtime Meter Calculator
 
 ```javascript
-// src/modules/bookings/booking.service.js
-function calculateBookingBreakdown(pricePerDay, depositAmount, startDateStr, endDateStr) {
-  const start = new Date(startDateStr);
-  const end = new Date(endDateStr);
+function calculateEngineOvertime(rentalDays, loggedEngineHours) {
+  const ALLOWED_HOURS_PER_DAY = 8;
+  const OVERTIME_HOURLY_RATE = 45; // $45/hour extra
+
+  const maxAllowedHours = rentalDays * ALLOWED_HOURS_PER_DAY;
+  const overtimeHours = Math.max(0, loggedEngineHours - maxAllowedHours);
+  const overtimeSurcharge = overtimeHours * OVERTIME_HOURLY_RATE;
+
+  return { maxAllowedHours, overtimeHours, overtimeSurcharge };
+}
+```
+
+### C. Date Overlap Availability Search Engine
+
+```javascript
+async function checkEquipmentAvailability(equipmentId, requestedStart, requestedEnd) {
+  const Booking = require('../modules/bookings/booking.model');
   
-  const timeDiff = Math.abs(end.getTime() - start.getTime());
-  const totalDays = Math.ceil(timeDiff / (1000 * 3600 * 24)) || 1;
+  const overlappingBookings = await Booking.find({
+    equipmentId,
+    status: { $in: ['APPROVED', 'ACTIVE'] },
+    $or: [
+      { startDate: { $lte: new Date(requestedEnd) }, endDate: { $gte: new Date(requestedStart) } }
+    ]
+  });
 
-  const rentTotal = pricePerDay * totalDays;
-  const platformFee = Math.round(rentTotal * 0.05); // 5% platform fee
-  const grandTotal = rentTotal + depositAmount + platformFee;
+  return overlappingBookings.length === 0;
+}
+```
 
-  return {
-    totalDays,
-    dailyRate: pricePerDay,
-    rentTotal,
-    depositAmount,
-    platformFee,
-    grandTotal
-  };
+### D. Digital E-Signature & Inspection Handler
+
+```javascript
+async function processDigitalInspection(bookingId, signatureDataUrl, loggedEngineHours) {
+  const Booking = require('../modules/bookings/booking.model');
+  const booking = await Booking.findById(bookingId);
+  
+  const { overtimeHours, overtimeSurcharge } = calculateEngineOvertime(booking.days, loggedEngineHours);
+
+  booking.signatureDataUrl = signatureDataUrl;
+  booking.loggedEngineHours = loggedEngineHours;
+  booking.overtimeHours = overtimeHours;
+  booking.overtimeSurcharge = overtimeSurcharge;
+  booking.grandTotal += overtimeSurcharge;
+  booking.status = 'RETURNED_INSPECTED';
+
+  await booking.save();
+  return booking;
 }
 ```
 
 ---
 
-### C. Payment Gateway & Escrow Webhook Handler
+## 4. Quick-Start Execution & Complete Copy-Paste Server (`server/index.js`)
+
+You can launch the Express backend instantly using Node.js without setup complexity:
 
 ```javascript
-// src/modules/escrow/escrow.controller.js
-const stripe = require('../../config/stripe');
-const Booking = require('../bookings/booking.model');
-const { notifyUser } = require('../notifications/socket');
+const express = require('express');
+const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
 
-async function handleStripeWebhook(req, res) {
-  const sig = req.headers['stripe-signature'];
-  let event;
+const app = express();
+const PORT = process.env.PORT || 3000;
+const DB_FILE = path.join(__dirname, 'data', 'db.json');
 
-  try {
-    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
-  } catch (err) {
-    return res.status(400).send(`Webhook Error: ${err.message}`);
-  }
+app.use(cors());
+app.use(express.json({ limit: '10mb' }));
 
-  if (event.type === 'payment_intent.succeeded') {
-    const paymentIntent = event.data.object;
-    const bookingId = paymentIntent.metadata.bookingId;
-
-    const booking = await Booking.findById(bookingId);
-    if (booking) {
-      booking.status = 'Pending Owner Approval';
-      booking.depositStatus = 'Held in Escrow';
-      booking.stripePaymentIntentId = paymentIntent.id;
-      booking.timeline[0].completed = true; // Deposit Paid
-      booking.timeline[1].completed = true; // Sent to Owner
-      await booking.save();
-
-      // Send real-time Socket.IO notification to Equipment Owner
-      notifyUser(booking.ownerId.toString(), 'NEW_BOOKING_REQUEST', {
-        title: 'New Booking Request',
-        message: `New booking request for #${booking.bookingNumber}`,
-        bookingId: booking._id
-      });
-    }
-  }
-
-  res.json({ received: true });
+function readDB() {
+  if (!fs.existsSync(DB_FILE)) return { users: [], equipment: [], bookings: [], businesses: [] };
+  return JSON.parse(fs.readFileSync(DB_FILE, 'utf-8'));
 }
-```
 
----
+function writeDB(data) {
+  const dir = path.dirname(DB_FILE);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
+}
 
-### D. Multi-File Cloud Storage Middleware
-
-```javascript
-// src/middleware/uploadMiddleware.js
-const multer = require('multer');
-const cloudinary = require('../config/cloudinary');
-
-const storage = multer.memoryStorage();
-const upload = multer({
-  storage,
-  limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
+// Authentication
+app.post('/api/auth/login', (req, res) => {
+  const { email } = req.body;
+  const db = readDB();
+  const user = db.users.find(u => u.email === email);
+  if (!user) return res.status(401).json({ error: 'Invalid credentials' });
+  res.json({ token: `mock-jwt-${user.id}`, user });
 });
 
-async function uploadToCloudinary(fileBuffer, folder = 'rentra') {
-  return new Promise((resolve, reject) => {
-    const uploadStream = cloudinary.uploader.upload_stream(
-      { folder, resource_type: 'auto' },
-      (error, result) => {
-        if (error) return reject(error);
-        resolve(result.secure_url);
-      }
-    );
-    uploadStream.end(fileBuffer);
-  });
-}
+// Equipment & Fleet Bundles
+app.get('/api/equipment', (req, res) => res.json(readDB().equipment));
 
-module.exports = { upload, uploadToCloudinary };
-```
+app.post('/api/equipment', (req, res) => {
+  const db = readDB();
+  const newEq = { id: `eq-${Date.now()}`, ...req.body, status: 'AVAILABLE' };
+  db.equipment.push(newEq);
+  writeDB(db);
+  res.status(201).json(newEq);
+});
 
----
+// Bookings & Hauling
+app.post('/api/bookings', (req, res) => {
+  const { equipmentId, startDate, endDate, includeOperator, distanceKm } = req.body;
+  const db = readDB();
+  const eq = db.equipment.find(e => e.id === equipmentId);
+  if (!eq) return res.status(404).json({ error: 'Equipment not found' });
 
-### E. Socket.IO Real-Time Notification Server
+  const days = 4;
+  const rentalSubtotal = (eq.dailyRate + (includeOperator ? (eq.operatorDailyRate || 150) : 0)) * days;
+  const haulingFee = 150 + (Number(distanceKm || 25) * 3.50);
+  const grandTotal = rentalSubtotal + haulingFee;
 
-```javascript
-// src/modules/notifications/socket.js
-let ioInstance = null;
-const userSocketsMap = new Map(); // userId -> socketId
-
-function initSocket(io) {
-  ioInstance = io;
-
-  io.on('connection', (socket) => {
-    socket.on('register_user', (userId) => {
-      userSocketsMap.set(userId, socket.id);
-      socket.userId = userId;
-    });
-
-    socket.on('disconnect', () => {
-      if (socket.userId) {
-        userSocketsMap.delete(socket.userId);
-      }
-    });
-  });
-}
-
-function notifyUser(userId, event, payload) {
-  if (!ioInstance) return;
-  const socketId = userSocketsMap.get(userId);
-  if (socketId) {
-    ioInstance.to(socketId).emit(event, payload);
-  }
-}
-
-module.exports = { initSocket, notifyUser };
-```
-
----
-
-### F. Admin Analytics Aggregation Pipelines
-
-```javascript
-// src/modules/admin/admin.service.js
-const User = require('../users/user.model');
-const Business = require('../businesses/business.model');
-const Equipment = require('../equipment/equipment.model');
-const Booking = require('../bookings/booking.model');
-
-async function getDashboardStats() {
-  const [totalUsers, totalBusinesses, totalEquipment, totalBookings, pendingVerifications, pendingEquipmentApprovals] = await Promise.all([
-    User.countDocuments({ role: { $ne: 'admin' } }),
-    Business.countDocuments({ kycStatus: 'Approved' }),
-    Equipment.countDocuments({ approvalStatus: 'Approved' }),
-    Booking.countDocuments(),
-    Business.countDocuments({ kycStatus: 'Pending' }),
-    Equipment.countDocuments({ approvalStatus: 'Pending' })
-  ]);
-
-  // Aggregate monthly platform revenue
-  const revenueResult = await Booking.aggregate([
-    { $match: { status: { $in: ['Rental Active', 'Completed'] } } },
-    { $group: { _id: null, totalRevenue: { $sum: '$platformFee' } } }
-  ]);
-
-  const totalRevenue = revenueResult[0] ? revenueResult[0].totalRevenue : 0;
-
-  return {
-    totalUsers,
-    totalBusinesses,
-    totalEquipment,
-    totalBookings,
-    pendingVerifications,
-    pendingEquipmentApprovals,
-    monthlyRevenue: `$${totalRevenue.toLocaleString()}`
+  const newBooking = {
+    id: `b-${Date.now()}`,
+    equipmentId,
+    startDate,
+    endDate,
+    days,
+    includeOperator: Boolean(includeOperator),
+    distanceKm: Number(distanceKm || 25),
+    haulingFee,
+    rentalSubtotal,
+    depositAmount: rentalSubtotal * 0.20,
+    grandTotal,
+    status: 'PENDING'
   };
-}
 
-module.exports = { getDashboardStats };
+  db.bookings.push(newBooking);
+  writeDB(db);
+  res.status(201).json(newBooking);
+});
+
+// Admin Stats
+app.get('/api/admin/stats', (req, res) => {
+  const db = readDB();
+  res.json({ totalUsers: db.users.length, totalEquipment: db.equipment.length, totalBookings: db.bookings.length });
+});
+
+app.listen(PORT, () => console.log(`🚀 Rentra Backend running on http://localhost:${PORT}`));
 ```
 
 ---
 
-## 4. Granular Step-by-Step Build Instructions for Team of 4
+## 5. Granular Step-by-Step Build Instructions for Team of 4
 
-### Member 1: Core Architecture, Auth, Security & User Governance
+### Member 1: Core Architecture, Auth & Security
+- Setup Express `src/app.js`, CORS, body-parser, and global error handler middleware.
+- Implement JWT token generation and bcrypt password hashing.
+- Build Role-Based Access Control (`rbacMiddleware.js`) for `ADMIN`, `OWNER`, and `CUSTOMER`.
 
-**Scope**: Server setup, database connectivity, authentication system, user profiles, admin user access control, security middleware.
+### Member 2: Equipment Catalog & Fleet Packages
+- Build Equipment Mongoose schema with `operatorAvailable` and `operatorDailyRate`.
+- Create `/api/equipment` search router supporting category filtering and geospatial distance radius queries.
+- Build `/api/equipment/bundles` endpoint for Project Fleet Packages.
 
-#### 📝 Step-by-Step Coding Checklist:
+### Member 3: Booking Engine & Financial Calculations
+- Implement `/api/bookings` controller with Lowboy Hauling Fee calculation.
+- Build Engine Run-Time Overtime Meter surcharge logic.
+- Integrate Stripe Connect PaymentIntent pre-authorization holds for security deposits.
 
-1. **Initialize Project Foundation**:
-
-   - Create `server/package.json` with scripts (`"start": "node index.js"`, `"dev": "nodemon index.js"`).
-   - Install dependencies: `express`, `mongoose`, `dotenv`, `cors`, `helmet`, `morgan`, `jsonwebtoken`, `bcryptjs`, `ioredis`.
-   - Write `src/config/db.js` for MongoDB connection string management.
-   - Write `src/app.js` with `cors()`, `helmet()`, `express.json()`, and global error handler.
-2. **Implement User & Auth Module**:
-
-   - Write `src/modules/users/user.model.js` with fields (`name`, `email`, `passwordHash`, `role`, `status`).
-   - Write `src/modules/auth/auth.service.js`:
-     - `registerUser({ name, email, password, role, phone })`: Hash password using `bcryptjs` with salt rounds 10.
-     - `loginUser({ email, password })`: Validate email, compare bcrypt password, issue Access Token (15m) and Refresh Token (7d).
-   - Write `src/middleware/authMiddleware.js`: Verify JWT header `Bearer <token>`, check user status in MongoDB, attach `req.user`.
-   - Write `src/middleware/rbacMiddleware.js`: Higher-order function `authorize(...roles)` that checks `req.user.role`.
-3. **Implement User & Admin User Controllers**:
-
-   - Write `src/modules/users/user.controller.js`:
-     - `getProfile`: Return `req.user`.
-     - `updateProfile`: Update name, phone, address, avatar URL.
-   - Write `src/modules/admin/admin.controller.js` (User portion):
-     - `getAllUsers`: Paginated user list with role filter.
-     - `toggleUserStatus`: Block/Unblock user and invalidate active tokens in Redis.
-4. **Testing Checklist**:
-
-   - Test `POST /api/v1/auth/register` with Postman.
-   - Test `POST /api/v1/auth/login` to confirm JWT token response.
-   - Verify protected routes reject requests without valid Bearer tokens.
+### Member 4: E-Signature Inspection, Admin & Socket.IO
+- Build `/api/bookings/:id/inspection` endpoint for base64 HTML5 signature uploads.
+- Create Admin moderation APIs (`/api/admin/stats`, `/api/admin/businesses/:id/verify`).
+- Implement Socket.IO real-time notification events for booking status changes.
 
 ---
 
-### Member 2: Equipment Catalog, Media Storage & Search Engine
+## 6. Complete API Endpoints Specification
 
-**Scope**: Categories, equipment listings, Cloudinary upload integration, search engine with date availability, wishlist APIs.
-
-#### 📝 Step-by-Step Coding Checklist:
-
-1. **Implement Category Module**:
-
-   - Write `src/modules/categories/category.model.js` (`name`, `slug`, `icon`, `description`).
-   - Write CRUD controllers for Admin in `src/modules/categories/category.controller.js`.
-   - Write public route `GET /api/v1/categories`.
-2. **Implement Image Storage & Equipment Models**:
-
-   - Configure `src/config/cloudinary.js`.
-   - Create `src/middleware/uploadMiddleware.js` using `multer.memoryStorage()` and Cloudinary stream pipe.
-   - Write `src/modules/equipment/equipment.model.js` with specs, price per day, deposit amount, location, approval status.
-3. **Implement Equipment CRUD & Search Logic**:
-
-   - Write `src/modules/equipment/equipment.service.js`:
-     - `createEquipment`: Set `approvalStatus = 'Pending'`, associate `ownerId` and `businessId`.
-     - `updateEquipment`: Allow owner to edit specs, price, images, availability.
-     - `searchAvailableEquipment`: Implement date-overlap check querying `Booking` model to exclude busy machinery.
-   - Write `src/modules/equipment/equipment.controller.js`:
-     - `search`: Endpoint `GET /api/v1/equipment/search`.
-     - `getById`: Endpoint `GET /api/v1/equipment/:id`.
-4. **Implement Wishlist Module**:
-
-   - Write `src/modules/wishlist/wishlist.model.js` (`userId`, `equipmentIds[]`).
-   - Write `src/modules/wishlist/wishlist.controller.js` to toggle wishlist items and populate saved equipment cards.
+| Module | Method | Endpoint | Description |
+| :--- | :--- | :--- | :--- |
+| **Auth** | `POST` | `/api/auth/login` | Authenticate user & return token |
+| **Auth** | `POST` | `/api/auth/register` | Register new Customer or Owner account |
+| **Equipment** | `GET` | `/api/equipment` | Search & filter equipment catalog |
+| **Equipment** | `POST` | `/api/equipment` | Create new equipment listing (Owner) |
+| **Equipment** | `GET` | `/api/equipment/bundles` | Fetch multi-machine fleet bundles |
+| **Bookings** | `POST` | `/api/bookings` | Create rental booking with hauling & operator |
+| **Bookings** | `PUT` | `/api/bookings/:id/status` | Update booking status (`APPROVED`, `REJECTED`) |
+| **Inspection** | `POST` | `/api/bookings/:id/inspection` | Submit E-Signature & Engine Hours |
+| **Admin** | `GET` | `/api/admin/stats` | Platform metrics & total revenue aggregation |
+| **Admin** | `PUT` | `/api/admin/businesses/:id` | Approve or reject Owner Business KYB |
 
 ---
 
-### Member 3: Booking State Machine, Payment Gateway & Escrow Engine
+## 7. Production Deployment & Database Seeding Blueprint
 
-**Scope**: Booking request preparation, financial calculations, Stripe/Razorpay payment gateway, escrow deposit lifecycle, owner earnings payouts.
-
-#### 📝 Step-by-Step Coding Checklist:
-
-1. **Implement Booking Model & Calculation Service**:
-
-   - Write `src/modules/bookings/booking.model.js` with status state machine (`Pending Deposit` ➔ `Pending Owner Approval` ➔ `Approved` ➔ `Rental Active` ➔ `Completed` ➔ `Cancelled`).
-   - Write `src/modules/bookings/booking.service.js`:
-     - `prepareBooking({ equipmentId, startDate, endDate })`: Calculate total days, rent total, 5% platform fee, grand total, and return draft receipt.
-2. **Implement Escrow & Payment Gateway Integration**:
-
-   - Configure `src/config/stripe.js`.
-   - Write `src/modules/escrow/escrow.service.js`:
-     - `createDepositPaymentIntent(bookingId)`: Generate Stripe PaymentIntent with metadata `{ bookingId }`.
-     - `refundDeposit(bookingId)`: Call Stripe Refund API if booking is cancelled or rejected.
-   - Write Stripe Webhook controller in `src/modules/escrow/escrow.controller.js` to handle `payment_intent.succeeded`.
-3. **Implement Owner Action & Rental Lifecycle**:
-
-   - Write `src/modules/bookings/booking.controller.js`:
-     - `handleOwnerAction`: Accept or Reject incoming booking requests.
-     - `payRemainingBalance`: Transition status from `Approved` to `Rental Active`.
-     - `completeRental`: Mark item returned and queue owner earnings payout.
-4. **Implement Owner Earnings & Payout Module**:
-
-   - Write `src/modules/payouts/payout.model.js`.
-   - Write `src/modules/payouts/payout.controller.js` for fetching earnings balance and executing withdraw transfers.
-
----
-
-### Member 4: Business KYC, Admin Moderation, Socket.IO & Analytics
-
-**Scope**: Owner business verification, admin content moderation dashboard, real-time WebSocket notifications, platform analytics aggregation.
-
-#### 📝 Step-by-Step Coding Checklist:
-
-1. **Implement Business KYC Module**:
-
-   - Write `src/modules/businesses/business.model.js` (`businessName`, `gstNumber`, `kycStatus`, `kycDocuments[]`).
-   - Write `src/modules/businesses/business.controller.js`:
-     - `registerBusiness`: Handle PDF/Document upload and store record with `kycStatus = 'Pending'`.
-     - `getMyBusinessStatus`: Fetch verification status for owner portal.
-2. **Implement Admin Verification & Moderation Controllers**:
-
-   - Write admin verification endpoints in `src/modules/admin/admin.controller.js`:
-     - `verifyBusiness`: Approve or Reject owner business registration with optional rejection reason.
-     - `moderateEquipment`: Approve or Reject new equipment listings before public search visibility.
-3. **Implement Socket.IO Real-Time Engine**:
-
-   - Write `src/modules/notifications/socket.js` to manage active client connections.
-   - Write `src/modules/notifications/notification.service.js`:
-     - `sendNotification({ userId, title, message, type, link })`: Save notification in MongoDB AND emit real-time event over Socket.IO socket.
-4. **Implement Admin Analytics Aggregation**:
-
-   - Write `src/modules/admin/admin.service.js` with MongoDB aggregation pipelines:
-     - Compute total revenue, total users, total businesses, pending KYC counts, and active rental stats.
-
----
-
-## 5. Complete API Endpoints Specification
-
-### Authentication & Users
-
-- `POST /api/v1/auth/register` — Public user signup (`customer` / `owner`).
-- `POST /api/v1/auth/login` — Authenticate and receive JWT tokens.
-- `GET /api/v1/users/profile` — Get logged-in user details.
-- `PUT /api/v1/users/profile` — Update profile info & avatar image.
-
-### Businesses & KYC (Owner / Admin)
-
-- `POST /api/v1/businesses/register` — Owner business registration & document upload.
-- `GET /api/v1/businesses/my-status` — Fetch owner KYC status.
-- `GET /api/v1/admin/businesses` — Admin list pending business verifications.
-- `PATCH /api/v1/admin/businesses/:id/verify` — Admin approve/reject business KYC.
-
-### Equipment & Categories
-
-- `GET /api/v1/categories` — Fetch all machinery categories.
-- `POST /api/v1/admin/categories` — Admin create category.
-- `GET /api/v1/equipment/search` — Search machinery with filters & date availability.
-- `GET /api/v1/equipment/:id` — Get equipment details & calendar.
-- `POST /api/v1/equipment` — Owner upload & list new equipment.
-- `PUT /api/v1/equipment/:id` — Owner update equipment details.
-- `GET /api/v1/equipment/owner` — Owner view listed equipment inventory.
-- `PATCH /api/v1/admin/equipment/:id/moderate` — Admin approve/reject equipment listing.
-
-### Bookings, Payments & Escrow
-
-- `POST /api/v1/bookings/prepare` — Calculate booking price breakdown.
-- `POST /api/v1/bookings/pay-deposit` — Process escrow deposit payment intent.
-- `GET /api/v1/bookings/customer` — Customer view booking history.
-- `GET /api/v1/bookings/owner` — Owner view rental requests.
-- `PATCH /api/v1/bookings/:id/owner-action` — Owner approve/reject booking request.
-- `POST /api/v1/bookings/:id/pay-remaining` — Customer pay remaining balance.
-- `POST /api/v1/bookings/:id/cancel` — Cancel booking and trigger deposit refund.
-
-### Wishlist, Notifications & Analytics
-
-- `POST /api/v1/wishlist/toggle` — Toggle saved equipment item.
-- `GET /api/v1/wishlist` — Fetch customer wishlist.
-- `GET /api/v1/notifications` — Fetch user notification feed.
-- `PATCH /api/v1/notifications/:id/read` — Mark notification read.
-- `GET /api/v1/admin/dashboard-stats` — Admin metrics & financial analytics.
-
----
-
-## 6. Production Deployment & Database Seeding Blueprint
-
-### Database Seeder (`src/utils/seedData.js`)
-
-Create a seed script that inserts default initial data for testing:
-
-1. **Admin User**: `admin@rentra.com` / `AdminPass123!`.
-2. **Owner User & Approved Business**: `owner@rentra.com` / `owner123` with verified business `Titan Heavy Rentals Inc.`.
-3. **Customer User**: `customer@rentra.com` / `customer123`.
-4. **Initial Categories**: Construction, Agriculture, Earthmoving, Energy Systems, Hauling & Logistics.
-5. **Initial Approved Equipment**: Hydraulic Excavators, Boom Lifts, Tractors with high quality image URLs.
-
-Run seeder command:
-
-```bash
-node src/utils/seedData.js
-```
-
-### Production Deployment Setup
-
-- **App Hosting**: Render / Railway / AWS EC2 with Node.js v20.
-- **Database**: MongoDB Atlas Cluster with replica sets enabled.
-- **Cache**: Redis Cloud / Upstash Redis instance.
-- **Process Manager**: PM2 cluster mode (`pm2 start index.js -i max`).
-- **Environment**: Ensure `NODE_ENV=production` and set secure CORS origin `https://rentra.com`.
+1. **Environment Variables (`.env`)**:
+   ```env
+   PORT=3000
+   MONGO_URI=mongodb+srv://user:password@cluster.mongodb.net/rentra
+   JWT_SECRET=your_super_secret_jwt_key
+   STRIPE_SECRET_KEY=sk_test_123456
+   ```
+2. **MongoDB Seeding Script (`src/config/seed.js`)**: Run `node src/config/seed.js` to seed categories, sample users, and heavy equipment listings.
