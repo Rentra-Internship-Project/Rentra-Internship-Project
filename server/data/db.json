@@ -42,6 +42,14 @@
       "passwordHash": "$2b$10$9kt9A76bwbUHv.ln.mf8NebvUCfw07qNEi4WpW0xOxbu293V68edu",
       "role": "CUSTOMER",
       "createdAt": "2026-08-10T13:49:10.938Z"
+    },
+    {
+      "id": "u-1786370321383",
+      "name": "David Miller",
+      "email": "contractor_1786370321160@test.com",
+      "passwordHash": "$2b$10$TWiZ0r4nuLUT3YGkBH6YmOhtf44/mNdYsYHVcPLVg69BnwB2758Wa",
+      "role": "CUSTOMER",
+      "company": "Apex Infra Contractors"
     }
   ],
   "equipment": [
@@ -126,6 +134,18 @@
       "image": "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&q=80&w=800",
       "description": "Heavy duty 22-ton crawler excavator with reinforced boom.",
       "createdAt": "2026-08-10T13:49:10.958Z"
+    },
+    {
+      "id": "EQ-5603",
+      "ownerId": "u-102",
+      "name": "Sany SY215C Heavy Crawler Excavator",
+      "category": "Excavation",
+      "pricePerDay": 5800,
+      "operatorAvailable": true,
+      "operatorDailyRate": 1600,
+      "weightTons": 22,
+      "location": "Dallas, TX",
+      "description": "Heavy duty 22-ton crawler excavator with reinforced boom."
     }
   ],
   "bookings": [
@@ -224,6 +244,30 @@
       "siteAddress": "780 Industrial Highway, Dallas TX",
       "notes": "Call site manager on arrival.",
       "bookingDate": "2026-08-10"
+    },
+    {
+      "id": "BK-28022",
+      "equipmentId": "EQ-5603",
+      "equipmentName": "Sany SY215C Heavy Crawler Excavator",
+      "customerId": "u-1786370321383",
+      "startDate": "2026-08-20",
+      "endDate": "2026-08-23",
+      "durationDays": 3,
+      "includeOperator": true,
+      "distanceKm": 45,
+      "haulingFee": 308,
+      "rentalCost": 22200,
+      "deposit": 4440,
+      "platformFee": 444,
+      "gst": 2020,
+      "totalValue": 29682,
+      "status": "Returned & Inspected",
+      "siteAddress": "780 Industrial Highway, Dallas TX",
+      "notes": "Call site manager on arrival.",
+      "signatureDataUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+      "loggedEngineHours": 30,
+      "overtimeHours": 6,
+      "overtimeSurcharge": 270
     }
   ],
   "businesses": [
