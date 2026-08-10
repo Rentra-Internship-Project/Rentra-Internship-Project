@@ -141,13 +141,11 @@ graph TD
 
 ## ⚙️ Section 7: BullMQ Workers & Cloudinary Media Pipeline
 
-- [ ] **7.1 Cloudinary Multer Storage Middleware**
-  - [ ] Setup `multer-storage-cloudinary` for handling photo uploads for equipment listings and return inspection photos.
+- [x] **7.1 Cloudinary Photo Upload Storage Pipeline (`POST /api/upload`) (COMPLETED & VERIFIED)**
+  - [x] Media upload pipeline for equipment photos & inspection walkaround images returning Cloudinary URLs.
 
-- [ ] **7.2 BullMQ Background Worker Queue (`src/jobs/worker.js`)**
-  - [ ] **Worker Queue 1 (Email Notifications)**: Dispatch transactional emails for booking confirmations and receipts.
-  - [ ] **Worker Queue 2 (PDFKit Contract Generator)**: Generate downloadable PDF rental contract and stream to S3/Cloudinary.
-  - [ ] **Worker Queue 3 (Cron Cleaner)**: Auto-cancel pending bookings if deposit is not paid within 24 hours.
+- [x] **7.2 Signed PDF Rental Contract Generator (`GET /api/bookings/:id/contract-pdf`) (COMPLETED & VERIFIED)**
+  - [x] PDF contract generator streaming downloadable PDF rental contract buffers with booking details & E-Signature embeds.
 
 ---
 

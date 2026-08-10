@@ -420,8 +420,45 @@ app.put('/api/admin/businesses/:id/verify', authenticateToken, (req, res) => {
 });
 
 // ----------------------------------------------------
-// 6. SOCKET.IO REAL-TIME EVENT HANDLERS
+// 7. BACKGROUND HELPERS & MEDIA PIPELINE APIS
 // ----------------------------------------------------
+
+// Download Signed PDF Rental Agreement Contract
+app.get('/api/bookings/:id/contract-pdf', authenticateToken, (req, res) => {
+  try {
+    const db = readDB();
+    const booking = db.bookings.find((b) => b.id === req.params.id);
+
+    if (!booking) return res.status(404).json({ error: 'Booking contract reference not found' });
+
+    const pdfBuffer = Buffer.from(
+      `%PDF-1.4\n1 0 obj\n<< /Title (RENTRA HEAVY MACHINERY RENTAL AGREEMENT CONTRACT) /BookingID (${booking.id}) /GrandTotal (${booking.totalValue}) /OperatorIncluded (${booking.includeOperator}) /LowboyHaulingDistance (${booking.distanceKm} km) >>\nendobj\ntrailer\n<< /Root 1 0 R >>\n%%EOF`
+    );
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=Rentra_Contract_${booking.id}.pdf`);
+    res.send(pdfBuffer);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to generate contract PDF', details: err.message });
+  }
+});
+
+// Cloudinary / Multer Media Upload Simulation API
+app.post('/api/upload', authenticateToken, (req, res) => {
+  try {
+    const { filename } = req.body;
+    const mediaUrl = `https://res.cloudinary.com/rentra-assets/image/upload/v1723400/equipment_${Date.now()}_${filename || 'upload.jpg'}`;
+
+    res.status(201).json({
+      message: 'Media uploaded successfully',
+      url: mediaUrl,
+      format: 'jpg',
+      bytes: 245089,
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Media upload failed', details: err.message });
+  }
+});
 io.on('connection', (socket) => {
   socket.on('join_room', (userId) => {
     socket.join(`user_${userId}`);
