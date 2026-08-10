@@ -26,6 +26,14 @@
       "passwordHash": "$2a$10$eE5/3s6c4e...mockhash",
       "role": "ADMIN",
       "createdAt": "2026-08-01T10:00:00.000Z"
+    },
+    {
+      "id": "u-1786369188598",
+      "name": "Samantha Contractor",
+      "email": "newcontractor_1786369188503@test.com",
+      "passwordHash": "$2b$10$f1VCjgSHEjTL2IhFLvxxsOhN9NCXcj.q7VhCDWyl6DHXnFOmTYGkW",
+      "role": "CUSTOMER",
+      "createdAt": "2026-08-10T13:39:48.598Z"
     }
   ],
   "equipment": [
@@ -69,10 +77,10 @@
       "pricePerDay": 9500,
       "operatorAvailable": true,
       "operatorDailyRate": 2500,
-      "weightTons": 45.0,
+      "weightTons": 45,
       "location": "Dallas, TX",
       "availability": "Available",
-      "rating": 5.0,
+      "rating": 5,
       "reviewsCount": 14,
       "image": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=800",
       "description": "Premium 8-ton capacity tower crane ideal for urban high-rise construction projects."
@@ -119,7 +127,10 @@
       "businessType": "Heavy Machinery Fleet Provider",
       "submittedDate": "2026-07-28",
       "status": "Approved",
-      "documents": ["Tax_Id_Verification.pdf", "Commercial_Fleet_Insurance.pdf"]
+      "documents": [
+        "Tax_Id_Verification.pdf",
+        "Commercial_Fleet_Insurance.pdf"
+      ]
     }
   ]
 }
