@@ -58,6 +58,14 @@
       "passwordHash": "$2b$10$Utbb3QSahz9EVvoJHsnX1O7HFFCY8RkmIwFt6lQWU4gbJnk.wTfEW",
       "role": "CUSTOMER",
       "company": "Apex Infra Contractors"
+    },
+    {
+      "id": "u-1786370651610",
+      "name": "David Miller",
+      "email": "contractor_1786370651429@test.com",
+      "passwordHash": "$2b$10$yNrsdrgnXMF1PRbwpV9FTeFyOeHbkQLl/f6fOsLMIqcuw71D9AEIa",
+      "role": "CUSTOMER",
+      "company": "Apex Infra Contractors"
     }
   ],
   "equipment": [
@@ -157,6 +165,18 @@
     },
     {
       "id": "EQ-8223",
+      "ownerId": "u-102",
+      "name": "Sany SY215C Heavy Crawler Excavator",
+      "category": "Excavation",
+      "pricePerDay": 5800,
+      "operatorAvailable": true,
+      "operatorDailyRate": 1600,
+      "weightTons": 22,
+      "location": "Dallas, TX",
+      "description": "Heavy duty 22-ton crawler excavator with reinforced boom."
+    },
+    {
+      "id": "EQ-6259",
       "ownerId": "u-102",
       "name": "Sany SY215C Heavy Crawler Excavator",
       "category": "Excavation",
@@ -294,6 +314,30 @@
       "equipmentId": "EQ-8223",
       "equipmentName": "Sany SY215C Heavy Crawler Excavator",
       "customerId": "u-1786370417327",
+      "startDate": "2026-08-20",
+      "endDate": "2026-08-23",
+      "durationDays": 3,
+      "includeOperator": true,
+      "distanceKm": 45,
+      "haulingFee": 308,
+      "rentalCost": 22200,
+      "deposit": 4440,
+      "platformFee": 444,
+      "gst": 2020,
+      "totalValue": 29682,
+      "status": "Returned & Inspected",
+      "siteAddress": "780 Industrial Highway, Dallas TX",
+      "notes": "Call site manager on arrival.",
+      "signatureDataUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+      "loggedEngineHours": 30,
+      "overtimeHours": 6,
+      "overtimeSurcharge": 270
+    },
+    {
+      "id": "BK-24465",
+      "equipmentId": "EQ-6259",
+      "equipmentName": "Sany SY215C Heavy Crawler Excavator",
+      "customerId": "u-1786370651610",
       "startDate": "2026-08-20",
       "endDate": "2026-08-23",
       "durationDays": 3,
