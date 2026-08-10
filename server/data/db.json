@@ -84,6 +84,23 @@
       "reviewsCount": 14,
       "image": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=800",
       "description": "Premium 8-ton capacity tower crane ideal for urban high-rise construction projects."
+    },
+    {
+      "id": "EQ-6106",
+      "ownerId": "u-102",
+      "name": "Volvo A40G Articulated Hauler Dump Truck",
+      "category": "Earthmoving",
+      "pricePerDay": 6200,
+      "operatorAvailable": true,
+      "operatorDailyRate": 1600,
+      "weightTons": 30,
+      "location": "San Antonio, TX",
+      "availability": "Available",
+      "rating": 5,
+      "reviewsCount": 1,
+      "image": "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&q=80&w=800",
+      "description": "Heavy-duty articulated haul truck designed for tough off-road hauling operations.",
+      "createdAt": "2026-08-10T13:43:27.195Z"
     }
   ],
   "bookings": [

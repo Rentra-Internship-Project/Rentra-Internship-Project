@@ -168,6 +168,40 @@ app.get('/api/equipment', (req, res) => {
   res.json(list);
 });
 
+// Fleet Package Bundles API
+app.get('/api/equipment/bundles', (req, res) => {
+  const bundles = [
+    {
+      id: 'bundle-foundation-101',
+      name: 'Building Foundation Package',
+      description: 'Caterpillar CAT 320 Excavator + Komatsu Bulldozer combo package for site prep & excavation.',
+      equipmentIds: ['EQ-1001', 'EQ-1002'],
+      discountPercent: 10,
+      estimatedDailyTotal: 9450,
+      badge: 'Popular for Commercial Sites'
+    },
+    {
+      id: 'bundle-road-102',
+      name: 'Road Infrastructure & Paving Package',
+      description: 'Heavy bulldozer + excavating unit package for road grading & earthmoving.',
+      equipmentIds: ['EQ-1002', 'EQ-1001'],
+      discountPercent: 12,
+      estimatedDailyTotal: 9900,
+      badge: 'Best Value Infrastructure'
+    },
+    {
+      id: 'bundle-highrise-103',
+      name: 'High-Rise Heavy Lifting Package',
+      description: 'Potain MC85 High-Reach Tower Crane + CAT Hydraulic Excavator combo for high-rise projects.',
+      equipmentIds: ['EQ-1003', 'EQ-1001'],
+      discountPercent: 10,
+      estimatedDailyTotal: 13050,
+      badge: 'Heavy Lifting Special'
+    }
+  ];
+  res.json(bundles);
+});
+
 app.get('/api/equipment/:id', (req, res) => {
   const db = readDB();
   const eq = db.equipment.find((e) => e.id === req.params.id);

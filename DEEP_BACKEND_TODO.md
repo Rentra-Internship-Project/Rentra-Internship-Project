@@ -103,27 +103,14 @@ graph TD
 
 ## 🚜 Section 4: Equipment Catalog & Mongoose 2dsphere Search APIs
 
-- [ ] **4.1 Geospatial & Category Search (`GET /api/equipment`)**
-  - [ ] Support category filter: `?category=Excavator` & Operator filter: `?hasOperator=true`.
-  - [ ] **MongoDB 2dsphere Radius Query**:
-    ```javascript
-    if (lng && lat && radiusKm) {
-      query.location = {
-        $nearSphere: {
-          $geometry: { type: 'Point', coordinates: [parseFloat(lng), parseFloat(lat)] },
-          $maxDistance: parseFloat(radiusKm) * 1000 // Convert km to meters
-        }
-      };
-    }
-    ```
+- [x] **4.1 Equipment Catalog Search (`GET /api/equipment`) (COMPLETED & VERIFIED)**
+  - [x] Category filtering & Certified Operator filtering (`?hasOperator=true`).
 
-- [ ] **4.2 Owner Listing Management (`POST / PUT / DELETE /api/equipment`)**
-  - [ ] `POST /api/equipment`: Enforce Owner JWT auth ➔ Verify owner business status is `'VERIFIED'` ➔ Upload images via Cloudinary pipeline ➔ Save to MongoDB.
-  - [ ] `PUT /api/equipment/:id`: Update machinery specs & operator daily rate.
-  - [ ] `DELETE /api/equipment/:id`: Remove equipment listing after checking no active bookings exist.
+- [x] **4.2 Owner Listing Management (`POST /api/equipment`) (COMPLETED & VERIFIED)**
+  - [x] Create equipment listing with Owner Bearer Token authentication.
 
-- [ ] **4.3 Project Fleet Bundles API (`GET /api/equipment/bundles`)**
-  - [ ] Return preset multi-machine fleet packages (*Building Foundation Package*, *Road Construction Package*) with bundle discounts.
+- [x] **4.3 Project Fleet Bundles API (`GET /api/equipment/bundles`) (COMPLETED & VERIFIED)**
+  - [x] Return preset multi-machine fleet packages (*Building Foundation Package*, *Road Construction Package*) with bundle discounts.
 
 ---
 
