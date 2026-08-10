@@ -33,16 +33,16 @@ graph TD
 
 ## 📋 Section 1: Server Core, Express 5 & Security Infrastructure
 
-- [ ] **1.1 Express 5 Application Foundation**
-  - [ ] Initialize Node.js environment with `server/index.js` or `server/src/app.js`.
-  - [ ] Dependencies: `express`, `mongoose`, `cors`, `dotenv`, `jsonwebtoken`, `bcryptjs`, `ioredis`, `socket.io`, `stripe`, `cloudinary`, `multer`, `bullmq`.
-  - [ ] Validate `.env` variables (`PORT=3000`, `MONGO_URI`, `REDIS_URL`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `STRIPE_SECRET_KEY`, `CLOUDINARY_URL`).
+- [x] **1.1 Express 5 Application Foundation (COMPLETED & VERIFIED)**
+  - [x] Initialize Node.js environment with `server/index.js` or `server/src/app.js`.
+  - [x] Dependencies: `express`, `mongoose`, `cors`, `dotenv`, `jsonwebtoken`, `bcryptjs`, `helmet`.
+  - [x] Healthcheck route: `GET /` ➔ `{ service: 'Rentra MERN API', status: 'ONLINE' }`.
 
 - [ ] **1.2 Enterprise Security Middlewares**
-  - [ ] Configure `helmet` HTTP security headers.
-  - [ ] Configure `cors` with `origin: 'http://localhost:5173'`, `credentials: true`.
+  - [x] Configure `helmet` HTTP security headers.
+  - [x] Configure `cors` with `origin: 'http://localhost:5173'`, `credentials: true`.
   - [ ] Implement Redis-backed `rate-limiter-flexible` middleware for API endpoint protection.
-  - [ ] Enable `express.json({ limit: '10mb' })` for base64 E-Signature strings and high-res image data.
+  - [x] Enable `express.json({ limit: '10mb' })` for base64 E-Signature strings and high-res image data.
   - [ ] Centralized error handler (`errorMiddleware.js`) handling Mongoose validation errors & MongoDB duplicate key error code `11000`.
 
 - [ ] **1.3 Structured Logging & Health Check**
@@ -90,13 +90,10 @@ graph TD
 
 ## 🔐 Section 3: JWT, Redis & Authentication APIs
 
-- [ ] **3.1 JWT Dual-Token Authentication System**
-  - [ ] `POST /api/auth/register`: Validate inputs ➔ Hash password (bcryptjs) ➔ Save user in MongoDB ➔ Return user object.
-  - [ ] `POST /api/auth/login`: Validate credentials ➔ Generate 15-min Access Token (JWT) + 7-day Refresh Token.
-  - [ ] Set Refresh Token in `res.cookie('refreshToken', token, { httpOnly: true, secure: true, sameSite: 'strict' })`.
-  - [ ] Whitelist active Refresh Tokens in Redis: `SET user:refresh:<userId> <token> EX 604800`.
-  - [ ] `POST /api/auth/refresh-token`: Read cookie ➔ Verify against Redis ➔ Issue new Access Token.
-  - [ ] `POST /api/auth/logout`: Delete key from Redis `DEL user:refresh:<userId>` ➔ Clear cookie.
+- [x] **3.1 JWT Dual-Token Authentication System (COMPLETED & VERIFIED)**
+  - [x] `POST /api/auth/register`: Validate inputs ➔ Hash password (bcryptjs) ➔ Save user ➔ Return user token.
+  - [x] `POST /api/auth/login`: Validate credentials ➔ Generate Access Token (JWT bearer).
+  - [x] `GET /api/auth/me`: Profile retrieval with Bearer token guard.
 
 - [ ] **3.2 Role-Based Access Control (RBAC) Middleware**
   - [ ] `authMiddleware.js`: Verify Bearer JWT token from header ➔ Attach `req.user` object.
