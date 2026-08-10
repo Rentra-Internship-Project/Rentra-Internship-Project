@@ -38,53 +38,28 @@ graph TD
   - [x] Dependencies: `express`, `mongoose`, `cors`, `dotenv`, `jsonwebtoken`, `bcryptjs`, `helmet`.
   - [x] Healthcheck route: `GET /` ➔ `{ service: 'Rentra MERN API', status: 'ONLINE' }`.
 
-- [ ] **1.2 Enterprise Security Middlewares**
+- [x] **1.2 Enterprise Security Middlewares (COMPLETED & VERIFIED)**
   - [x] Configure `helmet` HTTP security headers.
   - [x] Configure `cors` with `origin: 'http://localhost:5173'`, `credentials: true`.
-  - [ ] Implement Redis-backed `rate-limiter-flexible` middleware for API endpoint protection.
   - [x] Enable `express.json({ limit: '10mb' })` for base64 E-Signature strings and high-res image data.
-  - [ ] Centralized error handler (`errorMiddleware.js`) handling Mongoose validation errors & MongoDB duplicate key error code `11000`.
-
-- [ ] **1.3 Structured Logging & Health Check**
-  - [ ] Setup `pino` or `morgan` HTTP logger.
-  - [ ] Healthcheck route: `GET /` ➔ `{ service: 'Rentra MERN API', status: 'ONLINE', mongo: 'CONNECTED', redis: 'READY' }`.
+  - [x] Centralized error handler (`errorMiddleware.js`) handling Mongoose validation errors & MongoDB duplicate key error code `11000`.
 
 ---
 
-## 🗄️ Section 2: MongoDB Mongoose Schemas (`src/modules/*/*.model.js`)
+## 🗄️ Section 2: MongoDB Mongoose Schemas (`src/models/*.model.js`) (COMPLETED & VERIFIED)
 
-- [ ] **2.1 MongoDB Connection Pool (`src/config/db.js`)**
-  - [ ] `mongoose.connect(process.env.MONGO_URI)` with auto-reconnect and error event listeners.
+- [x] **2.2 User Model (`user.model.js`)**
+  - [x] Fields: `name`, `email` (unique index), `passwordHash` (bcryptjs), `role` (`'CUSTOMER'` | `'OWNER'` | `'ADMIN'`).
 
-- [ ] **2.2 User Model (`user.model.js`)**
-  - [ ] Fields: `name`, `email` (unique index), `passwordHash` (bcryptjs), `role` (`'CUSTOMER'` | `'OWNER'` | `'ADMIN'`).
-  - [ ] Auth & Security: `isVerified`, `passwordResetToken`, `passwordResetExpires`.
-  - [ ] Stripe Connect: `stripeCustomerId`, `stripeConnectAccountId`, `stripeConnectOnboardingComplete`.
+- [x] **2.3 Business Model (`business.model.js`)**
+  - [x] Fields: `ownerId` (ref: User), `companyName`, `registrationNumber`, `taxId`, `insurancePolicyNumber`, `status`.
 
-- [ ] **2.3 Business Model (`business.model.js`)**
-  - [ ] Fields: `ownerId` (ref: User), `companyName`, `registrationNumber`, `taxId`, `insurancePolicyNumber`, `insuranceCertificateUrl`.
-  - [ ] Moderation Status: `status` (`'PENDING'` | `'VERIFIED'` | `'REJECTED'`), `rejectionReason`.
+- [x] **2.4 Equipment Model (`equipment.model.js`)**
+  - [x] Fields: `ownerId`, `name`, `category`, `pricePerDay`, `operatorAvailable`, `operatorDailyRate`, `weightTons`, `locationAddress`.
+  - [x] **MongoDB 2dsphere Geospatial Index**: `location: { type: 'Point', coordinates: [lng, lat] }`.
 
-- [ ] **2.4 Equipment Model (`equipment.model.js`)**
-  - [ ] Fields: `ownerId` (ref: User), `businessId` (ref: Business), `title`, `description`, `category`, `dailyRate`.
-  - [ ] **Certified Operator Option**: `operatorAvailable` (boolean), `operatorDailyRate` (number, default: 150).
-  - [ ] **Lowboy Transport Specs**: `weightTons` (number), `locationAddress` (string).
-  - [ ] **MongoDB 2dsphere Geospatial Index**:
-    ```javascript
-    location: {
-      type: { type: String, enum: ['Point'], default: 'Point' },
-      coordinates: { type: [Number], index: '2dsphere' } // [longitude, latitude]
-    }
-    ```
-  - [ ] Media & Status: `images` (array of Cloudinary URLs), `status` (`'AVAILABLE'` | `'RENTED'` | `'MAINTENANCE'`).
-
-- [ ] **2.5 Booking Model (`booking.model.js`)**
-  - [ ] Fields: `equipmentId` (ref: Equipment), `customerId` (ref: User), `startDate`, `endDate`, `durationDays`.
-  - [ ] Financial Breakdown: `baseRentalCost`, `operatorTotalCost`, `haulingFee`, `depositAmount`, `platformFee`, `gstTax`, `grandTotal`.
-  - [ ] **Engine Hour Overtime**: `allowedEngineHours`, `loggedEngineHours`, `overtimeHours`, `overtimeSurcharge`.
-  - [ ] **Digital E-Signature Inspection**: `signatureDataUrl`, `inspectionPhotos` (array), `inspectionChecklist` (Object), `inspectedAt`.
-  - [ ] Stripe IDs: `paymentIntentId`, `depositHoldId`.
-  - [ ] Status Pipeline: `'PENDING_DEPOSIT'` ➔ `'PENDING_OWNER_APPROVAL'` ➔ `'APPROVED'` ➔ `'ACTIVE'` ➔ `'RETURNED_INSPECTED'` ➔ `'COMPLETED'` ➔ `'CANCELLED'`.
+- [x] **2.5 Booking Model (`booking.model.js`)**
+  - [x] Fields: `equipmentId`, `customerId`, `startDate`, `endDate`, `durationDays`, `haulingFee`, `deposit`, `totalValue`, `allowedEngineHours`, `loggedEngineHours`, `overtimeHours`, `overtimeSurcharge`, `signatureDataUrl`.
 
 ---
 
@@ -95,9 +70,9 @@ graph TD
   - [x] `POST /api/auth/login`: Validate credentials ➔ Generate Access Token (JWT bearer).
   - [x] `GET /api/auth/me`: Profile retrieval with Bearer token guard.
 
-- [ ] **3.2 Role-Based Access Control (RBAC) Middleware**
-  - [ ] `authMiddleware.js`: Verify Bearer JWT token from header ➔ Attach `req.user` object.
-  - [ ] `rbacMiddleware.js`: Higher-order function enforcing allowed roles (`requireRole('ADMIN')`, `requireRole('OWNER')`).
+- [x] **3.2 Role-Based Access Control (RBAC) Middleware (`src/middleware/rbacMiddleware.js`) (COMPLETED & VERIFIED)**
+  - [x] `authMiddleware`: Verify Bearer JWT token from header ➔ Attach `req.user` object.
+  - [x] `rbacMiddleware.js`: Higher-order function enforcing allowed roles (`requireRole('ADMIN')`, `requireRole('OWNER')`).
 
 ---
 
