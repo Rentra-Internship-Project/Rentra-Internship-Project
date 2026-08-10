@@ -34,6 +34,14 @@
       "passwordHash": "$2b$10$f1VCjgSHEjTL2IhFLvxxsOhN9NCXcj.q7VhCDWyl6DHXnFOmTYGkW",
       "role": "CUSTOMER",
       "createdAt": "2026-08-10T13:39:48.598Z"
+    },
+    {
+      "id": "u-1786369750938",
+      "name": "David Miller",
+      "email": "contractor_1786369750812@test.com",
+      "passwordHash": "$2b$10$9kt9A76bwbUHv.ln.mf8NebvUCfw07qNEi4WpW0xOxbu293V68edu",
+      "role": "CUSTOMER",
+      "createdAt": "2026-08-10T13:49:10.938Z"
     }
   ],
   "equipment": [
@@ -101,6 +109,23 @@
       "image": "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&q=80&w=800",
       "description": "Heavy-duty articulated haul truck designed for tough off-road hauling operations.",
       "createdAt": "2026-08-10T13:43:27.195Z"
+    },
+    {
+      "id": "EQ-7579",
+      "ownerId": "u-102",
+      "name": "Sany SY215C Heavy Crawler Excavator",
+      "category": "Excavation",
+      "pricePerDay": 5800,
+      "operatorAvailable": true,
+      "operatorDailyRate": 1600,
+      "weightTons": 22,
+      "location": "Dallas, TX",
+      "availability": "Available",
+      "rating": 5,
+      "reviewsCount": 1,
+      "image": "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&q=80&w=800",
+      "description": "Heavy duty 22-ton crawler excavator with reinforced boom.",
+      "createdAt": "2026-08-10T13:49:10.958Z"
     }
   ],
   "bookings": [
@@ -165,6 +190,39 @@
       "signatureDataUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
       "siteAddress": "450 Commercial Way, Site C, Austin TX",
       "notes": "Gate passcode 9912. Heavy excavation.",
+      "bookingDate": "2026-08-10"
+    },
+    {
+      "id": "BK-64426",
+      "equipmentId": "EQ-7579",
+      "equipmentName": "Sany SY215C Heavy Crawler Excavator",
+      "customerId": "u-1786369750938",
+      "startDate": "2026-08-20",
+      "endDate": "2026-08-23",
+      "durationDays": 3,
+      "dailyRate": 5800,
+      "includeOperator": true,
+      "operatorCostPerDay": 1600,
+      "distanceKm": 45,
+      "haulingFee": 308,
+      "effectiveDailyRate": 7400,
+      "rentalCost": 22200,
+      "deposit": 4440,
+      "platformFee": 444,
+      "gst": 2020,
+      "totalValue": 29682,
+      "amountPaidNow": 4440,
+      "remainingBalance": 24972,
+      "status": "Returned & Inspected",
+      "depositStatus": "Deposit Paid",
+      "refundStatus": "Held in Escrow",
+      "allowedEngineHours": 24,
+      "loggedEngineHours": 30,
+      "overtimeHours": 6,
+      "overtimeSurcharge": 270,
+      "signatureDataUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+      "siteAddress": "780 Industrial Highway, Dallas TX",
+      "notes": "Call site manager on arrival.",
       "bookingDate": "2026-08-10"
     }
   ],
