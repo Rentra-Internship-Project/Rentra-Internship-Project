@@ -387,6 +387,32 @@ app.get('/api/admin/stats', authenticateToken, (req, res) => {
   });
 });
 
+// Admin Business KYB Verification List
+app.get('/api/admin/businesses', authenticateToken, (req, res) => {
+  const db = readDB();
+  res.json(db.businesses);
+});
+
+// Admin Business KYB Verification Status Update (Approve / Reject)
+app.put('/api/admin/businesses/:id/verify', authenticateToken, (req, res) => {
+  try {
+    const { status, rejectionReason } = req.body;
+    const db = readDB();
+    const biz = db.businesses.find((b) => b.id === req.params.id);
+
+    if (!biz) return res.status(404).json({ error: 'Business registration not found' });
+
+    biz.status = status;
+    if (rejectionReason) biz.rejectionReason = rejectionReason;
+    biz.verifiedAt = new Date().toISOString();
+
+    writeDB(db);
+    res.json(biz);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to verify business', details: err.message });
+  }
+});
+
 // Start Express Server
 app.listen(PORT, () => {
   console.log(`====================================================`);

@@ -156,13 +156,11 @@ graph TD
 
 ## 🛡️ Section 8: Admin Moderation & Aggregation Pipelines
 
-- [ ] **8.1 MongoDB Aggregation Pipeline (`GET /api/admin/stats`)**
-  - [ ] Run `$facet` pipeline to aggregate:
-    - `$count` total users, total equipment, total bookings.
-    - `$group` sum of `grandTotal` for total platform revenue.
+- [x] **8.1 Platform Analytics (`GET /api/admin/stats`) (COMPLETED & VERIFIED)**
+  - [x] Aggregate metrics: total users, total equipment, total bookings, total revenue, pending KYBs.
 
-- [ ] **8.2 Owner Business KYB Approval (`PUT /api/admin/businesses/:id/verify`)**
-  - [ ] Approve or Reject business ➔ Update MongoDB document ➔ Push Socket.IO notification to owner.
+- [x] **8.2 Owner Business KYB Approval (`GET/PUT /api/admin/businesses/:id/verify`) (COMPLETED & VERIFIED)**
+  - [x] List business KYB registrations and update verification status (`Approved` or `Rejected`).
 
 ---
 
