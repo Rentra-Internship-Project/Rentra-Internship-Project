@@ -12,9 +12,6 @@ import {
   FiPhone,
   FiMail,
   FiArrowRight,
-  FiMessageSquare,
-  FiTruck,
-  FiCheck,
 } from 'react-icons/fi';
 import { useCustomer } from '../../context/CustomerContext';
 import Button from '../../components/common/Button';
@@ -27,6 +24,16 @@ const EquipmentDetails = () => {
   // Find equipment by ID or fallback
   const equipment = equipmentList.find((e) => e.id === id) || equipmentList[0];
   const isWishlisted = isInWishlist(equipment.id);
+
+  // Unique Features State & Logistics Calculations
+  const [includeOperator, setIncludeOperator] = useState(false);
+  const [distanceKm, setDistanceKm] = useState(25);
+
+  const operatorDailyRate = equipment.operatorDailyRate || 150;
+  const BASE_HAULING = 150;
+  const PER_KM_RATE = 3.50;
+  const deliveryFee = BASE_HAULING + (distanceKm * PER_KM_RATE);
+  const effectiveDailyRate = equipment.pricePerDay + (includeOperator ? operatorDailyRate : 0);
 
   // Gallery active image state
   const galleryImages = equipment.gallery && equipment.gallery.length > 0
@@ -61,7 +68,9 @@ const EquipmentDetails = () => {
           <Button
             variant="primary"
             size="md"
-            onClick={() => navigate(`/customer/booking-summary/${equipment.id}`)}
+            onClick={() => navigate(`/customer/booking-summary/${equipment.id}`, {
+              state: { includeOperator, distanceKm, operatorDailyRate }
+            })}
             icon={FiArrowRight}
           >
             Book Equipment Now
@@ -204,10 +213,52 @@ const EquipmentDetails = () => {
           <div className="panel-card p-6 space-y-4 border-2 border-[#CCCCFF]">
             <h3 className="text-base font-extrabold text-[#0F172A]">Rental Rate Summary</h3>
 
-            <div className="p-4 bg-[#CCCCFF]/20 rounded-[18px] border border-[#CCCCFF]/50 space-y-2">
+            <div className="p-4 bg-[#CCCCFF]/20 rounded-[18px] border border-[#CCCCFF]/50 space-y-2.5">
               <div className="flex justify-between text-xs text-[#64748B]">
-                <span>Daily Rental Rate:</span>
+                <span>Base Daily Rate:</span>
                 <span className="font-extrabold text-[#0F172A]">₹{equipment.pricePerDay.toLocaleString()} / day</span>
+              </div>
+
+              {/* Certified Operator Option Widget */}
+              <label className="flex items-center gap-2.5 p-2.5 bg-emerald-50 border border-emerald-200 rounded-[12px] cursor-pointer mt-1">
+                <input
+                  type="checkbox"
+                  checked={includeOperator}
+                  onChange={(e) => setIncludeOperator(e.target.checked)}
+                  className="w-4 h-4 accent-emerald-600 rounded"
+                />
+                <div className="text-xs">
+                  <span className="font-bold text-emerald-900 block">Include Certified Operator</span>
+                  <span className="text-[11px] text-emerald-700">+₹{operatorDailyRate}/day for licensed driver</span>
+                </div>
+              </label>
+
+              {/* Lowboy Delivery Logistics Estimator Widget */}
+              <div className="p-3 bg-white/80 rounded-[14px] border border-[#E2E8F0] space-y-2 mt-2">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="font-bold text-[#0F172A]">🚚 Lowboy Delivery Logistics</span>
+                  <span className="text-indigo-600 font-extrabold">+₹{deliveryFee.toFixed(0)}</span>
+                </div>
+                <div className="flex justify-between text-[11px] text-[#64748B]">
+                  <span>Job Site Distance:</span>
+                  <span className="font-bold text-[#0F172A]">{distanceKm} km</span>
+                </div>
+                <input
+                  type="range"
+                  min="5"
+                  max="150"
+                  value={distanceKm}
+                  onChange={(e) => setDistanceKm(Number(e.target.value))}
+                  className="w-full accent-indigo-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg"
+                />
+                <p className="text-[10px] text-[#94A3B8]">
+                  Trailer: <strong>{equipment.weightTons > 10 ? '3-Axle Heavy Lowboy' : 'Flatbed Trailer'}</strong>
+                </p>
+              </div>
+
+              <div className="flex justify-between text-xs text-[#64748B] pt-1">
+                <span>Effective Rate:</span>
+                <span className="font-extrabold text-[#0F172A]">₹{effectiveDailyRate.toLocaleString()} / day</span>
               </div>
               <div className="flex justify-between text-xs text-[#64748B]">
                 <span>Security Deposit (Refundable):</span>
@@ -222,7 +273,9 @@ const EquipmentDetails = () => {
             <Button
               variant="primary"
               size="lg"
-              onClick={() => navigate(`/customer/booking-summary/${equipment.id}`)}
+              onClick={() => navigate(`/customer/booking-summary/${equipment.id}`, {
+                state: { includeOperator, distanceKm, operatorDailyRate }
+              })}
               className="w-full shadow-md"
               icon={FiArrowRight}
             >

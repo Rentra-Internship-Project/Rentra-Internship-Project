@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import {
   FiArrowLeft,
   FiCreditCard,
@@ -9,7 +8,6 @@ import {
   FiShield,
   FiCheckCircle,
   FiLock,
-  FiDollarSign,
 } from 'react-icons/fi';
 import { useCustomer } from '../../context/CustomerContext';
 import Button from '../../components/common/Button';

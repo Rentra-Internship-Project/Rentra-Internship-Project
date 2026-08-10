@@ -60,7 +60,7 @@ const ConfirmModal = ({
             <Button
               variant={type === 'danger' ? 'danger' : 'primary'}
               onClick={() => {
-                onConfirm && onConfirm();
+                if (onConfirm) onConfirm();
                 onClose();
               }}
             >

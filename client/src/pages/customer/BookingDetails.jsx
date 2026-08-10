@@ -21,6 +21,7 @@ import {
 import { useCustomer } from '../../context/CustomerContext';
 import Button from '../../components/common/Button';
 import ConfirmModal from '../../components/common/ConfirmModal';
+import DigitalInspectionModal from '../../components/common/DigitalInspectionModal';
 
 const statusBadgeStyles = {
   'Pending Deposit': 'bg-[#F59E0B]/15 text-[#F59E0B] border border-[#F59E0B]/30',
@@ -44,8 +45,18 @@ const BookingDetails = () => {
   const booking = bookings.find((b) => b.id === id) || bookings[0];
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [isInspectionModalOpen, setIsInspectionModalOpen] = useState(false);
+  const [isInspected, setIsInspected] = useState(false);
   const [invoiceDownloaded, setInvoiceDownloaded] = useState(false);
   const [isPayingRemaining, setIsPayingRemaining] = useState(false);
+
+  // Engine Hour Overtime State
+  const rentalDays = booking?.durationDays || 4;
+  const maxAllowedHours = rentalDays * 8;
+  const [loggedEngineHours, setLoggedEngineHours] = useState(maxAllowedHours);
+
+  const overtimeHours = Math.max(0, loggedEngineHours - maxAllowedHours);
+  const overtimeSurcharge = overtimeHours * 45; // $45/hr extra
 
   if (!booking) {
     return (
@@ -246,6 +257,51 @@ const BookingDetails = () => {
                 </div>
               )}
             </div>
+
+            {/* Engine Hour Overtime Meter Widget */}
+            <div className="p-4 bg-amber-50/70 border border-amber-200 rounded-[16px] space-y-2 mt-4">
+              <div className="flex justify-between items-center text-xs font-bold text-amber-900">
+                <span>⏱️ Engine Operating Hour Inspection Meter</span>
+                <span>Allowance: {maxAllowedHours} hrs</span>
+              </div>
+              <input
+                type="range"
+                min={maxAllowedHours}
+                max={maxAllowedHours + 20}
+                value={loggedEngineHours}
+                onChange={(e) => setLoggedEngineHours(Number(e.target.value))}
+                className="w-full accent-amber-600 cursor-pointer h-2 bg-amber-200/80 rounded-lg"
+              />
+              <div className="flex justify-between text-xs font-medium pt-1">
+                <span>Logged Engine Run-Time: <strong>{loggedEngineHours} hrs</strong></span>
+                {overtimeHours > 0 ? (
+                  <span className="text-rose-600 font-extrabold">Overtime Surcharge: +₹{(overtimeSurcharge * 80).toLocaleString()}</span>
+                ) : (
+                  <span className="text-emerald-700 font-bold">Within 8 hrs/day Allowance</span>
+                )}
+              </div>
+            </div>
+
+            {/* Digital Inspection & E-Signature Trigger */}
+            <div className="p-4 bg-slate-50 border border-[#E2E8F0] rounded-[16px] flex items-center justify-between gap-4 mt-3">
+              <div>
+                <h4 className="text-xs font-bold text-[#0F172A]">Digital Inspection & E-Signature</h4>
+                <p className="text-[11px] text-[#64748B]">
+                  {isInspected ? '✅ Inspection Verified with Timestamped E-Signature' : 'Verify asset condition & sign digital check-in paper trail'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsInspectionModalOpen(true)}
+                className={`px-4 py-2 rounded-[12px] text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                  isInspected
+                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                    : 'bg-[#CCCCFF] hover:bg-[#B8B8FF] text-[#0F172A] shadow-xs'
+                }`}
+              >
+                {isInspected ? 'View Inspection' : 'Start E-Sign Check-in'}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -365,6 +421,14 @@ const BookingDetails = () => {
         message="Are you sure you want to cancel this booking request? Paid security deposit will be refunded to your account."
         confirmText="Confirm Cancellation"
         variant="danger"
+      />
+
+      {/* Digital Inspection & E-Signature Modal */}
+      <DigitalInspectionModal
+        isOpen={isInspectionModalOpen}
+        onClose={() => setIsInspectionModalOpen(false)}
+        onConfirm={() => setIsInspected(true)}
+        bookingId={booking.id}
       />
     </div>
   );

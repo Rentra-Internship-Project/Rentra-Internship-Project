@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiCheckCircle, FiCalendar, FiArrowRight, FiShield, FiTruck, FiInfo } from 'react-icons/fi';
+import { FiCheckCircle, FiCalendar, FiTruck, FiInfo } from 'react-icons/fi';
 import Button from '../../components/common/Button';
 
 const PaymentSuccess = () => {
