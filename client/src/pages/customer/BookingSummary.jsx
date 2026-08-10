@@ -1,15 +1,12 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   FiArrowLeft,
-  FiCalendar,
   FiMapPin,
-  FiShield,
-  FiDollarSign,
-  FiCheckCircle,
   FiArrowRight,
   FiInfo,
+  FiTruck,
+  FiUserCheck,
 } from 'react-icons/fi';
 import { useCustomer } from '../../context/CustomerContext';
 import Button from '../../components/common/Button';
@@ -17,9 +14,18 @@ import Button from '../../components/common/Button';
 const BookingSummary = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { equipmentList, prepareBookingSummary } = useCustomer();
 
   const equipment = equipmentList.find((e) => e.id === id) || equipmentList[0];
+
+  // Extract navigation state from EquipmentDetails & Fleet Bundler
+  const includeOperator = location.state?.includeOperator || false;
+  const distanceKm = location.state?.distanceKm || 25;
+  const operatorDailyRate = location.state?.operatorDailyRate || equipment.operatorDailyRate || 1500;
+  const isBundle = location.state?.isBundle || false;
+  const bundleName = location.state?.bundleName || '';
+  const discountPercent = location.state?.discountPercent || 0;
 
   // Dates & Form State
   const [startDate, setStartDate] = useState('2026-08-12');
@@ -30,16 +36,30 @@ const BookingSummary = () => {
   // Financial calculations
   const start = new Date(startDate);
   const end = new Date(endDate);
-  const diffTime = Math.abs(end - start);
-  const durationDays = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+  const diffTime = end - start;
+  const durationDays = diffTime <= 0 ? 1 : Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-  const dailyRate = equipment.pricePerDay; // e.g. ₹5,000
-  const rentalCost = durationDays * dailyRate; // e.g. ₹10,000
-  const deposit = 2000; // Security deposit
-  const platformFee = Math.round(rentalCost * 0.02); // e.g. ₹200
-  const gst = Math.round((rentalCost + platformFee) * 0.088); // e.g. ₹900
-  const totalValue = rentalCost + deposit + platformFee + gst; // e.g. ₹13,100
-  const amountPayableNow = deposit; // Security Deposit ₹2,000
+  const baseDailyRate = equipment.pricePerDay;
+  const operatorCostPerDay = includeOperator ? operatorDailyRate : 0;
+  const effectiveDailyRate = baseDailyRate + operatorCostPerDay;
+  
+  const baseRentalCost = durationDays * baseDailyRate;
+  const operatorTotalCost = durationDays * operatorCostPerDay;
+  const subtotalBeforeDiscount = baseRentalCost + operatorTotalCost;
+
+  const bundleDiscountAmount = isBundle ? Math.round(subtotalBeforeDiscount * (discountPercent / 100)) : 0;
+  const rentalCost = subtotalBeforeDiscount - bundleDiscountAmount;
+
+  // Lowboy Transport Hauling Fee Formula
+  const BASE_HAULING = 150;
+  const PER_KM_RATE = 3.50;
+  const haulingFee = Math.round(BASE_HAULING + (distanceKm * PER_KM_RATE));
+
+  const deposit = Math.round(rentalCost * 0.20); // 20% Security deposit
+  const platformFee = Math.round(rentalCost * 0.02);
+  const gst = Math.round((rentalCost + haulingFee + platformFee) * 0.088);
+  const totalValue = rentalCost + haulingFee + deposit + platformFee + gst;
+  const amountPayableNow = deposit;
 
   const handleProceedToPayment = (e) => {
     e.preventDefault();
@@ -56,7 +76,12 @@ const BookingSummary = () => {
       startDate,
       endDate,
       durationDays,
-      dailyRate,
+      dailyRate: baseDailyRate,
+      includeOperator,
+      operatorCostPerDay,
+      distanceKm,
+      haulingFee,
+      effectiveDailyRate,
       rentalCost,
       deposit,
       platformFee,
@@ -174,19 +199,45 @@ const BookingSummary = () => {
             <table className="w-full text-xs">
               <tbody className="divide-y divide-[#E2E8F0]">
                 <tr>
-                  <td className="py-2.5 text-[#64748B]">Rental Cost ({durationDays} days @ ₹{dailyRate.toLocaleString()}/day)</td>
-                  <td className="py-2.5 text-right font-extrabold text-[#0F172A]">₹{rentalCost.toLocaleString()}</td>
+                  <td className="py-2.5 text-[#64748B]">Base Machinery ({durationDays} days @ ₹{baseDailyRate.toLocaleString()}/day)</td>
+                  <td className="py-2.5 text-right font-extrabold text-[#0F172A]">₹{baseRentalCost.toLocaleString()}</td>
                 </tr>
+
+                {includeOperator && (
+                  <tr className="bg-emerald-50/50">
+                    <td className="py-2.5 text-emerald-800 font-semibold flex items-center gap-1">
+                      <FiUserCheck className="text-emerald-600 shrink-0" /> Certified Operator ({durationDays} days @ ₹{operatorCostPerDay.toLocaleString()}/day)
+                    </td>
+                    <td className="py-2.5 text-right font-extrabold text-emerald-800">+₹{operatorTotalCost.toLocaleString()}</td>
+                  </tr>
+                )}
+
+                {isBundle && (
+                  <tr className="bg-purple-50/70">
+                    <td className="py-2.5 text-purple-900 font-bold flex items-center gap-1">
+                      🏷️ Fleet Package Discount ({discountPercent}% Off {bundleName})
+                    </td>
+                    <td className="py-2.5 text-right font-extrabold text-purple-700">-₹{bundleDiscountAmount.toLocaleString()}</td>
+                  </tr>
+                )}
+
                 <tr>
-                  <td className="py-2.5 text-[#64748B]">Security Deposit (Refundable)</td>
+                  <td className="py-2.5 text-[#64748B] flex items-center gap-1">
+                    <FiTruck className="text-indigo-600 shrink-0" /> Lowboy Delivery Logistics ({distanceKm} km haulage)
+                  </td>
+                  <td className="py-2.5 text-right font-extrabold text-[#0F172A]">+₹{haulingFee.toLocaleString()}</td>
+                </tr>
+
+                <tr>
+                  <td className="py-2.5 text-[#64748B]">Security Deposit (Refundable 20%)</td>
                   <td className="py-2.5 text-right font-extrabold text-[#0F172A]">₹{deposit.toLocaleString()}</td>
                 </tr>
                 <tr>
-                  <td className="py-2.5 text-[#64748B]">Platform Fee</td>
+                  <td className="py-2.5 text-[#64748B]">Platform Marketplace Fee</td>
                   <td className="py-2.5 text-right font-extrabold text-[#0F172A]">₹{platformFee.toLocaleString()}</td>
                 </tr>
                 <tr>
-                  <td className="py-2.5 text-[#64748B]">GST (Tax)</td>
+                  <td className="py-2.5 text-[#64748B]">GST (Tax 8.8%)</td>
                   <td className="py-2.5 text-right font-extrabold text-[#0F172A]">₹{gst.toLocaleString()}</td>
                 </tr>
                 <tr className="bg-[#F8FAFC]">

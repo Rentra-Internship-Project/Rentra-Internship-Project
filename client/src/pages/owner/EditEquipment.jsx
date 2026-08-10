@@ -19,6 +19,8 @@ const EditEquipment = () => {
     location: equipmentData.location,
     pricePerDay: equipmentData.pricePerDay.toString(),
     availability: equipmentData.availability,
+    operatorAvailable: equipmentData.operatorAvailable ?? true,
+    operatorDailyRate: (equipmentData.operatorDailyRate || 150).toString(),
   });
   const [message, setMessage] = useState('');
 
@@ -192,6 +194,37 @@ const EditEquipment = () => {
                 <option value="Maintenance">Under Maintenance</option>
               </select>
             </div>
+          </div>
+
+          {/* Certified Operator Option */}
+          <div className="p-4 bg-emerald-50/60 border border-emerald-200 rounded-[16px] space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <label className="font-bold text-[#0F172A] text-xs block">Certified Skilled Operator Option</label>
+                <p className="text-[11px] text-[#64748B]">Provide a qualified, licensed driver with this equipment</p>
+              </div>
+              <input
+                type="checkbox"
+                name="operatorAvailable"
+                checked={formData.operatorAvailable}
+                onChange={(e) => setFormData({ ...formData, operatorAvailable: e.target.checked })}
+                className="w-5 h-5 accent-emerald-600 rounded cursor-pointer"
+              />
+            </div>
+
+            {formData.operatorAvailable && (
+              <div className="pt-2 border-t border-emerald-200/60 flex items-center justify-between gap-4">
+                <label className="text-xs font-semibold text-[#0F172A]">Driver Daily Surcharge ($/day):</label>
+                <input
+                  type="number"
+                  name="operatorDailyRate"
+                  value={formData.operatorDailyRate}
+                  onChange={handleChange}
+                  placeholder="150"
+                  className="w-32 px-3 py-1.5 border border-[#E2E8F0] rounded-[10px] text-xs font-bold text-[#0F172A] bg-white"
+                />
+              </div>
+            )}
           </div>
 
           {/* Submit */}
