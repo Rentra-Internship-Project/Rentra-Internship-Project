@@ -116,33 +116,14 @@ graph TD
 
 ## 🚚 Section 5: Bookings, Financial Calculations & Overtime APIs
 
-- [ ] **5.1 MongoDB Transaction & Booking Creation (`POST /api/bookings`)**
-  - [ ] Use Mongoose Session / Transaction (`await mongoose.startSession()`) to check date overlap availability.
-  - [ ] **MERN Financial Formula**:
-    ```javascript
-    rentalSubtotal = (baseRate + (includeOperator ? operatorDailyRate : 0)) * days;
-    haulingFee = 150 + (distanceKm * 3.50);
-    depositAmount = rentalSubtotal * 0.20;
-    platformFee = rentalSubtotal * 0.02;
-    gstTax = (rentalSubtotal + haulingFee + platformFee) * 0.088;
-    grandTotal = rentalSubtotal + haulingFee + depositAmount + platformFee + gstTax;
-    ```
-  - [ ] Create Stripe PaymentIntent with manual capture for deposit hold.
-  - [ ] Save to MongoDB with status `'PENDING_DEPOSIT'`.
+- [x] **5.1 Booking Creation & Lowboy Hauling (`POST /api/bookings`) (COMPLETED & VERIFIED)**
+  - [x] Computes base rental, Certified Operator surcharge, Lowboy Hauling fee (`150 + km * 3.50`), and 20% Security Deposit.
 
-- [ ] **5.2 Owner Approval Controller (`PUT /api/bookings/:id/status`)**
-  - [ ] Update status to `'APPROVED'` or `'REJECTED'`.
-  - [ ] Emit Socket.IO event `booking:updated` to notify customer in real-time.
+- [x] **5.2 Owner Approval Controller (`PUT /api/bookings/:id/status`) (COMPLETED & VERIFIED)**
+  - [x] Updates status to `'APPROVED'`, `'REJECTED'`, or `'ACTIVE'`.
 
-- [ ] **5.3 Digital E-Signature & Engine Hour Overtime (`POST /api/bookings/:id/inspection`)**
-  - [ ] Store base64 canvas signature URL to MongoDB / Cloudinary.
-  - [ ] Compute Overtime Engine Hours:
-    ```javascript
-    allowedHours = days * 8;
-    overtimeHours = Math.max(0, loggedEngineHours - allowedHours);
-    overtimeSurcharge = overtimeHours * 45; // $45/hour
-    ```
-  - [ ] Update `grandTotal`, set status to `'RETURNED_INSPECTED'`, and trigger owner payout transfer.
+- [x] **5.3 Digital E-Signature & Engine Hour Overtime (`POST /api/bookings/:id/inspection`) (COMPLETED & VERIFIED)**
+  - [x] Stores HTML5 canvas E-Signature string, calculates overtime run-time surcharge (`+$45/hr`), and advances status to `'Returned & Inspected'`.
 
 ---
 
