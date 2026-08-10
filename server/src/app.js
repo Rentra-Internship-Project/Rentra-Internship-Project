@@ -18,12 +18,15 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: '10mb' }));
 app.use(rateLimiter(150, 60000));
 
+const { getDatabaseStatus } = require('./config/db');
+
 // Healthcheck Route
 app.get('/', (req, res) => {
   res.json({
     service: 'Rentra MERN REST API',
     status: 'ONLINE',
     version: '1.0.0',
+    database: getDatabaseStatus(),
     timestamp: new Date().toISOString(),
   });
 });
