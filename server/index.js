@@ -1,4 +1,6 @@
 const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
 const cors = require('cors');
 const helmet = require('helmet');
 const fs = require('fs');
@@ -7,6 +9,10 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: { origin: '*', methods: ['GET', 'POST'] }
+});
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'rentra_super_secret_jwt_key_2026';
 const DB_FILE = path.join(__dirname, 'data', 'db.json');
@@ -413,10 +419,36 @@ app.put('/api/admin/businesses/:id/verify', authenticateToken, (req, res) => {
   }
 });
 
-// Start Express Server
-app.listen(PORT, () => {
+// ----------------------------------------------------
+// 6. SOCKET.IO REAL-TIME EVENT HANDLERS
+// ----------------------------------------------------
+io.on('connection', (socket) => {
+  socket.on('join_room', (userId) => {
+    socket.join(`user_${userId}`);
+  });
+
+  socket.on('send_chat', ({ senderId, recipientId, message }) => {
+    io.to(`user_${recipientId}`).emit('receive_chat', {
+      senderId,
+      message,
+      timestamp: new Date().toISOString(),
+    });
+  });
+
+  socket.on('telematics_alert', ({ ownerId, equipmentId, alertType, location }) => {
+    io.to(`user_${ownerId}`).emit('geofence_warning', {
+      equipmentId,
+      alertType,
+      location,
+      timestamp: new Date().toISOString(),
+    });
+  });
+});
+
+// Start Server with Socket.IO Support
+server.listen(PORT, () => {
   console.log(`====================================================`);
-  console.log(`🚀 Rentra MERN REST API Server running on port ${PORT}`);
+  console.log(`🚀 Rentra MERN REST API & Socket.IO Server on port ${PORT}`);
   console.log(`📡 Health Check: http://localhost:${PORT}`);
   console.log(`====================================================`);
 });

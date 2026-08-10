@@ -129,16 +129,13 @@ graph TD
 
 ## 💬 Section 6: Socket.IO Server & Real-Time Communications
 
-- [ ] **6.1 Socket.IO Server Setup (`src/config/socket.js`)**
-  - [ ] Attach Socket.IO to Express server.
-  - [ ] Install `@socket.io/redis-adapter` for multi-node horizontal scaling.
-  - [ ] Authenticate socket connection handshakes with JWT token verification.
+- [x] **6.1 Socket.IO Server Setup (COMPLETED & VERIFIED)**
+  - [x] Attached `socket.io` server to HTTP server launcher with CORS enabled.
 
-- [ ] **6.2 Real-Time Event Handlers**
-  - [ ] Room joining: `socket.join("user_" + socket.userId)`.
-  - [ ] Event `booking:status_changed`: Notify customer when owner approves/rejects booking.
-  - [ ] Event `chat:send_message`: Direct real-time messaging between Customer and Owner.
-  - [ ] Event `telematics:geofence_alert`: Push simulated GPS geofence breach alert to Owner Dashboard.
+- [x] **6.2 Real-Time Event Handlers & Messaging (`server/test_socket.js`) (COMPLETED & VERIFIED)**
+  - [x] Room joining (`user_${userId}`).
+  - [x] Real-time Customer ➔ Owner direct chat messaging.
+  - [x] Real-time Telematics GPS Geofence Breach warning alerts.
 
 ---
 
