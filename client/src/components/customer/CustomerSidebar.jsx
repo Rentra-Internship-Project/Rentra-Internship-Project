@@ -15,6 +15,7 @@ import {
   FiBriefcase,
 } from 'react-icons/fi';
 import { useCustomer } from '../../context/CustomerContext';
+import { useAuth } from '../../context/AuthContext';
 
 const menuItems = [
   { name: 'Dashboard', path: '/customer/dashboard', icon: FiGrid },
@@ -29,6 +30,7 @@ const CustomerSidebar = ({ mobileOpen, setMobileOpen }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { unreadNotifCount } = useCustomer();
+  const { login } = useAuth();
 
   const handleLogout = () => {
     navigate('/login', { replace: true });
@@ -107,8 +109,13 @@ const CustomerSidebar = ({ mobileOpen, setMobileOpen }) => {
               Start earning by renting out your equipment and business assets on Rentra. Manage bookings, track earnings, and grow your business with our Owner Dashboard.
             </p>
             <button
-              onClick={() => {
-                navigate('/owner/business');
+              onClick={async () => {
+                const result = await login({ email: 'owner@rentra.com', password: 'owner123' });
+                if (result && result.success) {
+                  navigate('/owner/dashboard');
+                } else {
+                  alert('Owner account not found. Please ensure database is seeded.');
+                }
                 setMobileOpen?.(false);
               }}
               className="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-[#0F172A] hover:bg-slate-800 text-white rounded-[10px] text-xs font-semibold transition-all duration-200 cursor-pointer shadow-xs"

@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FiGrid,
@@ -14,6 +14,8 @@ import {
   FiShield
 } from 'react-icons/fi';
 
+import { useAuth } from '../../context/AuthContext';
+
 const menuItems = [
   { name: 'Dashboard', path: '/admin/dashboard', icon: FiGrid },
   { name: 'Users', path: '/admin/users', icon: FiUsers },
@@ -26,6 +28,8 @@ const menuItems = [
 
 const AdminSidebar = ({ mobileOpen, setMobileOpen }) => {
   const location = useLocation();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
   const sidebarContent = (
     <div className="flex flex-col h-full bg-white border-r border-[#E2E8F0] w-64 shadow-xs">
@@ -79,8 +83,9 @@ const AdminSidebar = ({ mobileOpen, setMobileOpen }) => {
       {/* Sidebar Footer / Logout */}
       <div className="p-4 border-t border-[#E2E8F0] bg-[#F8FAFC]/50">
         <button
-          onClick={() => {
-            alert("Administrative logout simulation triggered.");
+          onClick={async () => {
+            await logout();
+            navigate('/auth/login');
           }}
           className="flex items-center gap-3 w-full px-3.5 py-3 rounded-[12px] text-sm font-medium text-[#EF4444] hover:bg-red-50 transition-colors"
         >

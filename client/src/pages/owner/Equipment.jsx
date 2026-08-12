@@ -6,14 +6,21 @@ import EquipmentCard from '../../components/owner/EquipmentCard';
 import SearchBar from '../../components/common/SearchBar';
 import EmptyState from '../../components/common/EmptyState';
 import ConfirmModal from '../../components/common/ConfirmModal';
-import { ownerEquipment as initialEquipment } from '../../data/ownerMockData';
+import { useOwner } from '../../context/OwnerContext';
+import { equipmentService } from '../../services/api';
 
 const Equipment = () => {
   const navigate = useNavigate();
-  const [equipment, setEquipment] = useState(initialEquipment);
+  const { equipmentList, isLoading } = useOwner();
+  const [equipment, setEquipment] = useState(equipmentList);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [deleteTarget, setDeleteTarget] = useState(null);
+
+  // Sync state if context loads late
+  React.useEffect(() => {
+    setEquipment(equipmentList);
+  }, [equipmentList]);
 
   const filteredEquipment = useMemo(() => {
     return equipment.filter((eq) => {

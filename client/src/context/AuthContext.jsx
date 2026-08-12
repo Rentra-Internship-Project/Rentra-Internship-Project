@@ -1,44 +1,67 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { authService } from '../services/api';
 
 const AuthContext = createContext(null);
 
-const credentials = {
-  owner: {
-    name: 'Alicia Reyes',
-    email: 'customer@rentra.com',
-    password: 'customer123',
-    role: 'customer',
-    avatar: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&q=80&w=300',
-    businessName: 'Titan Heavy Rentals Inc.'
-  }
-};
-
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const login = ({ email, password }) => {
-    const account = credentials.owner;
+  // Restore session on mount
+  useEffect(() => {
+    const restoreSession = async () => {
+      const token = localStorage.getItem('rentra_token');
+      if (token) {
+        try {
+          const response = await authService.getProfile();
+          setUser(response.data.user);
+        } catch (err) {
+          // Token invalid or expired — clear it
+          localStorage.removeItem('rentra_token');
+        }
+      }
+      setLoading(false);
+    };
+    restoreSession();
+  }, []);
 
-    if (account.email !== email || account.password !== password) {
-      return { success: false, message: 'Invalid credentials. Use owner@rentra.com / owner123' };
+  const login = async ({ email, password }) => {
+    try {
+      const response = await authService.login({ email, password });
+      const { user: userData, token } = response.data;
+      localStorage.setItem('rentra_token', token);
+      setUser(userData);
+      return { success: true, user: userData };
+    } catch (err) {
+      return {
+        success: false,
+        message: err.response?.data?.error || 'Login failed. Please try again.',
+      };
     }
+  };
 
-    setUser({
-      name: account.name,
-      email: account.email,
-      role: account.role,
-      avatar: account.avatar,
-      businessName: account.businessName
-    });
-    return { success: true };
+  const register = async (userData) => {
+    try {
+      const response = await authService.register(userData);
+      const { user: newUser, token } = response.data;
+      localStorage.setItem('rentra_token', token);
+      setUser(newUser);
+      return { success: true, user: newUser };
+    } catch (err) {
+      return {
+        success: false,
+        message: err.response?.data?.error || 'Registration failed. Please try again.',
+      };
+    }
   };
 
   const logout = () => {
+    localStorage.removeItem('rentra_token');
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: Boolean(user), login, logout }}>
+    <AuthContext.Provider value={{ user, loading, isAuthenticated: Boolean(user), login, logout, register }}>
       {children}
     </AuthContext.Provider>
   );

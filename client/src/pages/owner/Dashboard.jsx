@@ -4,13 +4,16 @@ import { FiTruck, FiCalendar, FiClock, FiDollarSign, FiArrowRight, FiPlusCircle,
 import { useNavigate } from 'react-router-dom';
 import StatsCard from '../../components/owner/StatsCard';
 import BookingCard from '../../components/owner/BookingCard';
-import { ownerStats, ownerBookings, ownerEquipment, businessStatus } from '../../data/ownerMockData';
+import { useOwner } from '../../context/OwnerContext';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { equipmentList, bookings, ownerStats, businessStatus, isLoading } = useOwner();
 
-  const recentBookings = ownerBookings.slice(0, 3);
-  const recentEquipment = ownerEquipment.slice(0, 3);
+  const recentBookings = bookings.slice(0, 3);
+  const recentEquipment = equipmentList.slice(0, 3);
+
+  if (isLoading) return <div className="p-8 text-center text-[#64748B]">Loading Live Data...</div>;
 
   return (
     <motion.div
@@ -163,8 +166,8 @@ const Dashboard = () => {
               className="flex items-center gap-4 p-3.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-[14px] hover:border-[#CCCCFF] transition-colors"
             >
               <div className="w-14 h-14 rounded-[12px] overflow-hidden bg-white border border-[#E2E8F0] shrink-0">
-                {eq.images[0] ? (
-                  <img src={eq.images[0]} alt={eq.name} className="w-full h-full object-cover" />
+                {eq.image ? (
+                  <img src={eq.image} alt={eq.name} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-xl">🏗️</div>
                 )}

@@ -92,18 +92,7 @@ const CustomerNavbar = ({ setMobileOpen }) => {
     };
   }, []);
 
-  // Keyboard shortcut Ctrl/Cmd + K
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        searchInputRef.current?.focus();
-        setIsSearchFocused(true);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+
 
   const handleNotificationClick = (n) => {
     markNotificationRead(n.id);
@@ -144,7 +133,7 @@ const CustomerNavbar = ({ setMobileOpen }) => {
               placeholder="Search equipment, bookings..."
               className="bg-transparent focus:outline-none text-xs text-[#0F172A] placeholder-[#64748B] w-40 focus:w-56 transition-all"
             />
-            <kbd className="ml-1 px-1.5 py-0.5 text-[10px] bg-white border border-[#E2E8F0] rounded-[6px] font-mono shrink-0">⌘K</kbd>
+
           </div>
 
           {/* Real-time Search Dropdown */}

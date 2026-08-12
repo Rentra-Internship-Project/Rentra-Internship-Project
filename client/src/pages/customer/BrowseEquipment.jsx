@@ -2,8 +2,6 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  FiSearch,
-  FiFilter,
   FiMapPin,
   FiStar,
   FiCheckCircle,
@@ -11,16 +9,19 @@ import {
   FiHeart,
   FiArrowRight,
   FiTruck,
-  FiSliders,
 } from 'react-icons/fi';
 import { useCustomer } from '../../context/CustomerContext';
 import SearchBar from '../../components/common/SearchBar';
 import EmptyState from '../../components/common/EmptyState';
 import Button from '../../components/common/Button';
+import FleetBundlerModal from '../../components/customer/FleetBundlerModal';
 
 const BrowseEquipment = () => {
   const navigate = useNavigate();
   const { equipmentList, isInWishlist, toggleWishlist } = useCustomer();
+
+  // Fleet Bundler Modal State
+  const [isFleetModalOpen, setIsFleetModalOpen] = useState(false);
 
   // Filters State
   const [searchQuery, setSearchQuery] = useState('');
@@ -86,7 +87,15 @@ const BrowseEquipment = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 shrink-0">
+            <button
+              onClick={() => setIsFleetModalOpen(true)}
+              className="px-4 py-2 bg-[#CCCCFF] hover:bg-[#B8B8FF] text-[#0F172A] rounded-[14px] text-xs font-extrabold transition-all flex items-center gap-2 shadow-md cursor-pointer"
+            >
+              <span>🏗️ Project Fleet Packages</span>
+              <span className="bg-emerald-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">Save 10-12%</span>
+            </button>
+
             <span className="px-4 py-2 bg-white/10 border border-white/20 rounded-[14px] text-xs font-semibold text-white">
               {filteredEquipment.length} Machinery Units Available
             </span>
@@ -100,8 +109,8 @@ const BrowseEquipment = () => {
           {/* Main Search Input */}
           <div className="w-full lg:w-96">
             <SearchBar
-              value={searchQuery}
-              onChange={setSearchQuery}
+              searchTerm={searchQuery}
+              onSearchChange={setSearchQuery}
               placeholder="Search by equipment name, category, or owner..."
             />
           </div>
@@ -293,6 +302,17 @@ const BrowseEquipment = () => {
           }}
         />
       )}
+
+      {/* Fleet Bundler Modal */}
+      <FleetBundlerModal
+        isOpen={isFleetModalOpen}
+        onClose={() => setIsFleetModalOpen(false)}
+        onSelectBundle={(bundle) =>
+          navigate('/customer/booking-summary/EQ-1001', {
+            state: { isBundle: true, bundleName: bundle.name, discountPercent: bundle.discountPercent }
+          })
+        }
+      />
     </div>
   );
 };

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FiBriefcase, FiUser, FiMail, FiPhone, FiMapPin, FiHash, FiFileText, FiUpload, FiCheckCircle } from 'react-icons/fi';
 import Button from '../../components/common/Button';
+import api from '../../services/api';
 
 const RegisterBusiness = () => {
   const [formData, setFormData] = useState({
@@ -19,6 +20,7 @@ const RegisterBusiness = () => {
   const [files, setFiles] = useState([]);
   const [submitted, setSubmitted] = useState(false);
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -33,11 +35,20 @@ const RegisterBusiness = () => {
     setFiles(files.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
-    setMessage('Business registration submitted successfully! Your application is now under review.');
-    setTimeout(() => setMessage(''), 5000);
+    setLoading(true);
+    setMessage('');
+    try {
+      await api.post('/admin/businesses', formData);
+      setSubmitted(true);
+      setMessage('Business registration submitted successfully! Your application is now under review.');
+      setTimeout(() => setMessage(''), 5000);
+    } catch (err) {
+      setMessage(err.response?.data?.error || 'Failed to submit registration. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const businessTypes = [
@@ -292,8 +303,8 @@ const RegisterBusiness = () => {
 
           {/* Submit */}
           <div className="flex justify-end pt-4 border-t border-[#E2E8F0]">
-            <Button variant="primary" type="submit" icon={FiBriefcase} size="lg">
-              Submit Registration
+            <Button variant="primary" type="submit" icon={FiBriefcase} size="lg" disabled={loading}>
+              {loading ? 'Submitting...' : 'Submit Registration'}
             </Button>
           </div>
         </form>

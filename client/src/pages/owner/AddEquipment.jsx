@@ -3,7 +3,8 @@ import { motion } from 'framer-motion';
 import { FiTruck, FiMapPin, FiDollarSign, FiTag, FiFileText, FiUpload, FiCheckCircle, FiArrowLeft } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/common/Button';
-
+import api from '../../services/api';
+import { mediaService } from '../../services/api';
 const AddEquipment = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -13,11 +14,14 @@ const AddEquipment = () => {
     location: '',
     pricePerDay: '',
     availability: 'Available',
+    operatorAvailable: true,
+    operatorDailyRate: '150',
   });
   const [images, setImages] = useState([]);
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const categories = ['Construction', 'Agriculture', 'Industrial', 'Logistics', 'Media Production', 'Events', 'Mining', 'Power & Energy'];
+  const categories = ['Earthmoving', 'Material Handling', 'Road Construction', 'Hauling', 'Lifting Equipment', 'Compaction', 'Construction', 'Agriculture', 'Industrial', 'Logistics', 'Power & Energy', 'Mining'];
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -32,12 +36,39 @@ const AddEquipment = () => {
     setImages(images.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage('Equipment added successfully! It will be visible after admin approval.');
-    setFormData({ name: '', category: '', description: '', location: '', pricePerDay: '', availability: 'Available' });
-    setImages([]);
-    setTimeout(() => setMessage(''), 5000);
+    setLoading(true);
+    setMessage('');
+    try {
+      let imageUrl = 'https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&q=80&w=800';
+      if (images.length > 0) {
+        const fileData = new FormData();
+        fileData.append('file', images[0]);
+        fileData.append('filename', images[0].name);
+        const uploadRes = await mediaService.uploadPhoto(fileData);
+        if (uploadRes.data && uploadRes.data.url) {
+          imageUrl = uploadRes.data.url;
+        }
+      }
+
+      const { location, ...restData } = formData;
+      await api.post('/equipment', {
+        ...restData,
+        locationAddress: location,
+        pricePerDay: Number(formData.pricePerDay),
+        operatorDailyRate: Number(formData.operatorDailyRate),
+        image: imageUrl,
+      });
+      setMessage('Equipment added successfully! It will be visible after admin approval.');
+      setFormData({ name: '', category: '', description: '', location: '', pricePerDay: '', availability: 'Available', operatorAvailable: true, operatorDailyRate: '150' });
+      setImages([]);
+      setTimeout(() => setMessage(''), 5000);
+    } catch (err) {
+      setMessage(err.response?.data?.error || 'Failed to add equipment. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -182,6 +213,37 @@ const AddEquipment = () => {
             </div>
           </div>
 
+          {/* Certified Operator Option */}
+          <div className="p-4 bg-emerald-50/60 border border-emerald-200 rounded-[16px] space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <label className="font-bold text-[#0F172A] text-xs block">Certified Skilled Operator Option</label>
+                <p className="text-[11px] text-[#64748B]">Provide a qualified, licensed driver with this equipment</p>
+              </div>
+              <input
+                type="checkbox"
+                name="operatorAvailable"
+                checked={formData.operatorAvailable}
+                onChange={(e) => setFormData({ ...formData, operatorAvailable: e.target.checked })}
+                className="w-5 h-5 accent-emerald-600 rounded cursor-pointer"
+              />
+            </div>
+
+            {formData.operatorAvailable && (
+              <div className="pt-2 border-t border-emerald-200/60 flex items-center justify-between gap-4">
+                <label className="text-xs font-semibold text-[#0F172A]">Driver Daily Surcharge ($/day):</label>
+                <input
+                  type="number"
+                  name="operatorDailyRate"
+                  value={formData.operatorDailyRate}
+                  onChange={handleChange}
+                  placeholder="150"
+                  className="w-32 px-3 py-1.5 border border-[#E2E8F0] rounded-[10px] text-xs font-bold text-[#0F172A] bg-white"
+                />
+              </div>
+            )}
+          </div>
+
           {/* Image Upload */}
           <div>
             <label className="block text-xs font-bold text-[#0F172A] mb-1.5">
@@ -225,7 +287,7 @@ const AddEquipment = () => {
           {/* Submit */}
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E2E8F0]">
             <Button variant="secondary" onClick={() => navigate('/owner/equipment')}>Cancel</Button>
-            <Button variant="primary" type="submit" icon={FiTruck}>Add Equipment</Button>
+            <Button variant="primary" type="submit" icon={FiTruck} disabled={loading}>{loading ? 'Adding...' : 'Add Equipment'}</Button>
           </div>
         </form>
       </div>

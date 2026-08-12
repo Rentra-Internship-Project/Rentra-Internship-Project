@@ -18,8 +18,7 @@ const CustomerLayout = () => {
           {/* Sticky Top Navbar */}
           <CustomerNavbar setMobileOpen={setMobileOpen} />
 
-          {/* Main Page Content */}
-          <main className="flex-1 p-4 md:p-8 overflow-y-auto max-w-7xl w-full mx-auto">
+          <main className="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto">
             <Outlet />
           </main>
         </div>

@@ -35,15 +35,17 @@ const Profile = () => {
     city: profile.city,
     state: profile.state,
     zip: profile.zip,
+    avatar: profile.avatar || '',
+    cover: profile.cover || '',
   });
 
   const [securityData, setSecurityData] = useState({
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
-    twoFactor: profile.security.twoFactorEnabled,
-    emailAlerts: profile.security.emailNotifications,
-    smsAlerts: profile.security.smsAlerts,
+    twoFactor: profile?.security?.twoFactorEnabled || false,
+    emailAlerts: profile?.security?.emailNotifications || true,
+    smsAlerts: profile?.security?.smsAlerts || false,
   });
 
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -145,6 +147,29 @@ const Profile = () => {
                   required
                   className="form-input"
                 />
+              </div>
+
+              <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="form-label">Profile Avatar URL</label>
+                  <input
+                    type="url"
+                    value={formData.avatar}
+                    onChange={(e) => setFormData({ ...formData, avatar: e.target.value })}
+                    className="form-input"
+                    placeholder="https://images.unsplash.com/..."
+                  />
+                </div>
+                <div>
+                  <label className="form-label">Cover Banner URL</label>
+                  <input
+                    type="url"
+                    value={formData.cover}
+                    onChange={(e) => setFormData({ ...formData, cover: e.target.value })}
+                    className="form-input"
+                    placeholder="https://images.unsplash.com/..."
+                  />
+                </div>
               </div>
 
               <div>
@@ -386,7 +411,7 @@ const Profile = () => {
               Recent Account Activity
             </h3>
             <div className="divide-y divide-[#E2E8F0]">
-              {profile.activityLog.map((act) => (
+              {(profile?.activityLog || []).map((act) => (
                 <div key={act.id} className="py-3 flex items-center justify-between text-xs">
                   <div className="flex items-center gap-3">
                     <span className="w-2 h-2 rounded-full bg-[#3B82F6]" />

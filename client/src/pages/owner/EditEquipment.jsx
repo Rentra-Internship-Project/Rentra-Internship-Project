@@ -1,37 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FiTruck, FiMapPin, FiDollarSign, FiTag, FiFileText, FiUpload, FiCheckCircle, FiArrowLeft, FiSave } from 'react-icons/fi';
 import { useNavigate, useParams } from 'react-router-dom';
 import Button from '../../components/common/Button';
-import { ownerEquipment } from '../../data/ownerMockData';
+import { useOwner } from '../../context/OwnerContext';
+import api, { equipmentService } from '../../services/api';
 
 const EditEquipment = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { equipmentList, refreshData } = useOwner();
 
   // Find equipment by ID or use first as fallback
-  const equipmentData = ownerEquipment.find((eq) => eq.id === id) || ownerEquipment[0];
+  const equipmentData = equipmentList.find((eq) => eq.id === id) || equipmentList[0] || {};
 
   const [formData, setFormData] = useState({
     name: equipmentData.name,
     category: equipmentData.category,
     description: equipmentData.description,
     location: equipmentData.location,
-    pricePerDay: equipmentData.pricePerDay.toString(),
+    pricePerDay: equipmentData.pricePerDay?.toString(),
     availability: equipmentData.availability,
+    operatorAvailable: equipmentData.operatorAvailable ?? true,
+    operatorDailyRate: (equipmentData.operatorDailyRate || 150).toString(),
   });
   const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const categories = ['Construction', 'Agriculture', 'Industrial', 'Logistics', 'Media Production', 'Events', 'Mining', 'Power & Energy'];
+  const categories = ['Earthmoving', 'Material Handling', 'Road Construction', 'Hauling', 'Lifting Equipment', 'Compaction', 'Construction', 'Agriculture', 'Industrial', 'Logistics', 'Power & Energy', 'Mining'];
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage('Equipment updated successfully!');
-    setTimeout(() => setMessage(''), 5000);
+    setLoading(true);
+    setMessage('');
+    setError('');
+    try {
+      const { location, ...restData } = formData;
+      await api.put(`/equipment/${id}`, {
+        ...restData,
+        locationAddress: location,
+        pricePerDay: Number(formData.pricePerDay),
+        operatorDailyRate: Number(formData.operatorDailyRate),
+      });
+      setMessage('Equipment updated successfully!');
+      if (refreshData) {
+        await refreshData();
+      }
+      setTimeout(() => setMessage(''), 5000);
+    } catch (err) {
+      setError(err.response?.data?.error || err.message || 'Failed to update equipment. Please try again.');
+      setTimeout(() => setError(''), 5000);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -66,12 +92,23 @@ const EditEquipment = () => {
         </motion.div>
       )}
 
+      {/* Error Message */}
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-4 bg-rose-50 border border-rose-200 text-[#EF4444] text-sm font-semibold rounded-[16px] flex items-center gap-2"
+        >
+          <span className="font-bold">!</span> {error}
+        </motion.div>
+      )}
+
       {/* Equipment Preview */}
-      {equipmentData.images[0] && (
+      {(equipmentData.images?.[0] || equipmentData.image) && (
         <div className="bg-white border border-[#E2E8F0] rounded-[20px] p-4 shadow-xs">
           <div className="flex items-center gap-4">
             <div className="w-24 h-24 rounded-[14px] overflow-hidden bg-[#F8FAFC] border border-[#E2E8F0] shrink-0">
-              <img src={equipmentData.images[0]} alt={equipmentData.name} className="w-full h-full object-cover" />
+              <img src={equipmentData.images?.[0] || equipmentData.image} alt={equipmentData.name} className="w-full h-full object-cover" />
             </div>
             <div>
               <p className="text-xs font-bold text-[#64748B] uppercase tracking-wider">Currently Editing</p>
@@ -194,10 +231,41 @@ const EditEquipment = () => {
             </div>
           </div>
 
+          {/* Certified Operator Option */}
+          <div className="p-4 bg-emerald-50/60 border border-emerald-200 rounded-[16px] space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <label className="font-bold text-[#0F172A] text-xs block">Certified Skilled Operator Option</label>
+                <p className="text-[11px] text-[#64748B]">Provide a qualified, licensed driver with this equipment</p>
+              </div>
+              <input
+                type="checkbox"
+                name="operatorAvailable"
+                checked={formData.operatorAvailable}
+                onChange={(e) => setFormData({ ...formData, operatorAvailable: e.target.checked })}
+                className="w-5 h-5 accent-emerald-600 rounded cursor-pointer"
+              />
+            </div>
+
+            {formData.operatorAvailable && (
+              <div className="pt-2 border-t border-emerald-200/60 flex items-center justify-between gap-4">
+                <label className="text-xs font-semibold text-[#0F172A]">Driver Daily Surcharge ($/day):</label>
+                <input
+                  type="number"
+                  name="operatorDailyRate"
+                  value={formData.operatorDailyRate}
+                  onChange={handleChange}
+                  placeholder="150"
+                  className="w-32 px-3 py-1.5 border border-[#E2E8F0] rounded-[10px] text-xs font-bold text-[#0F172A] bg-white"
+                />
+              </div>
+            )}
+          </div>
+
           {/* Submit */}
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E2E8F0]">
             <Button variant="secondary" onClick={() => navigate('/owner/equipment')}>Cancel</Button>
-            <Button variant="primary" type="submit" icon={FiSave}>Save Changes</Button>
+            <Button variant="primary" type="submit" icon={FiSave} disabled={loading}>{loading ? 'Saving...' : 'Save Changes'}</Button>
           </div>
         </form>
       </div>

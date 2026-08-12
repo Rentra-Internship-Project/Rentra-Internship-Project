@@ -10,6 +10,7 @@ import {
   mockCategories,
   mockBookings
 } from '../../data/adminMockData';
+import { useAdminContext } from '../../context/AdminContext';
 
 const pageTitles = {
   '/admin/dashboard': 'Platform Overview',
@@ -39,6 +40,8 @@ const AdminNavbar = ({ setMobileOpen }) => {
   const searchInputRef = useRef(null);
   const notifRef = useRef(null);
 
+  const { users, businesses, equipmentList, bookings } = useAdminContext();
+
   // Calculate Unread Notification Count
   const unreadCount = useMemo(() => {
     return notifications.filter((n) => !n.read).length;
@@ -50,19 +53,19 @@ const AdminNavbar = ({ setMobileOpen }) => {
     const q = searchQuery.toLowerCase().trim();
     const results = [];
 
-    mockUsers.forEach((u) => {
+    (users || []).forEach((u) => {
       if (u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)) {
         results.push({ id: u.id, title: u.name, subtitle: `User • ${u.role}`, type: 'User', link: '/admin/users' });
       }
     });
 
-    mockBusinesses.forEach((b) => {
+    (businesses || []).forEach((b) => {
       if (b.businessName.toLowerCase().includes(q) || b.ownerName.toLowerCase().includes(q)) {
         results.push({ id: b.id, title: b.businessName, subtitle: `Business • ${b.businessType}`, type: 'Business', link: '/admin/businesses' });
       }
     });
 
-    mockEquipment.forEach((eq) => {
+    (equipmentList || []).forEach((eq) => {
       if (eq.name.toLowerCase().includes(q) || eq.category.toLowerCase().includes(q)) {
         results.push({ id: eq.id, title: eq.name, subtitle: `Equipment • ${eq.category}`, type: 'Equipment', link: '/admin/equipment' });
       }
@@ -74,14 +77,14 @@ const AdminNavbar = ({ setMobileOpen }) => {
       }
     });
 
-    mockBookings.forEach((bk) => {
-      if (bk.id.toLowerCase().includes(q) || bk.customer.toLowerCase().includes(q) || bk.equipment.toLowerCase().includes(q)) {
+    (bookings || []).forEach((bk) => {
+      if (bk.id.toLowerCase().includes(q) || bk.customer.toLowerCase().includes(q)) {
         results.push({ id: bk.id, title: bk.id, subtitle: `Booking • ${bk.customer}`, type: 'Booking', link: '/admin/bookings' });
       }
     });
 
     return results.slice(0, 6);
-  }, [searchQuery]);
+  }, [searchQuery, users, businesses, equipmentList, bookings]);
 
   // Handle Outside Clicks
   useEffect(() => {
@@ -98,19 +101,6 @@ const AdminNavbar = ({ setMobileOpen }) => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
-
-  // Keyboard shortcut for Cmd/Ctrl + K to focus search
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        searchInputRef.current?.focus();
-        setIsSearchFocused(true);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   // Mark single notification as read
@@ -160,7 +150,7 @@ const AdminNavbar = ({ setMobileOpen }) => {
               placeholder="Quick search..."
               className="bg-transparent focus:outline-none text-xs text-[#0F172A] placeholder-[#64748B] w-36 focus:w-48 transition-all"
             />
-            <kbd className="ml-1 px-1.5 py-0.5 text-[10px] bg-white border border-[#E2E8F0] rounded-[6px] font-mono shrink-0">⌘K</kbd>
+
           </div>
 
           {/* Real-time Search Results Dropdown */}
@@ -278,7 +268,10 @@ const AdminNavbar = ({ setMobileOpen }) => {
         </div>
 
         {/* Admin Avatar & Role */}
-        <div className="flex items-center gap-3 pl-2 border-l border-[#E2E8F0]">
+        <div 
+          onClick={() => navigate('/admin/profile')}
+          className="flex items-center gap-3 pl-2 border-l border-[#E2E8F0] cursor-pointer hover:opacity-80 transition-opacity"
+        >
           <img
             src={mockAdminProfile.avatar}
             alt={mockAdminProfile.name}

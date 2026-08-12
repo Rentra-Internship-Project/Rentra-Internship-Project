@@ -12,9 +12,17 @@ import Bookings from '../pages/customer/Bookings';
 import BookingDetails from '../pages/customer/BookingDetails';
 import Profile from '../pages/customer/Profile';
 import Notifications from '../pages/customer/Notifications';
+import { ProtectedRoute } from './ProtectedRoute';
 
 const CustomerRoutes = () => (
-  <Route path="/customer" element={<CustomerLayout />}>
+  <Route
+    path="/customer"
+    element={
+      <ProtectedRoute allowedRoles={['CUSTOMER']}>
+        <CustomerLayout />
+      </ProtectedRoute>
+    }
+  >
     <Route index element={<Navigate to="/customer/dashboard" replace />} />
     <Route path="dashboard" element={<Dashboard />} />
     <Route path="browse-equipment" element={<BrowseEquipment />} />

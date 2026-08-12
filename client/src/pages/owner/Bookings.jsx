@@ -1,20 +1,26 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FiCalendar, FiDollarSign, FiUser, FiClock, FiCheck, FiX, FiEye } from 'react-icons/fi';
 import SearchBar from '../../components/common/SearchBar';
 import EmptyState from '../../components/common/EmptyState';
 import ConfirmModal from '../../components/common/ConfirmModal';
-import { ownerBookings as initialBookings } from '../../data/ownerMockData';
+import { useOwner } from '../../context/OwnerContext';
+import { bookingService } from '../../services/api';
 
 const statusColors = {
-  Pending: 'bg-amber-50 text-[#F59E0B] border-amber-100',
-  Active: 'bg-blue-50 text-blue-600 border-blue-100',
-  Completed: 'bg-green-50 text-[#22C55E] border-green-100',
-  Rejected: 'bg-red-50 text-[#EF4444] border-red-100',
+  'Pending Owner Approval': 'bg-amber-50 text-[#F59E0B] border-amber-100',
+  'ACTIVE': 'bg-blue-50 text-blue-600 border-blue-100',
+  'COMPLETED': 'bg-green-50 text-[#22C55E] border-green-100',
+  'CANCELLED': 'bg-red-50 text-[#EF4444] border-red-100',
 };
 
 const Bookings = () => {
-  const [bookings, setBookings] = useState(initialBookings);
+  const { bookings: liveBookings, isLoading } = useOwner();
+  const [bookings, setBookings] = useState(liveBookings);
+  
+  useEffect(() => {
+    setBookings(liveBookings);
+  }, [liveBookings]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [confirmAction, setConfirmAction] = useState(null);
@@ -34,21 +40,31 @@ const Bookings = () => {
     });
   }, [bookings, searchTerm, statusFilter]);
 
-  const handleAccept = (id) => {
-    setBookings((prev) =>
-      prev.map((bk) => (bk.id === id ? { ...bk, status: 'Active' } : bk))
-    );
+  const handleAccept = async (id) => {
+    try {
+      await bookingService.updateStatus(id, 'ACTIVE');
+      setBookings((prev) =>
+        prev.map((bk) => (bk.id === id ? { ...bk, status: 'ACTIVE' } : bk))
+      );
+    } catch (err) {
+      alert('Failed to accept booking: ' + err.message);
+    }
     setConfirmAction(null);
   };
 
-  const handleReject = (id) => {
-    setBookings((prev) =>
-      prev.map((bk) => (bk.id === id ? { ...bk, status: 'Rejected' } : bk))
-    );
+  const handleReject = async (id) => {
+    try {
+      await bookingService.updateStatus(id, 'CANCELLED');
+      setBookings((prev) =>
+        prev.map((bk) => (bk.id === id ? { ...bk, status: 'CANCELLED' } : bk))
+      );
+    } catch (err) {
+      alert('Failed to reject booking: ' + err.message);
+    }
     setConfirmAction(null);
   };
 
-  const pendingCount = bookings.filter((bk) => bk.status === 'Pending').length;
+  const pendingCount = bookings.filter((bk) => bk.status === 'Pending Owner Approval').length;
 
   return (
     <motion.div
@@ -154,7 +170,7 @@ const Bookings = () => {
                         >
                           <FiEye className="text-sm" />
                         </button>
-                        {bk.status === 'Pending' && (
+                        {bk.status.includes('Pending') && (
                           <>
                             <button
                               onClick={() => setConfirmAction({ type: 'accept', id: bk.id })}

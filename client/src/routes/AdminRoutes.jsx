@@ -8,10 +8,17 @@ import Equipment from '../pages/admin/Equipment';
 import Categories from '../pages/admin/Categories';
 import Bookings from '../pages/admin/Bookings';
 import Profile from '../pages/admin/Profile';
+import { ProtectedRoute } from './ProtectedRoute';
 
 const AdminRoutes = () => (
-  <>
-    <Route path="/admin" element={<AdminLayout />}>
+  <Route
+    path="/admin"
+    element={
+      <ProtectedRoute allowedRoles={['ADMIN']}>
+        <AdminLayout />
+      </ProtectedRoute>
+    }
+  >
       <Route index element={<Navigate to="/admin/dashboard" replace />} />
       <Route path="dashboard" element={<Dashboard />} />
       <Route path="users" element={<Users />} />
@@ -22,7 +29,6 @@ const AdminRoutes = () => (
       <Route path="profile" element={<Profile />} />
       <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
     </Route>
-  </>
 );
 
 export default AdminRoutes;

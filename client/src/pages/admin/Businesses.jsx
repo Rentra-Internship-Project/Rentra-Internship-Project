@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiCheck, FiX, FiFileText, FiDownload, FiBriefcase, FiUser, FiCalendar, FiShield } from 'react-icons/fi';
 import DataTable from '../../components/admin/DataTable';
@@ -6,10 +6,16 @@ import StatusBadge from '../../components/admin/StatusBadge';
 import SearchBar from '../../components/common/SearchBar';
 import EmptyState from '../../components/common/EmptyState';
 import Button from '../../components/common/Button';
-import { mockBusinesses as initialBusinesses } from '../../data/adminMockData';
+import { useAdminContext } from '../../context/AdminContext';
+import { adminService } from '../../services/api';
 
 const Businesses = () => {
-  const [businesses, setBusinesses] = useState(initialBusinesses);
+  const { businesses: liveBusinesses, setBusinesses: updateLiveBusinesses, isLoading } = useAdminContext();
+  const [businesses, setBusinesses] = useState(liveBusinesses || []);
+  
+  useEffect(() => {
+    setBusinesses(liveBusinesses || []);
+  }, [liveBusinesses]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedDocsBusiness, setSelectedDocsBusiness] = useState(null);
@@ -25,16 +31,26 @@ const Businesses = () => {
   });
 
   // Verification Actions
-  const handleApprove = (id) => {
-    setBusinesses((prev) =>
-      prev.map((b) => (b.id === id ? { ...b, status: 'Approved' } : b))
-    );
+  const handleApprove = async (id) => {
+    try {
+      await adminService.verifyBusiness(id, { status: 'Approved' });
+      setBusinesses((prev) =>
+        prev.map((b) => (b.id === id ? { ...b, status: 'Approved' } : b))
+      );
+    } catch (err) {
+      console.error('Failed to approve business:', err);
+    }
   };
 
-  const handleReject = (id) => {
-    setBusinesses((prev) =>
-      prev.map((b) => (b.id === id ? { ...b, status: 'Rejected' } : b))
-    );
+  const handleReject = async (id) => {
+    try {
+      await adminService.verifyBusiness(id, { status: 'Rejected' });
+      setBusinesses((prev) =>
+        prev.map((b) => (b.id === id ? { ...b, status: 'Rejected' } : b))
+      );
+    } catch (err) {
+      console.error('Failed to reject business:', err);
+    }
   };
 
   const columns = [
@@ -215,7 +231,7 @@ const Businesses = () => {
               <div className="mt-2">
                 <h4 className="text-xs font-bold text-[#0F172A] uppercase tracking-wider mb-2">Uploaded Verification Files</h4>
                 <div className="space-y-2">
-                  {selectedDocsBusiness.documents.map((doc, idx) => (
+                  {(selectedDocsBusiness.documents || []).map((doc, idx) => (
                     <div
                       key={idx}
                       className="flex items-center justify-between p-3 border border-[#E2E8F0] rounded-[12px] hover:border-[#CCCCFF] transition-colors"

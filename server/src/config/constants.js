@@ -1,0 +1,31 @@
+const ROLES = {
+  CUSTOMER: 'CUSTOMER',
+  OWNER: 'OWNER',
+  ADMIN: 'ADMIN',
+};
+
+const BOOKING_STATUS = {
+  PENDING_DEPOSIT: 'Pending Deposit',
+  PENDING_OWNER_APPROVAL: 'Pending Owner Approval',
+  APPROVED: 'APPROVED',
+  ACTIVE: 'ACTIVE',
+  RETURNED_INSPECTED: 'Returned & Inspected',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED',
+};
+
+const FINANCIAL_RATES = {
+  BASE_HAULING: 150,
+  PER_KM_RATE: 3.50,
+  SECURITY_DEPOSIT_PERCENT: 0.20, // 20%
+  PLATFORM_FEE_PERCENT: 0.02,     // 2%
+  GST_TAX_PERCENT: 0.088,          // 8.8%
+  OVERTIME_HOURLY_RATE: 45,        // $45/hr
+  ALLOWED_HOURS_PER_DAY: 8,
+};
+
+module.exports = {
+  ROLES,
+  BOOKING_STATUS,
+  FINANCIAL_RATES,
+};

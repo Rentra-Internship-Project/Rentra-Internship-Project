@@ -6,21 +6,21 @@ import StatusBadge from '../../components/admin/StatusBadge';
 import SearchBar from '../../components/common/SearchBar';
 import EmptyState from '../../components/common/EmptyState';
 import Button from '../../components/common/Button';
-import { mockBookings as initialBookings } from '../../data/adminMockData';
+import { useAdminContext } from '../../context/AdminContext';
 
 const Bookings = () => {
-  const [bookings, setBookings] = useState(initialBookings);
+  const { bookings } = useAdminContext();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedBooking, setSelectedBooking] = useState(null);
 
   // Search & Filter Logic
-  const filteredBookings = bookings.filter((b) => {
+  const filteredBookings = (bookings || []).filter((b) => {
     const matchesSearch =
       b.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      b.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      b.equipment.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      b.owner.toLowerCase().includes(searchTerm.toLowerCase());
+      b.customer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      b.equipment?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      b.owner?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || b.status.toLowerCase() === statusFilter.toLowerCase();
     return matchesSearch && matchesStatus;
   });

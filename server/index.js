@@ -1,16 +1,25 @@
-const express = require('express');
-const app = express();
-const PORT = 3000;
+require('dotenv').config();
+const http = require('http');
+const app = require('./src/app');
+const { connectDB } = require('./src/config/db');
+const { initSocket } = require('./src/config/socket');
 
-// Middleware to parse JSON bodies
-app.use(express.json());
+const PORT = process.env.PORT || 3000;
+const server = http.createServer(app);
 
-// Basic GET route
-app.get('/', (req, res) => {
-  res.send('Hello, World!');
+// Initialize Socket.IO Server Engine
+const io = initSocket(server);
+app.set('io', io);
+
+// Connect to MongoDB Atlas (if MONGO_URI present) or fall back to db.json
+connectDB();
+
+// Start HTTP & WebSocket Server
+server.listen(PORT, () => {
+  console.log(`====================================================`);
+  console.log(`🚀 Rentra MERN REST API & Socket.IO Server on port ${PORT}`);
+  console.log(`📡 Health Check: http://localhost:${PORT}`);
+  console.log(`====================================================`);
 });
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+module.exports = { app, server, io };
