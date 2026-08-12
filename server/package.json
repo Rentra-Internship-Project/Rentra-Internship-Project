@@ -24,11 +24,11 @@
     "ioredis": "^6.0.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.8.1",
+    "multer": "^2.2.0",
     "nodemon": "^3.1.14",
     "pdfkit": "^0.19.1",
-    "razorpay": "^2.9.8",
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3",
-    "stripe": "^22.4.0"
+    "stripe": "^22.5.0"
   }
 }

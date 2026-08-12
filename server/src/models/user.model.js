@@ -43,9 +43,23 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    avatar: {
+      type: String,
+      default: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300',
+    },
+    cover: {
+      type: String,
+      default: 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&q=80&w=1200',
+    },
+    wishlist: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Equipment'
+    }],
   },
   {
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
   }
 );
 

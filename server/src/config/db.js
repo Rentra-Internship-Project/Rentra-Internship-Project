@@ -23,7 +23,11 @@ function buildMongoConnectionString() {
     // Handle query params if clusterUrl already includes ?
     if (cleanCluster.includes('?')) {
       const parts = cleanCluster.split('?');
-      return `${parts[0]}/${dbName}?${parts[1]}`;
+      let base = parts[0];
+      if (base.endsWith('/')) {
+        base = base.slice(0, -1);
+      }
+      return `${base}/${dbName}?${parts[1]}`;
     }
     return `${cleanCluster}/${dbName}?retryWrites=true&w=majority`;
   }
@@ -38,6 +42,7 @@ async function connectDB() {
     try {
       await mongoose.connect(targetUri, {
         serverSelectionTimeoutMS: 5000,
+        family: 6, // Force IPv6 for NAT64 networks
       });
       isMongoConnected = true;
       activeDatabaseName = mongoose.connection.name || process.env.MONGO_DB_NAME || 'rentra_db';
@@ -65,24 +70,50 @@ async function connectDB() {
 async function seedMongoDatabase() {
   try {
     const User = require('../models/user.model');
+    const bcrypt = require('bcryptjs');
 
-    const userCount = await User.countDocuments();
-    if (userCount === 0) {
-      console.log(`🌱 Seeding initial evaluation data into MongoDB database "${activeDatabaseName}"...`);
-      const localData = readLocalDB();
-      if (localData.users && localData.users.length > 0) {
-        for (const u of localData.users) {
-          await User.create({
-            name: u.name,
-            email: u.email,
-            passwordHash: u.passwordHash,
-            role: u.role,
-            company: u.company || '',
-          });
-        }
+    const defaultPassword = await bcrypt.hash('password123', 10);
+    const customerPassword = await bcrypt.hash('customer123', 10);
+    const ownerPassword = await bcrypt.hash('owner123', 10);
+    const adminPassword = await bcrypt.hash('admin123', 10);
+
+    const demoUsers = [
+      {
+        name: 'Demo Customer',
+        email: 'customer@rentra.com',
+        passwordHash: customerPassword,
+        role: 'CUSTOMER',
+      },
+      {
+        name: 'Demo Owner',
+        email: 'owner@rentra.com',
+        passwordHash: ownerPassword,
+        role: 'OWNER',
+        company: 'Titan Machinery Fleet Ltd',
+      },
+      {
+        name: 'Demo Admin',
+        email: 'admin@rentra.com',
+        passwordHash: adminPassword,
+        role: 'ADMIN',
       }
-      console.log(`✅ MongoDB database "${activeDatabaseName}" seeded successfully!`);
+    ];
+
+    let seededCount = 0;
+    for (const u of demoUsers) {
+      const exists = await User.findOne({ email: u.email });
+      if (!exists) {
+        await User.create(u);
+        seededCount++;
+      }
     }
+
+    if (seededCount > 0) {
+      console.log(`✅ MongoDB database "${activeDatabaseName}" seeded ${seededCount} Demo Accounts!`);
+    } else {
+      console.log(`✅ Demo accounts already exist in MongoDB.`);
+    }
+
   } catch (err) {
     console.warn('MongoDB Seeding note:', err.message);
   }

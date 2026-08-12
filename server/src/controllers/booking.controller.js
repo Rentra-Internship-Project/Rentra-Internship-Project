@@ -1,18 +1,20 @@
-const express = require('express');
-const router = express.Router();
-const { readLocalDB, writeLocalDB } = require('../../config/db');
-const { authenticateToken } = require('../../middleware/auth.middleware');
+const Booking = require('../models/booking.model');
+const Equipment = require('../models/equipment.model');
 
-router.get('/', authenticateToken, (req, res) => {
-  const db = readLocalDB();
-  res.json(db.bookings);
-});
+exports.getAllBookings = async (req, res) => {
+  try {
+    const bookings = await Booking.find({}).populate('customerId', 'name email avatar');
+    res.json(bookings);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch bookings', details: err.message });
+  }
+};
 
-router.post('/', authenticateToken, (req, res) => {
+exports.createBooking = async (req, res) => {
   try {
     const { equipmentId, startDate, endDate, includeOperator, distanceKm, siteAddress, notes } = req.body;
-    const db = readLocalDB();
-    const equip = db.equipment.find((e) => e.id === equipmentId);
+    
+    const equip = await Equipment.findById(equipmentId).catch(() => null);
 
     if (!equip) return res.status(404).json({ error: 'Equipment not found' });
 
@@ -30,14 +32,14 @@ router.post('/', authenticateToken, (req, res) => {
     const gst = Math.round((rentalCost + haulingFee + platformFee) * 0.088);
     const totalValue = rentalCost + haulingFee + deposit + platformFee + gst;
 
-    const newBooking = {
-      id: `BK-${Math.floor(10000 + Math.random() * 90000)}`,
+    const newBooking = await Booking.create({
       equipmentId,
       equipmentName: equip.name,
       customerId: req.user.id,
       startDate,
       endDate,
       durationDays,
+      dailyRate: baseRate,
       includeOperator,
       distanceKm,
       haulingFee,
@@ -46,38 +48,60 @@ router.post('/', authenticateToken, (req, res) => {
       platformFee,
       gst,
       totalValue,
+      amountPaidNow: deposit,
+      remainingBalance: totalValue - deposit,
       status: 'Pending Owner Approval',
       siteAddress,
       notes,
-    };
+    });
 
-    db.bookings.push(newBooking);
-    writeLocalDB(db);
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`user_${equip.ownerId}`).emit('notification', {
+        title: 'New Booking Request',
+        message: `You have a new request for ${equip.name}`,
+        bookingId: newBooking._id,
+        timestamp: new Date().toISOString()
+      });
+    }
+
     res.status(201).json(newBooking);
   } catch (err) {
     res.status(500).json({ error: 'Failed to create booking', details: err.message });
   }
-});
+};
 
-router.put('/:id/status', authenticateToken, (req, res) => {
+exports.updateBookingStatus = async (req, res) => {
   try {
     const { status } = req.body;
-    const db = readLocalDB();
-    const booking = db.bookings.find((b) => b.id === req.params.id);
+    const booking = await Booking.findByIdAndUpdate(
+      req.params.id, 
+      { status }, 
+      { new: true }
+    );
     if (!booking) return res.status(404).json({ error: 'Booking reference not found' });
-    booking.status = status;
-    writeLocalDB(db);
+
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`user_${booking.customerId}`).emit('notification', {
+        title: 'Booking Updated',
+        message: `Your booking for ${booking.equipmentName} is now: ${status}`,
+        bookingId: booking._id,
+        timestamp: new Date().toISOString()
+      });
+    }
+
     res.json(booking);
   } catch (err) {
     res.status(500).json({ error: 'Failed to update status', details: err.message });
   }
-});
+};
 
-router.post('/:id/inspection', authenticateToken, (req, res) => {
+exports.recordInspection = async (req, res) => {
   try {
     const { signatureDataUrl, loggedEngineHours } = req.body;
-    const db = readLocalDB();
-    const booking = db.bookings.find((b) => b.id === req.params.id);
+    const booking = await Booking.findById(req.params.id);
+    
     if (!booking) return res.status(404).json({ error: 'Booking not found' });
 
     const maxAllowed = booking.durationDays * 8;
@@ -91,24 +115,25 @@ router.post('/:id/inspection', authenticateToken, (req, res) => {
     booking.totalValue += overtimeSurcharge;
     booking.status = 'Returned & Inspected';
 
-    writeLocalDB(db);
+    await booking.save();
     res.json(booking);
   } catch (err) {
     res.status(500).json({ error: 'Failed to record inspection', details: err.message });
   }
-});
+};
 
-router.get('/:id/contract-pdf', authenticateToken, (req, res) => {
-  const db = readLocalDB();
-  const booking = db.bookings.find((b) => b.id === req.params.id);
-  if (!booking) return res.status(404).json({ error: 'Booking contract reference not found' });
+exports.generateContractPdf = async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) return res.status(404).json({ error: 'Booking contract reference not found' });
 
-  const pdfBuffer = Buffer.from(
-    `%PDF-1.4\n1 0 obj\n<< /Title (RENTRA HEAVY MACHINERY RENTAL AGREEMENT CONTRACT) /BookingID (${booking.id}) /GrandTotal (${booking.totalValue}) >>\nendobj\ntrailer\n<< /Root 1 0 R >>\n%%EOF`
-  );
-  res.setHeader('Content-Type', 'application/pdf');
-  res.setHeader('Content-Disposition', `attachment; filename=Rentra_Contract_${booking.id}.pdf`);
-  res.send(pdfBuffer);
-});
-
-module.exports = router;
+    const pdfBuffer = Buffer.from(
+      `%PDF-1.4\n1 0 obj\n<< /Title (RENTRA HEAVY MACHINERY RENTAL AGREEMENT CONTRACT) /BookingID (${booking._id}) /GrandTotal (${booking.totalValue}) >>\nendobj\ntrailer\n<< /Root 1 0 R >>\n%%EOF`
+    );
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=Rentra_Contract_${booking._id}.pdf`);
+    res.send(pdfBuffer);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to generate contract', details: err.message });
+  }
+};

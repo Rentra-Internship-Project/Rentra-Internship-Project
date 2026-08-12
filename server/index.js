@@ -1,3 +1,4 @@
+require('dotenv').config();
 const http = require('http');
 const app = require('./src/app');
 const { connectDB } = require('./src/config/db');
@@ -8,6 +9,7 @@ const server = http.createServer(app);
 
 // Initialize Socket.IO Server Engine
 const io = initSocket(server);
+app.set('io', io);
 
 // Connect to MongoDB Atlas (if MONGO_URI present) or fall back to db.json
 connectDB();
