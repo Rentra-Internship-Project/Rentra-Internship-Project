@@ -155,7 +155,7 @@ const EquipmentDetails = () => {
               Technical Specifications
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {Object.entries(equipment.specs).map(([key, val]) => (
+              {Object.entries(equipment.specs || {}).map(([key, val]) => (
                 <div key={key} className="p-3 bg-[#F8FAFC] rounded-[16px] border border-[#E2E8F0]">
                   <p className="text-[10px] capitalize text-[#94A3B8] font-bold tracking-wider">
                     {key.replace(/([A-Z])/g, ' $1')}

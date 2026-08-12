@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   FiUser,
@@ -14,10 +14,32 @@ import {
 import ProfileCard from '../../components/owner/ProfileCard';
 import StatsCard from '../../components/owner/StatsCard';
 import Button from '../../components/common/Button';
-import { ownerProfile as initialProfile } from '../../data/ownerMockData';
+import { useAuth } from '../../context/AuthContext';
+import { useOwner } from '../../context/OwnerContext';
 
 const Profile = () => {
-  const [profile] = useState(initialProfile);
+  const { user } = useAuth();
+  const { ownerStats } = useOwner();
+  
+  const profile = {
+    name: user?.name || 'Owner',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    bio: user?.bio || 'Heavy machinery owner.',
+    businessName: user?.company || 'My Business',
+    gstNumber: 'PENDING',
+    address: 'HQ',
+    city: 'Local',
+    state: 'State',
+    joinedDate: 'Recently',
+    stats: {
+      totalEquipment: ownerStats?.totalEquipment || 0,
+      activeBookings: ownerStats?.activeBookings || 0,
+      completedBookings: ownerStats?.totalEquipment || 0,
+      totalEarnings: ownerStats?.monthlyEarnings || '$0',
+    },
+    recentActivity: []
+  };
 
   // Personal Info Form
   const [name, setName] = useState(profile.name);

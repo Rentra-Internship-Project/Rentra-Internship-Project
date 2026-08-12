@@ -34,7 +34,7 @@ const Dashboard = () => {
   } = useCustomer();
 
   const activeRentalsCount = bookings.filter(
-    (b) => b.status === 'Active' || b.status === 'Rental Active'
+    (b) => b.status?.toUpperCase() === 'ACTIVE' || b.status?.toUpperCase() === 'RENTAL ACTIVE'
   ).length;
 
   return (

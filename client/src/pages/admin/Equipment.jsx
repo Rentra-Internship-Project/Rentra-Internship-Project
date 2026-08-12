@@ -6,35 +6,47 @@ import StatusBadge from '../../components/admin/StatusBadge';
 import SearchBar from '../../components/common/SearchBar';
 import EmptyState from '../../components/common/EmptyState';
 import Button from '../../components/common/Button';
-import { mockEquipment as initialEquipment } from '../../data/adminMockData';
+import { useAdminContext } from '../../context/AdminContext';
+import { equipmentService } from '../../services/api';
 
 const Equipment = () => {
-  const [equipmentList, setEquipmentList] = useState(initialEquipment);
+  const { equipmentList, setEquipmentList } = useAdminContext();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedEqp, setSelectedEqp] = useState(null);
 
   // Search & Filter
-  const filteredEquipment = equipmentList.filter((eq) => {
+  const filteredEquipment = (equipmentList || []).filter((eq) => {
     const matchesSearch =
       eq.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      eq.owner.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      eq.owner?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       eq.category.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || eq.status.toLowerCase() === statusFilter.toLowerCase();
     return matchesSearch && matchesStatus;
   });
 
   // Approval Handlers
-  const handleApprove = (id) => {
-    setEquipmentList((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, status: 'Approved' } : item))
-    );
+  const handleApprove = async (id) => {
+    try {
+      // Assuming equipmentService.update or adminService.verifyEquipment exists.
+      // For now, we will update the status locally, since the backend API for updating equipment status by admin might require a new route or reusing the owner route. 
+      // In a full implementation, you'd call an API here.
+      setEquipmentList((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, status: 'Approved' } : item))
+      );
+    } catch (err) {
+      alert('Failed to approve equipment.');
+    }
   };
 
-  const handleReject = (id) => {
-    setEquipmentList((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, status: 'Rejected' } : item))
-    );
+  const handleReject = async (id) => {
+    try {
+      setEquipmentList((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, status: 'Rejected' } : item))
+      );
+    } catch (err) {
+      alert('Failed to reject equipment.');
+    }
   };
 
   const columns = [
@@ -105,7 +117,7 @@ const Equipment = () => {
               </td>
 
               {/* Owner */}
-              <td className="px-5 py-4 whitespace-nowrap text-xs text-[#64748B]">{eq.owner}</td>
+              <td className="px-5 py-4 whitespace-nowrap text-xs text-[#64748B]">{eq.owner?.name || 'Unknown Owner'}</td>
 
               {/* Category */}
               <td className="px-5 py-4 whitespace-nowrap">

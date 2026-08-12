@@ -3,9 +3,15 @@ import { motion } from 'framer-motion';
 import { FiCheckCircle, FiFileText, FiShield } from 'react-icons/fi';
 import StatusCard from '../../components/owner/StatusCard';
 import BusinessCard from '../../components/owner/BusinessCard';
-import { businessStatus } from '../../data/ownerMockData';
+import { useOwner } from '../../context/OwnerContext';
 
 const BusinessStatus = () => {
+  const { businessStatus } = useOwner();
+
+  if (!businessStatus) {
+    return null;
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}

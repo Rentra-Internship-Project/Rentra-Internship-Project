@@ -1,12 +1,52 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FiArrowRight, FiEye, FiEyeOff, FiLock, FiMail, FiPackage, FiPhone, FiUser } from 'react-icons/fi';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const Register = () => {
+  const navigate = useNavigate();
+  const { register } = useAuth();
+
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [role, setRole] = useState('customer');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    setLoading(true);
+
+    const result = await register({ name, email, phone, password, role: role.toUpperCase() });
+
+    if (result.success) {
+      const userRole = result.user?.role?.toUpperCase();
+      if (userRole === 'ADMIN') {
+        navigate('/admin/dashboard', { replace: true });
+      } else if (userRole === 'OWNER') {
+        navigate('/owner/dashboard', { replace: true });
+      } else {
+        navigate('/customer/dashboard', { replace: true });
+      }
+    } else {
+      setError(result.message);
+    }
+    setLoading(false);
+  };
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] px-4 py-8 sm:px-6 lg:px-8">
@@ -61,7 +101,13 @@ const Register = () => {
               <p className="mt-2 text-sm leading-7 text-[#64748B]">Start your journey with a secure, polished experience.</p>
             </div>
 
-            <form className="space-y-4">
+            {error && (
+              <div className="mb-4 rounded-[14px] border border-red-200 bg-red-50 px-3 py-3 text-sm font-medium text-red-600">
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="sm:col-span-2">
                   <label className="mb-2 block text-sm font-semibold text-[#0F172A]">Full Name</label>
@@ -69,6 +115,9 @@ const Register = () => {
                     <FiUser className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#64748B]" />
                     <input
                       type="text"
+                      required
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
                       placeholder="Alex Carter"
                       className="w-full rounded-[14px] border border-[#E2E8F0] bg-[#F8FAFC] py-3 pl-10 pr-3 text-sm text-[#0F172A] outline-none transition focus:border-[#CCCCFF] focus:ring-2 focus:ring-[#CCCCFF]/30"
                     />
@@ -81,6 +130,9 @@ const Register = () => {
                     <FiMail className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#64748B]" />
                     <input
                       type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       placeholder="alex@rentra.com"
                       className="w-full rounded-[14px] border border-[#E2E8F0] bg-[#F8FAFC] py-3 pl-10 pr-3 text-sm text-[#0F172A] outline-none transition focus:border-[#CCCCFF] focus:ring-2 focus:ring-[#CCCCFF]/30"
                     />
@@ -93,6 +145,9 @@ const Register = () => {
                     <FiPhone className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#64748B]" />
                     <input
                       type="tel"
+                      required
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
                       placeholder="(555) 123-4567"
                       className="w-full rounded-[14px] border border-[#E2E8F0] bg-[#F8FAFC] py-3 pl-10 pr-3 text-sm text-[#0F172A] outline-none transition focus:border-[#CCCCFF] focus:ring-2 focus:ring-[#CCCCFF]/30"
                     />
@@ -105,6 +160,9 @@ const Register = () => {
                     <FiLock className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#64748B]" />
                     <input
                       type={showPassword ? 'text' : 'password'}
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                       placeholder="Create a strong password"
                       className="w-full rounded-[14px] border border-[#E2E8F0] bg-[#F8FAFC] py-3 pl-10 pr-10 text-sm text-[#0F172A] outline-none transition focus:border-[#CCCCFF] focus:ring-2 focus:ring-[#CCCCFF]/30"
                     />
@@ -124,6 +182,9 @@ const Register = () => {
                     <FiLock className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#64748B]" />
                     <input
                       type={showConfirmPassword ? 'text' : 'password'}
+                      required
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Confirm your password"
                       className="w-full rounded-[14px] border border-[#E2E8F0] bg-[#F8FAFC] py-3 pl-10 pr-10 text-sm text-[#0F172A] outline-none transition focus:border-[#CCCCFF] focus:ring-2 focus:ring-[#CCCCFF]/30"
                     />
@@ -158,9 +219,20 @@ const Register = () => {
                 whileHover={{ y: -2, scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
                 type="submit"
-                className="flex w-full items-center justify-center rounded-[14px] bg-[#0F172A] px-4 py-3.5 text-sm font-semibold text-white transition hover:bg-[#1E293B]"
+                disabled={loading}
+                className="flex w-full items-center justify-center rounded-[14px] bg-[#0F172A] px-4 py-3.5 text-sm font-semibold text-white transition hover:bg-[#1E293B] disabled:opacity-70"
               >
-                Register <FiArrowRight className="ml-2" />
+                {loading ? (
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                    className="h-5 w-5 rounded-full border-2 border-white/20 border-t-white"
+                  />
+                ) : (
+                  <>
+                    Register <FiArrowRight className="ml-2" />
+                  </>
+                )}
               </motion.button>
             </form>
 

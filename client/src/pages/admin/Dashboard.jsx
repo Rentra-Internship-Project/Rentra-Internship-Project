@@ -5,10 +5,16 @@ import { useNavigate } from 'react-router-dom';
 import StatsCard from '../../components/admin/StatsCard';
 import RecentActivity from '../../components/admin/RecentActivity';
 import QuickActions from '../../components/admin/QuickActions';
-import { mockStats, mockActivities } from '../../data/adminMockData';
+import { mockActivities } from '../../data/adminMockData';
+import { useAdminContext } from '../../context/AdminContext';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { stats, isLoading } = useAdminContext();
+
+  if (isLoading || !stats) {
+    return <div className="p-8 text-center text-[#64748B]">Loading Admin Stats...</div>;
+  }
 
   return (
     <motion.div
@@ -29,7 +35,7 @@ const Dashboard = () => {
             onClick={() => navigate('/admin/businesses')}
             className="px-4 py-2 bg-[#0F172A] text-white text-xs font-semibold rounded-[12px] hover:bg-slate-800 transition-all shadow-xs"
           >
-            Review Pending Tasks ({mockStats.pendingVerifications + mockStats.pendingEquipmentApprovals})
+            Review Pending Tasks ({stats.pendingVerifications + stats.pendingEquipmentApprovals})
           </button>
         </div>
       </div>
@@ -38,7 +44,7 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <StatsCard
           title="Total Users"
-          value={mockStats.totalUsers.toLocaleString()}
+          value={stats.totalUsers.toLocaleString()}
           change="14.2%"
           isPositive={true}
           icon={FiUsers}
@@ -47,7 +53,7 @@ const Dashboard = () => {
         />
         <StatsCard
           title="Total Businesses"
-          value={mockStats.totalBusinesses.toLocaleString()}
+          value={stats.totalBusinesses.toLocaleString()}
           change="8.5%"
           isPositive={true}
           icon={FiBriefcase}
@@ -56,7 +62,7 @@ const Dashboard = () => {
         />
         <StatsCard
           title="Total Equipment"
-          value={mockStats.totalEquipment.toLocaleString()}
+          value={stats.totalEquipment.toLocaleString()}
           change="18.9%"
           isPositive={true}
           icon={FiTruck}
@@ -65,7 +71,7 @@ const Dashboard = () => {
         />
         <StatsCard
           title="Total Bookings"
-          value={mockStats.totalBookings.toLocaleString()}
+          value={stats.totalBookings.toLocaleString()}
           change="22.4%"
           isPositive={true}
           icon={FiCalendar}
@@ -85,7 +91,7 @@ const Dashboard = () => {
             <div>
               <h4 className="text-base font-bold text-[#0F172A]">Pending Business Verifications</h4>
               <p className="text-xs text-[#64748B] mt-0.5">
-                <span className="font-bold text-[#0F172A]">{mockStats.pendingVerifications} business owners</span> waiting for identity document approvals.
+                <span className="font-bold text-[#0F172A]">{stats.pendingVerifications} business owners</span> waiting for identity document approvals.
               </p>
             </div>
           </div>
@@ -106,7 +112,7 @@ const Dashboard = () => {
             <div>
               <h4 className="text-base font-bold text-[#0F172A]">Pending Equipment Approvals</h4>
               <p className="text-xs text-[#64748B] mt-0.5">
-                <span className="font-bold text-[#0F172A]">{mockStats.pendingEquipmentApprovals} machinery listings</span> submitted for platform review.
+                <span className="font-bold text-[#0F172A]">{stats.pendingEquipmentApprovals} machinery listings</span> submitted for platform review.
               </p>
             </div>
           </div>

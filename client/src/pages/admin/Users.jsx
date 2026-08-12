@@ -7,10 +7,11 @@ import SearchBar from '../../components/common/SearchBar';
 import ConfirmModal from '../../components/common/ConfirmModal';
 import EmptyState from '../../components/common/EmptyState';
 import Button from '../../components/common/Button';
-import { mockUsers as initialUsers } from '../../data/adminMockData';
+import { useAdminContext } from '../../context/AdminContext';
+import { adminService } from '../../services/api';
 
 const Users = () => {
-  const [users, setUsers] = useState(initialUsers);
+  const { users, setUsers } = useAdminContext();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [roleFilter, setRoleFilter] = useState('all');
@@ -18,33 +19,41 @@ const Users = () => {
   const [userToDelete, setUserToDelete] = useState(null);
 
   // Search & Filter Logic
-  const filteredUsers = users.filter((u) => {
+  const filteredUsers = (users || []).filter((u) => {
     const matchesSearch =
       u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.phone.includes(searchTerm);
+      (u.phone && u.phone.includes(searchTerm));
     const matchesStatus = statusFilter === 'all' || u.status.toLowerCase() === statusFilter.toLowerCase();
     const matchesRole = roleFilter === 'all' || u.role.toLowerCase() === roleFilter.toLowerCase();
     return matchesSearch && matchesStatus && matchesRole;
   });
 
   // Action Handlers
-  const handleToggleBlock = (userId) => {
-    setUsers((prev) =>
-      prev.map((u) => {
-        if (u.id === userId) {
-          const newStatus = u.status === 'Active' ? 'Blocked' : 'Active';
-          return { ...u, status: newStatus };
-        }
-        return u;
-      })
-    );
+  const handleToggleBlock = async (userId) => {
+    const target = users.find(u => u.id === userId);
+    if (!target) return;
+    const newStatus = target.status === 'Active' ? 'Blocked' : 'Active';
+    try {
+      await adminService.updateUser(userId, { status: newStatus });
+      setUsers((prev) =>
+        prev.map((u) => (u.id === userId ? { ...u, status: newStatus } : u))
+      );
+    } catch (err) {
+      alert('Failed to update user status.');
+    }
   };
 
-  const handleDeleteUser = () => {
+  const handleDeleteUser = async () => {
     if (userToDelete) {
-      setUsers((prev) => prev.filter((u) => u.id !== userToDelete.id));
-      setUserToDelete(null);
+      try {
+        await adminService.deleteUser(userToDelete.id);
+        setUsers((prev) => prev.filter((u) => u.id !== userToDelete.id));
+      } catch (err) {
+        alert('Failed to delete user.');
+      } finally {
+        setUserToDelete(null);
+      }
     }
   };
 

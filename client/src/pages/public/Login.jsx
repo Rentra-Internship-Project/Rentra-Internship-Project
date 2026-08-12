@@ -13,20 +13,25 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    setTimeout(() => {
-      const result = login({ email, password });
-      if (result.success) {
-        navigate('/customer/dashboard', { replace: true });
+    const result = await login({ email, password });
+    if (result.success) {
+      const role = result.user?.role?.toUpperCase();
+      if (role === 'ADMIN') {
+        navigate('/admin/dashboard', { replace: true });
+      } else if (role === 'OWNER') {
+        navigate('/owner/dashboard', { replace: true });
       } else {
-        setError(result.message);
+        navigate('/customer/dashboard', { replace: true });
       }
-      setLoading(false);
-    }, 600);
+    } else {
+      setError(result.message);
+    }
+    setLoading(false);
   };
 
   return (
@@ -157,10 +162,13 @@ const Login = () => {
               </motion.button>
             </form>
 
-            <div className="mt-6 rounded-[16px] border border-[#E2E8F0] bg-[#F8FAFC] p-4 text-sm text-[#64748B]">
-              <p className="mb-2 font-semibold uppercase tracking-[0.2em] text-[#94A3B8]">Demo Credentials</p>
-              <p>Email: <span className="font-semibold text-[#0F172A]">customer@rentra.com</span></p>
-              <p className="mt-1">Password: <span className="font-semibold text-[#0F172A]">customer123</span></p>
+            <div className="mt-4 rounded-[12px] border border-[#E2E8F0] bg-[#F8FAFC] p-3 text-[11px] text-[#64748B] flex flex-col gap-1">
+              <p className="font-bold uppercase tracking-[0.2em] text-[#94A3B8]">Demo Roles</p>
+              <div className="flex flex-wrap gap-x-4 gap-y-1">
+                <p>C: <span className="font-semibold text-[#0F172A]">customer@rentra.com</span> / <span className="font-semibold text-[#0F172A]">customer123</span></p>
+                <p>O: <span className="font-semibold text-[#0F172A]">owner@rentra.com</span> / <span className="font-semibold text-[#0F172A]">owner123</span></p>
+                <p>A: <span className="font-semibold text-[#0F172A]">admin@rentra.com</span> / <span className="font-semibold text-[#0F172A]">admin123</span></p>
+              </div>
             </div>
 
             <p className="mt-6 text-center text-sm text-[#64748B]">

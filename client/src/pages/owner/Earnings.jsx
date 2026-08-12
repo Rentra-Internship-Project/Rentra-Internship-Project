@@ -2,10 +2,22 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { FiDollarSign, FiTrendingUp, FiCalendar, FiClock, FiCheck, FiArrowUpRight } from 'react-icons/fi';
 import EarningsCard from '../../components/owner/EarningsCard';
-import { ownerEarnings } from '../../data/ownerMockData';
+import { ownerEarnings as mockEarnings } from '../../data/ownerMockData';
+import { useOwner } from '../../context/OwnerContext';
 
 const Earnings = () => {
-  const maxEarning = Math.max(...ownerEarnings.monthlyData.map((m) => m.earnings));
+  const { bookings, ownerStats } = useOwner();
+  const maxEarning = Math.max(...mockEarnings.monthlyData.map((m) => m.earnings));
+
+  const recentTransactions = bookings.filter(b => b.status === 'ACTIVE' || b.status === 'COMPLETED').map(b => ({
+    id: b.id,
+    bookingId: b.id,
+    customer: b.customerName,
+    equipment: b.equipmentName,
+    date: b.startDate,
+    amount: b.rentalCost,
+    status: b.status === 'COMPLETED' ? 'Paid' : 'Pending',
+  }));
 
   return (
     <motion.div
@@ -25,7 +37,7 @@ const Earnings = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <EarningsCard
           title="Total Earnings"
-          value={`$${ownerEarnings.totalEarnings.toLocaleString()}`}
+          value={ownerStats.monthlyEarnings}
           icon={FiDollarSign}
           accentBg="bg-emerald-50"
           iconColor="text-[#22C55E]"
@@ -33,7 +45,7 @@ const Earnings = () => {
         />
         <EarningsCard
           title="Monthly Earnings"
-          value={`$${ownerEarnings.monthlyEarnings.toLocaleString()}`}
+          value={ownerStats.monthlyEarnings}
           icon={FiTrendingUp}
           accentBg="bg-blue-50"
           iconColor="text-[#3B82F6]"
@@ -41,7 +53,7 @@ const Earnings = () => {
         />
         <EarningsCard
           title="Completed Bookings"
-          value={ownerEarnings.completedBookings}
+          value={bookings.filter(b => b.status === 'COMPLETED').length}
           subtitle="Revenue-generating rentals"
           icon={FiCalendar}
           accentBg="bg-purple-50"
@@ -49,7 +61,7 @@ const Earnings = () => {
         />
         <EarningsCard
           title="Pending Payments"
-          value={`$${ownerEarnings.pendingPayments.toLocaleString()}`}
+          value={`₹${bookings.filter(b => b.status === 'ACTIVE').reduce((sum, b) => sum + b.remainingBalance, 0).toLocaleString()}`}
           subtitle="Awaiting settlement"
           icon={FiClock}
           accentBg="bg-amber-50"
@@ -72,7 +84,7 @@ const Earnings = () => {
 
         {/* Bar Chart */}
         <div className="flex items-end justify-between gap-3 h-52 px-2">
-          {ownerEarnings.monthlyData.map((month, index) => {
+          {mockEarnings.monthlyData.map((month, index) => {
             const height = (month.earnings / maxEarning) * 100;
             return (
               <motion.div
@@ -97,7 +109,7 @@ const Earnings = () => {
         </div>
         {/* Labels */}
         <div className="flex items-center justify-between gap-3 px-2 mt-2">
-          {ownerEarnings.monthlyData.map((month) => (
+          {mockEarnings.monthlyData.map((month) => (
             <div key={month.month} className="flex-1 text-center">
               <span className="text-[10px] font-semibold text-[#64748B]">{month.month}</span>
             </div>
@@ -126,7 +138,7 @@ const Earnings = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E2E8F0]">
-              {ownerEarnings.recentTransactions.map((txn) => (
+              {recentTransactions.map((txn) => (
                 <tr key={txn.id} className="hover:bg-[#F8FAFC]/50 transition-colors">
                   <td className="px-5 py-3.5">
                     <span className="text-xs font-mono font-bold text-[#0F172A]">{txn.id}</span>
@@ -144,7 +156,7 @@ const Earnings = () => {
                     <span className="text-xs text-[#64748B]">{txn.date}</span>
                   </td>
                   <td className="px-5 py-3.5 text-right">
-                    <span className="text-sm font-bold text-[#0F172A]">${txn.amount.toLocaleString()}</span>
+                    <span className="text-sm font-bold text-[#0F172A]">₹{txn.amount.toLocaleString()}</span>
                   </td>
                   <td className="px-5 py-3.5 text-right">
                     <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${
@@ -165,10 +177,10 @@ const Earnings = () => {
         {/* Summary Footer */}
         <div className="px-6 py-4 border-t border-[#E2E8F0] bg-[#F8FAFC] flex items-center justify-between">
           <p className="text-xs text-[#64748B]">
-            Showing {ownerEarnings.recentTransactions.length} recent transactions
+            Showing {recentTransactions.length} recent transactions
           </p>
           <p className="text-xs font-bold text-[#0F172A]">
-            Total: ${ownerEarnings.recentTransactions.reduce((sum, t) => sum + t.amount, 0).toLocaleString()}
+            Total: ₹{recentTransactions.reduce((sum, t) => sum + t.amount, 0).toLocaleString()}
           </p>
         </div>
       </div>

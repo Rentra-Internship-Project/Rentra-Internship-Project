@@ -109,8 +109,8 @@ const BrowseEquipment = () => {
           {/* Main Search Input */}
           <div className="w-full lg:w-96">
             <SearchBar
-              value={searchQuery}
-              onChange={setSearchQuery}
+              searchTerm={searchQuery}
+              onSearchChange={setSearchQuery}
               placeholder="Search by equipment name, category, or owner..."
             />
           </div>

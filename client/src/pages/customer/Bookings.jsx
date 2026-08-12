@@ -89,8 +89,8 @@ const Bookings = () => {
       <div className="panel-card p-4 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="w-full md:w-80">
           <SearchBar
-            value={searchQuery}
-            onChange={setSearchQuery}
+            searchTerm={searchQuery}
+            onSearchChange={setSearchQuery}
             placeholder="Search booking ID, equipment..."
           />
         </div>
