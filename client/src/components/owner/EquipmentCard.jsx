@@ -17,7 +17,7 @@ const availabilityColors = {
 
 const EquipmentCard = ({ equipment, onDelete }) => {
   const navigate = useNavigate();
-  const { id, name, category, location, pricePerDay, availability, status, images } = equipment;
+  const { id, name, category, location, pricePerDay, availability, status, image } = equipment;
 
   return (
     <motion.div
@@ -27,9 +27,9 @@ const EquipmentCard = ({ equipment, onDelete }) => {
     >
       {/* Equipment Image */}
       <div className="relative h-44 bg-[#F8FAFC] overflow-hidden">
-        {images && images[0] ? (
+        {image ? (
           <img
-            src={images[0]}
+            src={image}
             alt={name}
             className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
           />

@@ -10,9 +10,10 @@ const statusConfig = {
 };
 
 const BookingCard = ({ booking, onAccept, onReject }) => {
-  const { id, customerName, customerAvatar, equipmentName, startDate, endDate, rentalPeriod, amount, status } = booking;
+  const { id, customerName, customerAvatar, equipmentName, startDate, endDate, rentalPeriod, status } = booking;
   const cfg = statusConfig[status] || statusConfig.Pending;
   const StatusIcon = cfg.icon;
+  const totalAmount = booking.amount ?? booking.totalValue ?? booking.totalAmount ?? booking.rentalCost ?? 0;
 
   return (
     <motion.div
@@ -25,7 +26,7 @@ const BookingCard = ({ booking, onAccept, onReject }) => {
       {/* Customer Avatar */}
       <div className="w-11 h-11 rounded-full overflow-hidden ring-2 ring-[#E2E8F0] shrink-0">
         {customerAvatar ? (
-          <img src={customerAvatar} alt={customerName} className="w-full h-full object-cover" />
+          <img src={customerAvatar} alt={customerName || 'Customer'} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full bg-[#CCCCFF] flex items-center justify-center">
             <FiUser className="text-[#0F172A]" />
@@ -36,20 +37,20 @@ const BookingCard = ({ booking, onAccept, onReject }) => {
       {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <p className="text-xs font-bold text-[#0F172A]">{customerName}</p>
+          <p className="text-xs font-bold text-[#0F172A]">{customerName || 'Anonymous User'}</p>
           <span className="text-[10px] text-[#94A3B8]">·</span>
           <span className="text-[10px] font-mono text-[#64748B]">{id}</span>
         </div>
-        <p className="text-xs text-[#64748B] mt-0.5 line-clamp-1">{equipmentName}</p>
+        <p className="text-xs text-[#64748B] mt-0.5 line-clamp-1">{equipmentName || 'Unknown Equipment'}</p>
         <div className="flex items-center gap-3 mt-1.5 flex-wrap">
           <span className="flex items-center gap-1 text-[11px] text-[#64748B]">
             <FiCalendar className="text-[10px]" /> {startDate} → {endDate}
           </span>
           <span className="flex items-center gap-1 text-[11px] text-[#64748B]">
-            <FiClock className="text-[10px]" /> {rentalPeriod}
+            <FiClock className="text-[10px]" /> {rentalPeriod || '1 day'}
           </span>
           <span className="flex items-center gap-1 text-[11px] font-bold text-[#0F172A]">
-            <FiDollarSign className="text-[10px] text-[#22C55E]" /> ${amount.toLocaleString()}
+            <FiDollarSign className="text-[10px] text-[#22C55E]" /> ${Number(totalAmount).toLocaleString()}
           </span>
         </div>
       </div>
@@ -59,7 +60,7 @@ const BookingCard = ({ booking, onAccept, onReject }) => {
         <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full border ${cfg.bg} ${cfg.text} ${cfg.border}`}>
           <StatusIcon className="text-[10px]" /> {status}
         </span>
-        {status === 'Pending' && (
+        {status.includes('Pending') && (
           <>
             <button
               onClick={() => onAccept && onAccept(id)}
