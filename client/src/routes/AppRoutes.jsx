@@ -5,13 +5,22 @@ import OwnerRoutes from './OwnerRoutes';
 import CustomerRoutes from './CustomerRoutes';
 import LoginPage from '../pages/public/Login';
 import RegisterPage from '../pages/public/Register';
-import HomePage from '../pages/public/Home';
+import LandingPage from '../pages/public/Landing';
+import OAuthCallback from '../pages/public/OAuthCallback';
+import HomePage from '../pages/public/Home'; // Fallback if needed somewhere else
+import TermsPage from '../pages/public/Terms';
+import PrivacyPage from '../pages/public/Privacy';
+import ContactPage from '../pages/public/Contact';
 
 const AppRoutes = () => (
   <Routes>
-    <Route path="/" element={<HomePage />} />
+    <Route path="/" element={<LandingPage />} />
     <Route path="/login" element={<LoginPage />} />
     <Route path="/register" element={<RegisterPage />} />
+    <Route path="/oauth-callback" element={<OAuthCallback />} />
+    <Route path="/terms" element={<TermsPage />} />
+    <Route path="/privacy" element={<PrivacyPage />} />
+    <Route path="/contact" element={<ContactPage />} />
     {AdminRoutes()}
     {OwnerRoutes()}
     {CustomerRoutes()}

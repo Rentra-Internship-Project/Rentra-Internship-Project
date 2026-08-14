@@ -6,6 +6,7 @@ const businessSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
+      unique: true, // One business per owner
     },
     businessName: {
       type: String,
@@ -18,19 +19,67 @@ const businessSchema = new mongoose.Schema(
     },
     businessType: {
       type: String,
-      default: 'Heavy Machinery Fleet Provider',
+      default: '',
     },
     registrationNumber: {
       type: String,
-      default: 'REG-991204',
+      default: '',
     },
     taxId: {
       type: String,
-      default: 'TAX-884102',
+      default: '',
+    },
+    gstNumber: {
+      type: String,
+      default: '',
     },
     insurancePolicyNumber: {
       type: String,
-      default: 'INS-774109',
+      default: '',
+    },
+    address: {
+      type: String,
+      default: '',
+    },
+    city: {
+      type: String,
+      default: '',
+    },
+    state: {
+      type: String,
+      default: '',
+    },
+    phone: {
+      type: String,
+      default: '',
+    },
+    email: {
+      type: String,
+      default: '',
+    },
+    description: {
+      type: String,
+      default: '',
+    },
+    aadharNumber: {
+      type: String,
+      default: '',
+    },
+    panNumber: {
+      type: String,
+      default: '',
+    },
+    bankAccountNumber: {
+      type: String,
+      default: '',
+    },
+    ifscCode: {
+      type: String,
+      default: '',
+    },
+    upiId: {
+      type: String,
+      default: '',
     },
     documents: [
       {
@@ -48,6 +97,11 @@ const businessSchema = new mongoose.Schema(
     },
     verifiedAt: {
       type: Date,
+      default: null,
+    },
+    verifiedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
       default: null,
     },
   },

@@ -12,7 +12,7 @@ import Button from '../../components/common/Button';
 
 const Wishlist = () => {
   const navigate = useNavigate();
-  const { wishlistEquipment, removeFromWishlist, addBooking } = useCustomer();
+  const { wishlistEquipment, toggleWishlist, createBooking } = useCustomer();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -52,15 +52,15 @@ const Wishlist = () => {
     });
   }, [wishlistEquipment, searchQuery, selectedCategory]);
 
-  const handleConfirmRemove = () => {
+  const handleConfirmRemove = async () => {
     if (itemToRemove) {
-      removeFromWishlist(itemToRemove);
+      await toggleWishlist(itemToRemove);
       setItemToRemove(null);
       setIsRemoveModalOpen(false);
     }
   };
 
-  const handleConfirmBooking = (e) => {
+  const handleConfirmBooking = async (e) => {
     e.preventDefault();
     if (!selectedEquipment) return;
     setIsSubmittingBooking(true);
@@ -75,33 +75,24 @@ const Wishlist = () => {
     const tax = Math.round(subtotal * 0.08);
     const totalAmount = subtotal + deposit + serviceFee + tax;
 
-    setTimeout(() => {
-      const bookingId = addBooking({
-        equipmentId: selectedEquipment.id,
-        equipmentName: selectedEquipment.name,
-        category: selectedEquipment.category,
-        image: selectedEquipment.image,
-        ownerName: selectedEquipment.owner.name,
-        ownerContact: selectedEquipment.owner.phone,
-        ownerEmail: selectedEquipment.owner.email,
-        ownerAvatar: selectedEquipment.owner.avatar,
-        startDate,
-        endDate,
-        durationDays,
-        dailyRate: selectedEquipment.pricePerDay,
-        subtotal,
-        deposit,
-        serviceFee,
-        tax,
-        totalAmount,
-        siteAddress,
-        notes: bookingNotes,
-      });
+    const bookingData = {
+      equipmentId: selectedEquipment.id,
+      startDate,
+      endDate,
+      siteAddress,
+      notes: bookingNotes,
+    };
 
-      setIsSubmittingBooking(false);
-      setIsBookModalOpen(false);
-      navigate(`/customer/bookings/${bookingId}`);
-    }, 600);
+    const result = await createBooking(bookingData);
+
+    setIsSubmittingBooking(false);
+    setIsBookModalOpen(false);
+
+    if (result.success) {
+      navigate(`/customer/bookings`);
+    } else {
+      alert(result.error);
+    }
   };
 
   return (

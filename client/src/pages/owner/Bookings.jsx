@@ -8,10 +8,15 @@ import { useOwner } from '../../context/OwnerContext';
 import { bookingService } from '../../services/api';
 
 const statusColors = {
-  'Pending Owner Approval': 'bg-amber-50 text-[#F59E0B] border-amber-100',
-  'ACTIVE': 'bg-blue-50 text-blue-600 border-blue-100',
-  'COMPLETED': 'bg-green-50 text-[#22C55E] border-green-100',
-  'CANCELLED': 'bg-red-50 text-[#EF4444] border-red-100',
+  'Pending Approval': 'bg-amber-50 text-[#F59E0B] border-amber-100',
+  'Approved': 'bg-green-50 text-[#22C55E] border-green-100',
+  'Deposit Paid': 'bg-blue-50 text-[#3B82F6] border-blue-100',
+  'Ready For Pickup': 'bg-cyan-50 text-cyan-600 border-cyan-100',
+  'Rental Active': 'bg-indigo-50 text-indigo-600 border-indigo-100',
+  'Return Requested': 'bg-purple-50 text-purple-600 border-purple-100',
+  'Completed': 'bg-emerald-50 text-emerald-600 border-emerald-100',
+  'Rejected': 'bg-red-50 text-[#EF4444] border-red-100',
+  'Cancelled': 'bg-slate-50 text-slate-600 border-slate-100',
 };
 
 const Bookings = () => {
@@ -40,31 +45,22 @@ const Bookings = () => {
     });
   }, [bookings, searchTerm, statusFilter]);
 
-  const handleAccept = async (id) => {
-    try {
-      await bookingService.updateStatus(id, 'ACTIVE');
-      setBookings((prev) =>
-        prev.map((bk) => (bk.id === id ? { ...bk, status: 'ACTIVE' } : bk))
-      );
-    } catch (err) {
-      alert('Failed to accept booking: ' + err.message);
-    }
+  const handleStatusUpdate = async (id, newStatus) => {
+    const previousBookings = [...bookings];
+    setBookings((prev) =>
+      prev.map((bk) => (bk.id === id ? { ...bk, status: newStatus } : bk))
+    );
     setConfirmAction(null);
+
+    try {
+      await bookingService.updateStatus(id, newStatus);
+    } catch (err) {
+      setBookings(previousBookings);
+      alert('Failed to update booking: ' + (err.response?.data?.error || err.message));
+    }
   };
 
-  const handleReject = async (id) => {
-    try {
-      await bookingService.updateStatus(id, 'CANCELLED');
-      setBookings((prev) =>
-        prev.map((bk) => (bk.id === id ? { ...bk, status: 'CANCELLED' } : bk))
-      );
-    } catch (err) {
-      alert('Failed to reject booking: ' + err.message);
-    }
-    setConfirmAction(null);
-  };
-
-  const pendingCount = bookings.filter((bk) => bk.status === 'Pending Owner Approval').length;
+  const pendingCount = bookings.filter((bk) => bk.status === 'Pending Approval').length;
 
   return (
     <motion.div
@@ -87,14 +83,19 @@ const Bookings = () => {
       <SearchBar
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
-        placeholder="Search by booking ID, customer, or equipment..."
+        placeholder="Search by customer, equipment..."
         selectedFilter={statusFilter}
         onFilterChange={setStatusFilter}
         filterOptions={[
-          { value: 'pending', label: 'Pending' },
-          { value: 'active', label: 'Active' },
-          { value: 'completed', label: 'Completed' },
-          { value: 'rejected', label: 'Rejected' },
+          { value: 'Pending Approval', label: 'Pending Approval' },
+          { value: 'Approved', label: 'Approved' },
+          { value: 'Deposit Paid', label: 'Deposit Paid' },
+          { value: 'Ready For Pickup', label: 'Ready For Pickup' },
+          { value: 'Rental Active', label: 'Rental Active' },
+          { value: 'Return Requested', label: 'Return Requested' },
+          { value: 'Completed', label: 'Completed' },
+          { value: 'Rejected', label: 'Rejected' },
+          { value: 'Cancelled', label: 'Cancelled' },
         ]}
       />
 
@@ -154,7 +155,7 @@ const Bookings = () => {
                       </div>
                     </td>
                     <td className="px-5 py-4">
-                      <span className="text-sm font-bold text-[#0F172A]">${bk.amount.toLocaleString()}</span>
+                      <span className="text-sm font-bold text-[#0F172A]">₹{(bk.amount || bk.totalValue || 0).toLocaleString('en-IN')}</span>
                     </td>
                     <td className="px-5 py-4">
                       <span className={`inline-flex text-[11px] font-bold px-2.5 py-1 rounded-full border ${statusColors[bk.status] || 'bg-slate-50 text-slate-500 border-slate-100'}`}>
@@ -170,12 +171,13 @@ const Bookings = () => {
                         >
                           <FiEye className="text-sm" />
                         </button>
-                        {bk.status.includes('Pending') && (
+                        {/* Approve/Reject — Pending Approval */}
+                        {bk.status === 'Pending Approval' && (
                           <>
                             <button
                               onClick={() => setConfirmAction({ type: 'accept', id: bk.id })}
                               className="p-1.5 rounded-[8px] bg-green-50 hover:bg-green-100 text-[#22C55E] transition-colors"
-                              title="Accept"
+                              title="Approve"
                             >
                               <FiCheck className="text-sm" />
                             </button>
@@ -187,6 +189,24 @@ const Bookings = () => {
                               <FiX className="text-sm" />
                             </button>
                           </>
+                        )}
+                        {/* Mark Ready For Pickup — after Deposit Paid */}
+                        {bk.status === 'Deposit Paid' && (
+                          <button
+                            onClick={() => handleStatusUpdate(bk.id, 'Ready For Pickup')}
+                            className="px-2.5 py-1 rounded-[8px] bg-cyan-50 hover:bg-cyan-100 text-cyan-600 text-xs font-semibold transition-colors"
+                          >
+                            Mark Ready
+                          </button>
+                        )}
+                        {/* Complete — Return Requested */}
+                        {bk.status === 'Return Requested' && (
+                          <button
+                            onClick={() => handleStatusUpdate(bk.id, 'Completed')}
+                            className="px-2.5 py-1 rounded-[8px] bg-emerald-50 hover:bg-emerald-100 text-emerald-600 text-xs font-semibold transition-colors"
+                          >
+                            Complete
+                          </button>
                         )}
                       </div>
                     </td>
@@ -229,7 +249,7 @@ const Bookings = () => {
                 ['Equipment', selectedBooking.equipmentName],
                 ['Period', `${selectedBooking.startDate} → ${selectedBooking.endDate}`],
                 ['Duration', selectedBooking.rentalPeriod],
-                ['Amount', `$${selectedBooking.amount.toLocaleString()}`],
+                ['Amount', `₹${(selectedBooking.amount || selectedBooking.totalValue || 0).toLocaleString('en-IN')}`],
                 ['Status', selectedBooking.status],
                 ['Notes', selectedBooking.notes || 'No notes'],
               ].map(([label, value]) => (
@@ -247,10 +267,10 @@ const Bookings = () => {
       <ConfirmModal
         isOpen={confirmAction?.type === 'accept'}
         onClose={() => setConfirmAction(null)}
-        onConfirm={() => handleAccept(confirmAction?.id)}
-        title="Accept Booking"
-        message="Are you sure you want to accept this booking request? The customer will be notified immediately."
-        confirmText="Accept Booking"
+        onConfirm={() => handleStatusUpdate(confirmAction?.id, 'Approved')}
+        title="Approve Booking"
+        message="Are you sure you want to approve this booking request? The customer will be notified to pay the deposit."
+        confirmText="Approve Booking"
         type="warning"
       />
 
@@ -258,7 +278,7 @@ const Bookings = () => {
       <ConfirmModal
         isOpen={confirmAction?.type === 'reject'}
         onClose={() => setConfirmAction(null)}
-        onConfirm={() => handleReject(confirmAction?.id)}
+        onConfirm={() => handleStatusUpdate(confirmAction?.id, 'Rejected')}
         title="Reject Booking"
         message="Are you sure you want to reject this booking? This action cannot be undone."
         confirmText="Reject"

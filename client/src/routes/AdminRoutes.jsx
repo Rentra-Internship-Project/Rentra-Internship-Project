@@ -8,6 +8,8 @@ import Equipment from '../pages/admin/Equipment';
 import Categories from '../pages/admin/Categories';
 import Bookings from '../pages/admin/Bookings';
 import Profile from '../pages/admin/Profile';
+import Payments from '../pages/admin/Payments';
+import UserDetails from '../pages/admin/UserDetails';
 import { ProtectedRoute } from './ProtectedRoute';
 
 const AdminRoutes = () => (
@@ -22,10 +24,12 @@ const AdminRoutes = () => (
       <Route index element={<Navigate to="/admin/dashboard" replace />} />
       <Route path="dashboard" element={<Dashboard />} />
       <Route path="users" element={<Users />} />
+      <Route path="users/:id" element={<UserDetails />} />
       <Route path="businesses" element={<Businesses />} />
       <Route path="equipment" element={<Equipment />} />
       <Route path="categories" element={<Categories />} />
       <Route path="bookings" element={<Bookings />} />
+      <Route path="payments" element={<Payments />} />
       <Route path="profile" element={<Profile />} />
       <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
     </Route>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiCheck, FiX, FiFileText, FiDownload, FiBriefcase, FiUser, FiCalendar, FiShield } from 'react-icons/fi';
+import { FiCheck, FiX, FiFileText, FiDownload, FiBriefcase, FiUser, FiCalendar, FiShield, FiTrash2 } from 'react-icons/fi';
 import DataTable from '../../components/admin/DataTable';
 import StatusBadge from '../../components/admin/StatusBadge';
 import SearchBar from '../../components/common/SearchBar';
@@ -50,6 +50,17 @@ const Businesses = () => {
       );
     } catch (err) {
       console.error('Failed to reject business:', err);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to completely delete this business profile? This action cannot be undone.")) return;
+    try {
+      await adminService.deleteBusiness(id);
+      setBusinesses((prev) => prev.filter((b) => b.id !== id && b._id !== id));
+    } catch (err) {
+      console.error('Failed to delete business:', err);
+      alert('Failed to delete business: ' + (err.response?.data?.error || err.message));
     }
   };
 
@@ -164,6 +175,15 @@ const Businesses = () => {
                       </Button>
                     </>
                   )}
+                  
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    icon={FiTrash2}
+                    onClick={() => handleDelete(b.id || b._id)}
+                  >
+                    Delete
+                  </Button>
                 </div>
               </td>
             </tr>
@@ -239,17 +259,25 @@ const Businesses = () => {
                       <div className="flex items-center gap-3">
                         <FiFileText className="text-[#3B82F6] text-lg" />
                         <div>
-                          <p className="text-xs font-semibold text-[#0F172A]">{doc.name}</p>
-                          <span className="text-[10px] text-[#64748B]">{doc.size}</span>
+                          <p className="text-xs font-semibold text-[#0F172A]">{typeof doc === 'string' ? doc.split('/').pop() || 'Document' : doc.name || 'Document'}</p>
+                          <span className="text-[10px] text-[#64748B]">{typeof doc === 'string' ? 'File' : doc.size || ''}</span>
                         </div>
                       </div>
-                      <button
-                        onClick={() => alert(`Simulating download of ${doc.name}`)}
-                        className="p-2 text-[#3B82F6] hover:bg-blue-50 rounded-[8px] transition-colors"
-                        title="Download Document"
+                      <a
+                        href={typeof doc === 'string' && doc.startsWith('http') ? doc : '#'}
+                        target={typeof doc === 'string' && doc.startsWith('http') ? '_blank' : '_self'}
+                        rel="noreferrer"
+                        onClick={(e) => {
+                          if (typeof doc !== 'string' || !doc.startsWith('http')) {
+                            e.preventDefault();
+                            alert(`File URL not available for ${typeof doc === 'string' ? doc : doc.name}`);
+                          }
+                        }}
+                        className="p-2 text-[#3B82F6] hover:bg-blue-50 rounded-[8px] transition-colors inline-block"
+                        title="View Document"
                       >
                         <FiDownload className="text-base" />
-                      </button>
+                      </a>
                     </div>
                   ))}
                 </div>

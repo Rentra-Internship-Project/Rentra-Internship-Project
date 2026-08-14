@@ -1,15 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import {
-  FiCheckCircle,
-  FiXCircle,
-  FiClock,
-  FiDollarSign,
-  FiTruck,
-  FiTrash2,
-  FiCheck,
-  FiArrowRight,
-} from 'react-icons/fi';
+import { FiCheckCircle, FiXCircle, FiClock, FiTruck, FiTrash2, FiCheck, FiArrowRight } from 'react-icons/fi';
+import { FaRupeeSign } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
 const notificationTypeConfigs = {
@@ -30,7 +22,7 @@ const notificationTypeConfigs = {
     color: 'bg-[#3B82F6]/15 text-[#3B82F6]',
   },
   'Payment Successful': {
-    icon: FiDollarSign,
+    icon: FaRupeeSign,
     color: 'bg-[#CCCCFF]/60 text-[#0F172A]',
   },
 };

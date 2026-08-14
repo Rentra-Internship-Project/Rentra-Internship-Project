@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import CustomerSidebar from '../components/customer/CustomerSidebar';
 import CustomerNavbar from '../components/customer/CustomerNavbar';
+import FloatingChatbot from '../components/common/FloatingChatbot';
 import { CustomerProvider } from '../context/CustomerContext';
 
 const CustomerLayout = () => {
@@ -23,6 +24,7 @@ const CustomerLayout = () => {
           </main>
         </div>
       </div>
+      <FloatingChatbot />
     </CustomerProvider>
   );
 };

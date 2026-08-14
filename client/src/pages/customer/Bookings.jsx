@@ -1,16 +1,17 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
-  FiSearch,
   FiCalendar,
   FiUser,
-  FiArrowRight,
-  FiCheckCircle,
-  FiClock,
-  FiXCircle,
   FiEye,
-  FiFilter,
+  FiClock,
+  FiCheckCircle,
+  FiXCircle,
+  FiAlertTriangle,
+  FiCreditCard,
+  FiDownload,
+  FiCheck,
 } from 'react-icons/fi';
 import { useCustomer } from '../../context/CustomerContext';
 import SearchBar from '../../components/common/SearchBar';
@@ -18,87 +19,146 @@ import BookingCard from '../../components/customer/BookingCard';
 import EmptyState from '../../components/common/EmptyState';
 import ConfirmModal from '../../components/common/ConfirmModal';
 import Button from '../../components/common/Button';
+import RazorpayPaymentModal from '../../components/customer/RazorpayPaymentModal';
+import { bookingService } from '../../services/api';
 
+// Match exact enum from backend
 const statusBadgeStyles = {
-  Active: 'bg-[#22C55E]/15 text-[#22C55E] border border-[#22C55E]/30',
-  Completed: 'bg-[#3B82F6]/15 text-[#3B82F6] border border-[#3B82F6]/30',
-  Pending: 'bg-[#F59E0B]/15 text-[#F59E0B] border border-[#F59E0B]/30',
-  Cancelled: 'bg-[#EF4444]/15 text-[#EF4444] border border-[#EF4444]/30',
+  'Pending Approval': 'bg-[#F59E0B]/15 text-[#F59E0B] border border-[#F59E0B]/30',
+  'Approved': 'bg-blue-100 text-[#3B82F6] border border-blue-200',
+  'Deposit Paid': 'bg-purple-100 text-purple-600 border border-purple-200',
+  'Ready For Pickup': 'bg-cyan-100 text-cyan-600 border border-cyan-200',
+  'Rental Active': 'bg-[#22C55E]/15 text-[#22C55E] border border-[#22C55E]/30',
+  'Return Requested': 'bg-orange-100 text-orange-600 border border-orange-200',
+  'Completed': 'bg-emerald-100 text-emerald-600 border border-emerald-200',
+  'Rejected': 'bg-[#EF4444]/15 text-[#EF4444] border border-[#EF4444]/30',
+  'Cancelled': 'bg-slate-100 text-slate-600 border border-slate-200',
 };
 
 const statusIcons = {
-  Active: FiCheckCircle,
-  Completed: FiCheckCircle,
-  Pending: FiClock,
-  Cancelled: FiXCircle,
+  'Pending Approval': FiClock,
+  'Approved': FiCheckCircle,
+  'Deposit Paid': FiCheckCircle,
+  'Ready For Pickup': FiCheckCircle,
+  'Rental Active': FiCheckCircle,
+  'Return Requested': FiAlertTriangle,
+  'Completed': FiCheckCircle,
+  'Rejected': FiXCircle,
+  'Cancelled': FiXCircle,
 };
 
-const filterTabs = ['All', 'Active', 'Pending', 'Completed', 'Cancelled'];
+const filterTabs = [
+  'All',
+  'Pending Approval',
+  'Approved',
+  'Deposit Paid',
+  'Rental Active',
+  'Completed',
+  'Cancelled',
+];
 
 const Bookings = () => {
   const navigate = useNavigate();
-  const { bookings, cancelBooking } = useCustomer();
+  const { bookings, setBookings, cancelBooking, requestReturn, fetchBookings } = useCustomer();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('All');
 
-  // Cancel Booking modal state
+  // Cancel modal
   const [bookingToCancel, setBookingToCancel] = useState(null);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
-  // Filter Bookings
+  // Razorpay payment modal
+  const [paymentBooking, setPaymentBooking] = useState(null);
+
+  // Filter bookings
   const filteredBookings = useMemo(() => {
     return bookings.filter((bk) => {
       const matchesSearch =
-        bk.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        bk.equipmentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        bk.ownerName.toLowerCase().includes(searchQuery.toLowerCase());
+        (bk.id || bk._id || '').toString().toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (bk.equipmentName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (bk.ownerName || '').toLowerCase().includes(searchQuery.toLowerCase());
       const matchesStatus = selectedStatus === 'All' || bk.status === selectedStatus;
       return matchesSearch && matchesStatus;
     });
   }, [bookings, searchQuery, selectedStatus]);
 
-  const handleConfirmCancel = () => {
+  const handleConfirmCancel = async () => {
     if (bookingToCancel) {
-      cancelBooking(bookingToCancel);
+      await cancelBooking(bookingToCancel);
       setBookingToCancel(null);
       setIsCancelModalOpen(false);
     }
   };
 
+  const handleRequestReturn = async (id) => {
+    await requestReturn(id);
+  };
+
+  const handlePaymentSuccess = (updatedBooking) => {
+    // Update the booking in local list
+    if (setBookings) {
+      setBookings((prev) =>
+        prev.map((b) =>
+          (b.id === updatedBooking._id || b._id === updatedBooking._id)
+            ? { ...b, status: 'Deposit Paid', depositStatus: 'Paid' }
+            : b
+        )
+      );
+    }
+    setPaymentBooking(null);
+    fetchBookings();
+  };
+
+  const handleDownloadInvoice = async (id) => {
+    try {
+      const res = await bookingService.downloadContractPdf(id);
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Rentra_Invoice_${id.slice(-8)}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      alert('Failed to download invoice');
+    }
+  };
+
   return (
     <div className="space-y-6">
-      {/* Header Banner */}
+      {/* Header */}
       <div className="panel-card p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-extrabold text-[#0F172A]">Rental Bookings History</h1>
+          <h1 className="text-xl sm:text-2xl font-extrabold text-[#0F172A]">My Rental Bookings</h1>
           <p className="text-xs sm:text-sm text-[#64748B] mt-0.5">
-            Monitor reservation status, rental dates, owner contact details, and payment receipts.
+            Track status, pay deposits, and manage all your rental bookings.
           </p>
         </div>
-
         <div className="flex items-center gap-2">
           <span className="px-3.5 py-1.5 bg-[#CCCCFF]/30 border border-[#CCCCFF] rounded-full text-xs font-bold text-[#0F172A] flex items-center gap-1.5">
             <FiCalendar />
-            <span>{bookings.length} Total Bookings</span>
+            <span>{bookings.length} Total</span>
           </span>
         </div>
       </div>
 
-      {/* Filter & Search Bar Controls */}
+      {/* Filter & Search */}
       <div className="panel-card p-4 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="w-full md:w-80">
           <SearchBar
             searchTerm={searchQuery}
             onSearchChange={setSearchQuery}
-            placeholder="Search booking ID, equipment..."
+            placeholder="Search by booking ID, equipment..."
           />
         </div>
-
-        {/* Status Filter Tabs */}
         <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
           {filterTabs.map((status) => {
-            const count = status === 'All' ? bookings.length : bookings.filter((b) => b.status === status).length;
+            const count =
+              status === 'All'
+                ? bookings.length
+                : bookings.filter((b) => b.status === status).length;
             return (
               <button
                 key={status}
@@ -110,7 +170,7 @@ const Bookings = () => {
                 }`}
               >
                 <span>{status}</span>
-                <span className="px-1.5 py-0.2 bg-white/80 rounded-full text-[10px] text-[#0F172A]">
+                <span className="px-1.5 py-0.5 bg-white/80 rounded-full text-[10px] text-[#0F172A]">
                   {count}
                 </span>
               </button>
@@ -119,17 +179,32 @@ const Bookings = () => {
         </div>
       </div>
 
-      {/* Mobile Card List View (visible below md screen) */}
+      {/* Mobile Cards */}
       <div className="block md:hidden space-y-3">
         {filteredBookings.length > 0 ? (
           filteredBookings.map((bk) => (
             <BookingCard
               key={bk.id}
               booking={bk}
-              onCancel={(id) => {
-                setBookingToCancel(id);
-                setIsCancelModalOpen(true);
-              }}
+              onPayDeposit={bk.status === 'Approved' ? () => setPaymentBooking(bk) : null}
+              onCancel={
+                ['Pending Approval', 'Approved', 'Deposit Paid'].includes(bk.status)
+                  ? (id) => { setBookingToCancel(id); setIsCancelModalOpen(true); }
+                  : null
+              }
+              onRequestReturn={bk.status === 'Rental Active' ? () => handleRequestReturn(bk.id) : null}
+              onMarkReceived={
+                bk.status === 'Ready For Pickup' 
+                  ? async (id) => {
+                      try {
+                        await bookingService.updateStatus(id, 'Rental Active');
+                        window.location.reload();
+                      } catch (err) {
+                        alert('Failed to mark received: ' + (err.response?.data?.error || err.message));
+                      }
+                    }
+                  : null
+              }
             />
           ))
         ) : (
@@ -138,8 +213,8 @@ const Bookings = () => {
             title="No Bookings Found"
             description={
               searchQuery
-                ? `No bookings matched your search query "${searchQuery}".`
-                : "You don't have any bookings under this status category."
+                ? `No bookings matched "${searchQuery}".`
+                : "You don't have any bookings under this status."
             }
             actionText="Explore Equipment"
             onAction={() => navigate('/customer/dashboard')}
@@ -147,20 +222,20 @@ const Bookings = () => {
         )}
       </div>
 
-      {/* Desktop Horizontally Scrollable Data Table View */}
+      {/* Desktop Table */}
       <div className="hidden md:block panel-card overflow-hidden">
         {filteredBookings.length > 0 ? (
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-[750px]">
+            <table className="w-full text-left border-collapse min-w-[850px]">
               <thead>
                 <tr className="bg-[#F8FAFC] border-b border-[#E2E8F0] text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
-                  <th className="py-4 px-6">Booking ID</th>
-                  <th className="py-4 px-6">Equipment</th>
-                  <th className="py-4 px-6">Owner</th>
-                  <th className="py-4 px-6">Rental Date</th>
-                  <th className="py-4 px-6">Amount</th>
-                  <th className="py-4 px-6">Status</th>
-                  <th className="py-4 px-6 text-right">Action</th>
+                  <th className="py-4 px-5">Equipment</th>
+                  <th className="py-4 px-5">Owner</th>
+                  <th className="py-4 px-5">Rental Dates</th>
+                  <th className="py-4 px-5">Total</th>
+                  <th className="py-4 px-5">Deposit</th>
+                  <th className="py-4 px-5">Status</th>
+                  <th className="py-4 px-5 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E2E8F0] text-sm">
@@ -168,54 +243,107 @@ const Bookings = () => {
                   const StatusIcon = statusIcons[bk.status] || FiClock;
                   return (
                     <tr key={bk.id} className="hover:bg-[#F8FAFC]/80 transition-colors group">
-                      <td className="py-4 px-6 font-mono font-bold text-xs text-[#0F172A]">
-                        {bk.id}
-                      </td>
-                      <td className="py-4 px-6">
+                      <td className="py-4 px-5">
                         <div className="flex items-center gap-3">
                           <img
                             src={bk.image}
                             alt={bk.equipmentName}
-                            className="w-10 h-10 rounded-[10px] object-cover shrink-0 border border-[#E2E8F0]"
+                            className="w-11 h-10 rounded-[10px] object-cover shrink-0 border border-[#E2E8F0]"
                           />
                           <div>
-                            <p className="font-bold text-[#0F172A] line-clamp-1 group-hover:text-[#3B82F6] transition-colors">
+                            <p className="font-bold text-[#0F172A] text-xs line-clamp-1 group-hover:text-[#3B82F6] transition-colors">
                               {bk.equipmentName}
                             </p>
-                            <span className="text-[11px] text-[#64748B]">{bk.category}</span>
+                            <span className="text-[10px] text-[#64748B] font-mono">
+                              #{(bk.id || bk._id || '').toString().slice(-8).toUpperCase()}
+                            </span>
                           </div>
                         </div>
                       </td>
-                      <td className="py-4 px-6">
+                      <td className="py-4 px-5">
                         <span className="font-semibold text-xs text-[#0F172A] flex items-center gap-1">
                           <FiUser className="text-[#3B82F6] text-xs" />
-                          {bk.ownerName}
+                          {bk.ownerName || '—'}
                         </span>
                       </td>
-                      <td className="py-4 px-6">
+                      <td className="py-4 px-5">
                         <div className="text-xs text-[#0F172A]">
-                          <p className="font-semibold">{bk.startDate} to {bk.endDate}</p>
-                          <p className="text-[11px] text-[#64748B]">{bk.durationDays} days duration</p>
+                          <p className="font-semibold">{bk.startDate} → {bk.endDate}</p>
+                          <p className="text-[11px] text-[#64748B]">{bk.durationDays} day(s)</p>
                         </div>
                       </td>
-                      <td className="py-4 px-6">
-                        <span className="font-extrabold text-[#0F172A]">
-                          ${((bk.totalValue ?? bk.totalAmount ?? 0)).toLocaleString()}
+                      <td className="py-4 px-5">
+                        <span className="font-extrabold text-[#0F172A] text-xs">
+                          ₹{((bk.totalValue || 0)).toLocaleString('en-IN')}
                         </span>
                       </td>
-                      <td className="py-4 px-6">
+                      <td className="py-4 px-5">
+                        <div className="text-xs">
+                          <span className={`font-semibold ${bk.depositStatus === 'Paid' ? 'text-emerald-600' : bk.depositStatus === 'Refunded' ? 'text-red-500' : 'text-[#F59E0B]'}`}>
+                            {bk.depositStatus === 'Paid' ? '✓ Paid' : bk.depositStatus === 'Refunded' ? 'Refunded' : 'Pending'}
+                          </span>
+                          {bk.deposit > 0 && (
+                            <p className="text-[10px] text-[#64748B]">₹{(bk.deposit || 0).toLocaleString('en-IN')}</p>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-4 px-5">
                         <span
-                          className={`status-badge text-[11px] font-semibold flex items-center gap-1 ${
+                          className={`px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1 w-fit ${
                             statusBadgeStyles[bk.status] || 'bg-slate-100 text-slate-700'
                           }`}
                         >
-                          <StatusIcon className="text-xs" />
+                          <StatusIcon className="text-xs shrink-0" />
                           {bk.status}
                         </span>
                       </td>
-                      <td className="py-4 px-6 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          {bk.status === 'Pending' && (
+                      <td className="py-4 px-5 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          {/* Pay Deposit — only when Approved and not yet paid */}
+                          {bk.status === 'Approved' && (
+                            <Button
+                              variant="primary"
+                              size="xs"
+                              icon={FiCreditCard}
+                              onClick={() => setPaymentBooking(bk)}
+                            >
+                              Pay Deposit
+                            </Button>
+                          )}
+                          {/* Mark Received — only when Ready For Pickup */}
+                          {bk.status === 'Ready For Pickup' && (
+                            <Button
+                              variant="primary"
+                              size="xs"
+                              icon={FiCheck}
+                              onClick={async () => {
+                                try {
+                                  await bookingService.updateStatus(bk.id, 'Rental Active');
+                                  // Update local state without reload
+                                  const updatedBookings = await bookingService.getMyBookings();
+                                  // Depending on how customerContext handles it, we might need a page reload, 
+                                  // but usually the customer module handles real-time updates via context or we can just reload for simplicity
+                                  window.location.reload();
+                                } catch (err) {
+                                  alert('Failed to mark received: ' + (err.response?.data?.error || err.message));
+                                }
+                              }}
+                            >
+                              Equipment Received
+                            </Button>
+                          )}
+                          {/* Request Return — only when Rental Active */}
+                          {bk.status === 'Rental Active' && (
+                            <Button
+                              variant="secondary"
+                              size="xs"
+                              onClick={() => handleRequestReturn(bk.id)}
+                            >
+                              Request Return
+                            </Button>
+                          )}
+                          {/* Cancel — only Pending Approval, Approved, or Deposit Paid */}
+                          {['Pending Approval', 'Approved', 'Deposit Paid'].includes(bk.status) && (
                             <Button
                               variant="secondary"
                               size="xs"
@@ -228,11 +356,22 @@ const Bookings = () => {
                               Cancel
                             </Button>
                           )}
+                          {/* Download Invoice — only Completed or Deposit Paid */}
+                          {['Completed', 'Deposit Paid', 'Rental Active'].includes(bk.status) && (
+                            <Button
+                              variant="outline"
+                              size="xs"
+                              icon={FiDownload}
+                              onClick={() => handleDownloadInvoice(bk.id)}
+                            >
+                              Invoice
+                            </Button>
+                          )}
                           <Button
                             variant="primary"
                             size="xs"
-                            onClick={() => navigate(`/customer/bookings/${bk.id}`)}
                             icon={FiEye}
+                            onClick={() => navigate(`/customer/bookings/${bk.id}`)}
                           >
                             Details
                           </Button>
@@ -250,7 +389,7 @@ const Bookings = () => {
             title="No Bookings Found"
             description={
               searchQuery
-                ? `No bookings matched your search query "${searchQuery}".`
+                ? `No bookings matched "${searchQuery}".`
                 : "You don't have any bookings matching this criteria."
             }
             actionText="Browse Available Equipment"
@@ -259,16 +398,27 @@ const Bookings = () => {
         )}
       </div>
 
-      {/* Cancel Modal Confirmation */}
+      {/* Cancel Confirm Modal */}
       <ConfirmModal
         isOpen={isCancelModalOpen}
         onClose={() => setIsCancelModalOpen(false)}
         onConfirm={handleConfirmCancel}
         title="Cancel Booking Request"
-        message="Are you sure you want to cancel this booking? Authorized escrow funds will be fully refunded to your payment method."
-        confirmText="Confirm Cancellation"
+        message="Are you sure you want to cancel this booking? This action cannot be undone."
+        confirmText="Yes, Cancel Booking"
         variant="danger"
       />
+
+      {/* Razorpay Payment Modal */}
+      <AnimatePresence>
+        {paymentBooking && (
+          <RazorpayPaymentModal
+            booking={paymentBooking}
+            onClose={() => setPaymentBooking(null)}
+            onSuccess={handlePaymentSuccess}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

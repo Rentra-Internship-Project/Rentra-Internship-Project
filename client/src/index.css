@@ -36,3 +36,21 @@
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
 }
+
+@layer components {
+  .panel-card {
+    @apply bg-white border border-[#E2E8F0] rounded-[24px] shadow-sm;
+  }
+  
+  .form-label {
+    @apply block text-xs font-bold text-[#0F172A] mb-1.5 uppercase tracking-wide;
+  }
+  
+  .form-input {
+    @apply w-full px-4 py-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-[14px] text-sm text-[#0F172A] focus:outline-none focus:border-[#CCCCFF] focus:ring-4 focus:ring-[#CCCCFF]/30 transition-all placeholder-[#94A3B8];
+  }
+
+  .form-select {
+    @apply w-full px-4 py-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-[14px] text-sm text-[#0F172A] focus:outline-none focus:border-[#CCCCFF] focus:ring-4 focus:ring-[#CCCCFF]/30 transition-all cursor-pointer appearance-none;
+  }
+}

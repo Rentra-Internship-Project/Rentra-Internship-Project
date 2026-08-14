@@ -15,23 +15,41 @@ const BookingSummary = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { equipmentList, prepareBookingSummary } = useCustomer();
+  const { equipmentList, createBooking, isLoading } = useCustomer();
 
-  const equipment = equipmentList.find((e) => e.id === id) || equipmentList[0];
-
-  // Extract navigation state from EquipmentDetails & Fleet Bundler
-  const includeOperator = location.state?.includeOperator || false;
-  const distanceKm = location.state?.distanceKm || 25;
-  const operatorDailyRate = location.state?.operatorDailyRate || equipment.operatorDailyRate || 1500;
-  const isBundle = location.state?.isBundle || false;
-  const bundleName = location.state?.bundleName || '';
-  const discountPercent = location.state?.discountPercent || 0;
+  const equipment = equipmentList.find((e) => e.id === id) || equipmentList.find((e) => e._id === id);
 
   // Dates & Form State
   const [startDate, setStartDate] = useState('2026-08-12');
   const [endDate, setEndDate] = useState('2026-08-14');
   const [siteAddress, setSiteAddress] = useState('104 Industrial Parkway, Site B, Austin TX');
   const [notes, setNotes] = useState('Gate passcode 4821. Operator certification attached.');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  // Fallback while loading
+  if (!equipment) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        {isLoading ? (
+          <div className="w-10 h-10 border-4 border-[#CCCCFF] border-t-transparent rounded-full animate-spin"></div>
+        ) : (
+          <>
+            <h2 className="text-xl font-bold text-[#0F172A] mb-2">Equipment Not Found</h2>
+            <p className="text-[#64748B] mb-6">The equipment you are looking for does not exist or has been removed.</p>
+            <Button onClick={() => navigate('/customer/dashboard')}>Back to Dashboard</Button>
+          </>
+        )}
+      </div>
+    );
+  }
+
+  // Extract navigation state from EquipmentDetails & Fleet Bundler
+  const { includeOperator, operatorDailyRate: stateOperatorRate } = location.state || {};
+  const operatorDailyRate = stateOperatorRate || equipment.operatorDailyRate || 1500;
+  const isBundle = location.state?.isBundle || false;
+  const bundleName = location.state?.bundleName || '';
+  const discountPercent = location.state?.discountPercent || 0;
 
   // Financial calculations
   const start = new Date(startDate);
@@ -41,7 +59,6 @@ const BookingSummary = () => {
 
   const baseDailyRate = equipment.pricePerDay;
   const operatorCostPerDay = includeOperator ? operatorDailyRate : 0;
-  const effectiveDailyRate = baseDailyRate + operatorCostPerDay;
   
   const baseRentalCost = durationDays * baseDailyRate;
   const operatorTotalCost = durationDays * operatorCostPerDay;
@@ -50,50 +67,33 @@ const BookingSummary = () => {
   const bundleDiscountAmount = isBundle ? Math.round(subtotalBeforeDiscount * (discountPercent / 100)) : 0;
   const rentalCost = subtotalBeforeDiscount - bundleDiscountAmount;
 
-  // Lowboy Transport Hauling Fee Formula
-  const BASE_HAULING = 150;
-  const PER_KM_RATE = 3.50;
-  const haulingFee = Math.round(BASE_HAULING + (distanceKm * PER_KM_RATE));
 
-  const deposit = Math.round(rentalCost * 0.20); // 20% Security deposit
-  const platformFee = Math.round(rentalCost * 0.02);
-  const gst = Math.round((rentalCost + haulingFee + platformFee) * 0.088);
-  const totalValue = rentalCost + haulingFee + deposit + platformFee + gst;
+  const platformFeePercent = equipment.platformFeeRate !== undefined ? equipment.platformFeeRate : 2;
+  const platformFee = Math.round(rentalCost * (platformFeePercent / 100));
+  const gst = Math.round((rentalCost + platformFee) * 0.18);
+  const totalValue = rentalCost + platformFee + gst;
+  const deposit = Math.round(totalValue * 0.20); // Advance payment (20% of total)
   const amountPayableNow = deposit;
 
-  const handleProceedToPayment = (e) => {
+  const handleProceedToPayment = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    setErrorMsg('');
 
-    const summary = prepareBookingSummary({
-      equipmentId: equipment.id,
-      equipmentName: equipment.name,
-      category: equipment.category,
-      image: equipment.image,
-      ownerName: equipment.owner.name,
-      ownerContact: equipment.owner.phone,
-      ownerEmail: equipment.owner.email,
-      ownerAvatar: equipment.owner.avatar,
+    const res = await createBooking({
+      equipmentId: equipment.id || equipment._id,
       startDate,
       endDate,
-      durationDays,
-      dailyRate: baseDailyRate,
-      includeOperator,
-      operatorCostPerDay,
-      distanceKm,
-      haulingFee,
-      effectiveDailyRate,
-      rentalCost,
-      deposit,
-      platformFee,
-      gst,
-      totalValue,
-      amountPaidNow: amountPayableNow,
-      remainingBalance: totalValue - amountPayableNow,
       siteAddress,
       notes,
     });
 
-    navigate(`/customer/payment/${summary.id}`);
+    if (res.success) {
+      navigate(`/customer/bookings`);
+    } else {
+      setErrorMsg(res.error || 'Failed to submit booking request.');
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -129,10 +129,16 @@ const BookingSummary = () => {
               </span>
               <h3 className="text-base font-extrabold text-[#0F172A] mt-1 line-clamp-1">{equipment.name}</h3>
               <p className="text-xs text-[#64748B] flex items-center gap-1 mt-0.5">
-                <FiMapPin className="text-[#3B82F6]" /> {equipment.location} • Owner: <span className="font-semibold text-[#0F172A]">{equipment.owner.name}</span>
+                <FiMapPin className="text-[#3B82F6]" /> {equipment.location || equipment.locationAddress} • Owner: <span className="font-semibold text-[#0F172A]">{equipment.owner?.name || equipment.ownerId?.name || 'Owner'}</span>
               </p>
             </div>
           </div>
+          
+          {errorMsg && (
+            <div className="p-4 bg-red-50 text-red-600 border border-red-200 rounded-[12px] text-sm">
+              {errorMsg}
+            </div>
+          )}
 
           {/* Dates & Location Form */}
           <div className="panel-card p-6 space-y-4">
@@ -142,47 +148,46 @@ const BookingSummary = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="form-label">Rental Start Date</label>
+                <label className="block text-xs font-semibold text-[#64748B] mb-1">Rental Start Date</label>
                 <input
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
                   required
-                  className="form-input"
+                  className="w-full px-3 py-2 bg-white border border-[#E2E8F0] rounded-[10px] text-sm text-[#0F172A] focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600"
                 />
               </div>
 
               <div>
-                <label className="form-label">Rental End Date</label>
+                <label className="block text-xs font-semibold text-[#64748B] mb-1">Rental End Date</label>
                 <input
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
                   required
-                  className="form-input"
+                  className="w-full px-3 py-2 bg-white border border-[#E2E8F0] rounded-[10px] text-sm text-[#0F172A] focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600"
                 />
               </div>
 
               <div className="sm:col-span-2">
-                <label className="form-label">Job Site Delivery Address</label>
+                <label className="block text-xs font-semibold text-[#64748B] mb-1">Job Site Delivery Address</label>
                 <input
                   type="text"
                   value={siteAddress}
                   onChange={(e) => setSiteAddress(e.target.value)}
                   required
-                  className="form-input"
-                  placeholder="Enter full street address for equipment delivery..."
+                  placeholder="Street, City, PIN Code"
+                  className="w-full px-3 py-2 bg-white border border-[#E2E8F0] rounded-[10px] text-sm text-[#0F172A] focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600"
                 />
               </div>
 
               <div className="sm:col-span-2">
-                <label className="form-label">Operator Instructions & Notes</label>
+                <label className="block text-xs font-semibold text-[#64748B] mb-1">Special Instructions (Optional)</label>
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  rows={2}
-                  className="form-input resize-none"
-                  placeholder="Any site gate pass codes, contact phone numbers..."
+                  placeholder="Any access restrictions, specific times..."
+                  className="w-full px-3 py-2 bg-white border border-[#E2E8F0] rounded-[10px] text-sm text-[#0F172A] focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 min-h-[80px]"
                 />
               </div>
             </div>
@@ -206,7 +211,7 @@ const BookingSummary = () => {
                 {includeOperator && (
                   <tr className="bg-emerald-50/50">
                     <td className="py-2.5 text-emerald-800 font-semibold flex items-center gap-1">
-                      <FiUserCheck className="text-emerald-600 shrink-0" /> Certified Operator ({durationDays} days @ ₹{operatorCostPerDay.toLocaleString()}/day)
+                      <FiUserCheck className="text-emerald-600 shrink-0" /> Professional Assistance ({durationDays} days @ ₹{operatorCostPerDay.toLocaleString()}/day)
                     </td>
                     <td className="py-2.5 text-right font-extrabold text-emerald-800">+₹{operatorTotalCost.toLocaleString()}</td>
                   </tr>
@@ -221,23 +226,13 @@ const BookingSummary = () => {
                   </tr>
                 )}
 
-                <tr>
-                  <td className="py-2.5 text-[#64748B] flex items-center gap-1">
-                    <FiTruck className="text-indigo-600 shrink-0" /> Lowboy Delivery Logistics ({distanceKm} km haulage)
-                  </td>
-                  <td className="py-2.5 text-right font-extrabold text-[#0F172A]">+₹{haulingFee.toLocaleString()}</td>
-                </tr>
 
                 <tr>
-                  <td className="py-2.5 text-[#64748B]">Security Deposit (Refundable 20%)</td>
-                  <td className="py-2.5 text-right font-extrabold text-[#0F172A]">₹{deposit.toLocaleString()}</td>
-                </tr>
-                <tr>
-                  <td className="py-2.5 text-[#64748B]">Platform Marketplace Fee</td>
+                  <td className="py-2.5 text-[#64748B]">Platform Marketplace Fee ({platformFeePercent}%)</td>
                   <td className="py-2.5 text-right font-extrabold text-[#0F172A]">₹{platformFee.toLocaleString()}</td>
                 </tr>
                 <tr>
-                  <td className="py-2.5 text-[#64748B]">GST (Tax 8.8%)</td>
+                  <td className="py-2.5 text-[#64748B]">GST (Tax 18%)</td>
                   <td className="py-2.5 text-right font-extrabold text-[#0F172A]">₹{gst.toLocaleString()}</td>
                 </tr>
                 <tr className="bg-[#F8FAFC]">
@@ -251,7 +246,7 @@ const BookingSummary = () => {
             <div className="p-4 bg-[#CCCCFF]/30 rounded-[18px] border border-[#CCCCFF] space-y-1">
               <div className="flex items-center justify-between text-xs text-[#64748B]">
                 <span className="font-bold text-[#0F172A]">Amount Payable Now:</span>
-                <span className="text-xs font-bold px-2 py-0.5 bg-[#22C55E] text-white rounded-full">Security Deposit</span>
+                <span className="text-xs font-bold px-2 py-0.5 bg-[#22C55E] text-white rounded-full">Advance Payment (20%)</span>
               </div>
               <p className="text-2xl font-extrabold text-[#0F172A]">
                 ₹{amountPayableNow.toLocaleString()}
@@ -264,12 +259,13 @@ const BookingSummary = () => {
 
             <Button
               type="submit"
-              variant="primary"
+              variant="custom"
               size="lg"
-              className="w-full shadow-md"
+              className="w-full bg-[#4C1D95] hover:bg-[#2E1065] text-white shadow-lg shadow-violet-900/30 transition-colors"
               icon={FiArrowRight}
+              disabled={isSubmitting}
             >
-              Proceed to Deposit Payment
+              {isSubmitting ? 'Submitting...' : 'Submit Booking Request'}
             </Button>
           </div>
         </div>

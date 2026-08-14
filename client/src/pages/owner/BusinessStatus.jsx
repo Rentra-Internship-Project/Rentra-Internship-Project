@@ -1,16 +1,32 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FiCheckCircle, FiFileText, FiShield } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 import StatusCard from '../../components/owner/StatusCard';
 import BusinessCard from '../../components/owner/BusinessCard';
 import { useOwner } from '../../context/OwnerContext';
 
 const BusinessStatus = () => {
   const { businessStatus } = useOwner();
+  const navigate = useNavigate();
 
-  if (!businessStatus) {
+  if (!businessStatus || businessStatus.status === 'Not Registered') {
     return null;
   }
+
+  // Create a timeline based on current status
+  const isApproved = businessStatus.status === 'Approved';
+  const isRejected = businessStatus.status === 'Rejected';
+  
+  const timeline = [
+    { step: 'Application Submitted', date: 'Just now', done: true },
+    { step: 'Admin Review', date: 'In Progress', done: isApproved || isRejected },
+    { step: 'Verification Complete', date: isApproved ? 'Done' : isRejected ? 'Rejected' : 'Pending', done: isApproved }
+  ];
+
+  const documentsList = [
+    { name: 'Business Verification', status: isApproved ? 'Verified' : 'Pending', size: '2 MB' }
+  ];
 
   return (
     <motion.div
@@ -20,9 +36,19 @@ const BusinessStatus = () => {
       className="space-y-6 max-w-4xl mx-auto"
     >
       {/* Page Header */}
-      <div>
-        <h1 className="text-2xl font-extrabold text-[#0F172A]">Verification Status</h1>
-        <p className="text-sm text-[#64748B] mt-1">Track the progress of your business verification application.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-extrabold text-[#0F172A]">Verification Status</h1>
+          <p className="text-sm text-[#64748B] mt-1">Track the progress of your business verification application.</p>
+        </div>
+        {(businessStatus.status === 'Pending' || businessStatus.status === 'Rejected') && (
+          <button
+            onClick={() => navigate('/owner/register-business')}
+            className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-[#0F172A] bg-white border border-[#E2E8F0] rounded-[12px] hover:border-[#CCCCFF] hover:bg-[#F8FAFC] transition-colors"
+          >
+            Edit Application
+          </button>
+        )}
       </div>
 
       {/* Status Card */}
@@ -54,7 +80,7 @@ const BusinessStatus = () => {
           <div className="absolute left-3 top-2 bottom-2 w-px bg-[#E2E8F0]" />
 
           <div className="space-y-6">
-            {businessStatus.timeline.map((step, index) => (
+            {timeline.map((step, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, x: -10 }}
@@ -108,7 +134,7 @@ const BusinessStatus = () => {
         </div>
 
         <div className="space-y-2">
-          {businessStatus.documents.map((doc, index) => (
+          {documentsList.map((doc, index) => (
             <div
               key={index}
               className="flex items-center justify-between p-3.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-[12px] hover:border-[#CCCCFF] transition-colors"

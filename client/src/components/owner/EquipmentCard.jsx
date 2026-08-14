@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FiMapPin, FiDollarSign, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { FiMapPin, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { FaRupeeSign } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
 const statusColors = {
@@ -62,8 +63,8 @@ const EquipmentCard = ({ equipment, onDelete }) => {
             <span>{location}</span>
           </div>
           <div className="flex items-center gap-1 text-base font-extrabold text-[#0F172A] mt-2">
-            <FiDollarSign className="text-sm text-[#22C55E]" />
-            <span>${pricePerDay.toLocaleString()}</span>
+            <FaRupeeSign className="text-sm text-[#22C55E]" />
+            <span>{pricePerDay.toLocaleString()}</span>
             <span className="text-xs font-normal text-[#64748B]">/ day</span>
           </div>
         </div>

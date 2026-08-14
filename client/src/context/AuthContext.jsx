@@ -40,6 +40,21 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const loginWithToken = async (token) => {
+    try {
+      localStorage.setItem('rentra_token', token);
+      const response = await authService.getProfile();
+      setUser(response.data.user);
+      return { success: true, user: response.data.user };
+    } catch (err) {
+      localStorage.removeItem('rentra_token');
+      return {
+        success: false,
+        message: 'Invalid token.',
+      };
+    }
+  };
+
   const register = async (userData) => {
     try {
       const response = await authService.register(userData);
@@ -61,7 +76,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, isAuthenticated: Boolean(user), login, logout, register }}>
+    <AuthContext.Provider
+      value={{ user, setUser, loading, isAuthenticated: Boolean(user), login, loginWithToken, register, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

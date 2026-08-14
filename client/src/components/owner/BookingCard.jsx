@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FiCalendar, FiUser, FiDollarSign, FiCheck, FiX, FiClock } from 'react-icons/fi';
+import { FiCalendar, FiUser, FiCheck, FiX, FiClock } from 'react-icons/fi';
+import { FaRupeeSign } from 'react-icons/fa';
 
 const statusConfig = {
   Pending: { bg: 'bg-amber-50', text: 'text-[#F59E0B]', border: 'border-amber-100', icon: FiClock },
@@ -50,7 +51,7 @@ const BookingCard = ({ booking, onAccept, onReject }) => {
             <FiClock className="text-[10px]" /> {rentalPeriod || '1 day'}
           </span>
           <span className="flex items-center gap-1 text-[11px] font-bold text-[#0F172A]">
-            <FiDollarSign className="text-[10px] text-[#22C55E]" /> ${Number(totalAmount).toLocaleString()}
+            <FaRupeeSign className="text-[10px] text-[#22C55E]" /> ₹{Number(totalAmount).toLocaleString()}
           </span>
         </div>
       </div>

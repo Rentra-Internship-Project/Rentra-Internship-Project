@@ -1,16 +1,9 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FiMenu, FiBell, FiSearch, FiShield, FiCheckCircle } from 'react-icons/fi';
-import {
-  mockAdminProfile,
-  mockNotifications as initialNotifications,
-  mockUsers,
-  mockBusinesses,
-  mockEquipment,
-  mockCategories,
-  mockBookings
-} from '../../data/adminMockData';
+import { notificationService } from '../../services/api';
 import { useAdminContext } from '../../context/AdminContext';
+import { useAuth } from '../../context/AuthContext';
 
 const pageTitles = {
   '/admin/dashboard': 'Platform Overview',
@@ -25,6 +18,7 @@ const pageTitles = {
 const AdminNavbar = ({ setMobileOpen }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const currentTitle = pageTitles[location.pathname] || 'Admin Dashboard';
 
   // Search Bar State
@@ -33,7 +27,7 @@ const AdminNavbar = ({ setMobileOpen }) => {
 
   // Notification Bell State
   const [isNotifOpen, setIsNotifOpen] = useState(false);
-  const [notifications, setNotifications] = useState(initialNotifications);
+  const [notifications, setNotifications] = useState([]);
 
   // Refs for Outside Click Listeners
   const searchRef = useRef(null);
@@ -41,6 +35,18 @@ const AdminNavbar = ({ setMobileOpen }) => {
   const notifRef = useRef(null);
 
   const { users, businesses, equipmentList, bookings } = useAdminContext();
+
+  useEffect(() => {
+    const fetchNotifs = async () => {
+      try {
+        const res = await notificationService.getAll();
+        setNotifications(res.data?.notifications || []);
+      } catch (err) {
+        console.error('Failed to fetch admin notifications:', err);
+      }
+    };
+    fetchNotifs();
+  }, []);
 
   // Calculate Unread Notification Count
   const unreadCount = useMemo(() => {
@@ -103,19 +109,30 @@ const AdminNavbar = ({ setMobileOpen }) => {
     };
   }, []);
 
-  // Mark single notification as read
-  const handleMarkAsRead = (id, link) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
+  const handleMarkAllAsRead = async () => {
+    try {
+      await notificationService.markAllRead();
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+      setIsNotifOpen(false);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleMarkAsRead = async (id, link) => {
+    try {
+      await notificationService.markRead(id);
+      setNotifications((prev) =>
+        prev.map((n) => (n._id === id || n.id === id ? { ...n, read: true } : n))
+      );
+    } catch (err) {
+      console.error(err);
+    }
     setIsNotifOpen(false);
     if (link) navigate(link);
   };
 
-  // Mark all notifications as read
-  const handleMarkAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-  };
+
 
   return (
     <header className="sticky top-0 z-20 bg-white/90 backdrop-blur-md border-b border-[#E2E8F0] px-4 md:px-8 py-3.5 flex items-center justify-between transition-all">
@@ -233,8 +250,8 @@ const AdminNavbar = ({ setMobileOpen }) => {
                 {notifications.length > 0 ? (
                   notifications.map((n) => (
                     <div
-                      key={n.id}
-                      onClick={() => handleMarkAsRead(n.id, n.link)}
+                      key={n._id || n.id}
+                      onClick={() => handleMarkAsRead(n._id || n.id, n.link)}
                       className={`p-3 text-left hover:bg-[#F8FAFC] rounded-[12px] cursor-pointer transition-colors flex items-start gap-3 my-0.5 ${
                         !n.read ? 'bg-[#CCCCFF]/10' : ''
                       }`}
@@ -251,7 +268,9 @@ const AdminNavbar = ({ setMobileOpen }) => {
                           <p className={`text-xs ${!n.read ? 'font-bold text-[#0F172A]' : 'font-medium text-[#475569]'}`}>
                             {n.title}
                           </p>
-                          <span className="text-[10px] text-[#94A3B8] shrink-0">{n.time}</span>
+                          <span className="text-[10px] text-[#94A3B8] shrink-0">
+                            {n.createdAt ? new Date(n.createdAt).toLocaleDateString() : n.time}
+                          </span>
                         </div>
                         <p className="text-[11px] text-[#64748B] mt-0.5 line-clamp-2">{n.message}</p>
                       </div>
@@ -273,12 +292,12 @@ const AdminNavbar = ({ setMobileOpen }) => {
           className="flex items-center gap-3 pl-2 border-l border-[#E2E8F0] cursor-pointer hover:opacity-80 transition-opacity"
         >
           <img
-            src={mockAdminProfile.avatar}
-            alt={mockAdminProfile.name}
+            src={user?.avatar || "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=150"}
+            alt={user?.name || "Admin"}
             className="w-9 h-9 rounded-full object-cover ring-2 ring-[#CCCCFF]"
           />
           <div className="hidden xl:block text-left">
-            <p className="text-xs font-bold text-[#0F172A] leading-none">{mockAdminProfile.name}</p>
+            <p className="text-xs font-bold text-[#0F172A] leading-none">{user?.name || "System Admin"}</p>
             <span className="text-[10px] font-medium text-[#64748B] flex items-center gap-1 mt-0.5">
               <FiShield className="text-[#3B82F6] text-[10px]" /> Super Admin
             </span>

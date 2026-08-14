@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FiTruck, FiCalendar, FiClock, FiDollarSign, FiArrowRight, FiPlusCircle, FiSettings, FiEye, FiTrendingUp, FiCheckCircle } from 'react-icons/fi';
+import { FiTruck, FiCalendar, FiClock, FiArrowRight, FiPlusCircle, FiSettings, FiEye, FiTrendingUp, FiCheckCircle } from 'react-icons/fi';
+import { FaRupeeSign } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import StatsCard from '../../components/owner/StatsCard';
 import BookingCard from '../../components/owner/BookingCard';
@@ -20,8 +21,32 @@ const Dashboard = () => {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="space-y-8"
+      className="space-y-8 relative"
     >
+      {/* Access Lock Overlay */}
+      {businessStatus?.status !== 'Approved' && (
+        <div className="absolute inset-0 z-10 bg-white/60 backdrop-blur-sm rounded-[20px] flex items-center justify-center p-6">
+          <div className="bg-white border border-[#E2E8F0] rounded-[20px] shadow-xl p-8 max-w-md w-full text-center">
+            <div className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4 ${businessStatus?.status === 'Pending' ? 'bg-amber-100 text-[#F59E0B]' : 'bg-[#CCCCFF] text-[#0F172A]'}`}>
+              {businessStatus?.status === 'Pending' ? <FiClock className="text-2xl" /> : <FiAlertCircle className="text-2xl" />}
+            </div>
+            <h3 className="text-xl font-extrabold text-[#0F172A] mb-2">
+              {businessStatus?.status === 'Pending' ? 'Verification Pending' : 'Business Required'}
+            </h3>
+            <p className="text-sm text-[#64748B] mb-6">
+              {businessStatus?.status === 'Pending' 
+                ? 'Your business profile is currently under review by our administrators. You will gain access to the dashboard once approved.'
+                : 'You must register a business profile and get verified before you can start managing fleet operations.'}
+            </p>
+            <button
+              onClick={() => navigate(businessStatus?.status ? '/owner/business-status' : '/owner/register-business')}
+              className="w-full px-4 py-3 bg-[#0F172A] text-white text-sm font-bold rounded-[12px] hover:bg-slate-800 transition-colors"
+            >
+              {businessStatus?.status ? 'Check Status' : 'Register Business'}
+            </button>
+          </div>
+        </div>
+      )}
       {/* Welcome Banner */}
       <div className="bg-gradient-to-r from-[#CCCCFF]/40 via-white to-white border border-[#E2E8F0] rounded-[20px] p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
@@ -71,7 +96,7 @@ const Dashboard = () => {
           value={ownerStats.monthlyEarnings}
           change="18.4%"
           isPositive={true}
-          icon={FiDollarSign}
+          icon={FaRupeeSign}
           accentBg="bg-emerald-50"
           iconColor="text-[#22C55E]"
         />

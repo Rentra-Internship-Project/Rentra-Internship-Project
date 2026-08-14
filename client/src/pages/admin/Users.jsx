@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { FiEye, FiLock, FiUnlock, FiTrash2, FiUser, FiMail, FiPhone, FiCalendar, FiX } from 'react-icons/fi';
 import DataTable from '../../components/admin/DataTable';
 import StatusBadge from '../../components/admin/StatusBadge';
@@ -33,7 +34,7 @@ const Users = () => {
   const handleToggleBlock = async (userId) => {
     const target = users.find(u => u.id === userId);
     if (!target) return;
-    const newStatus = target.status === 'Active' ? 'Blocked' : 'Active';
+    const newStatus = target.status === 'Active' ? 'Suspended' : 'Active';
     try {
       await adminService.updateUser(userId, { status: newStatus });
       setUsers((prev) =>
@@ -88,7 +89,7 @@ const Users = () => {
           onFilterChange={setStatusFilter}
           filterOptions={[
             { label: 'Active Status', value: 'active' },
-            { label: 'Blocked Status', value: 'blocked' },
+            { label: 'Suspended Status', value: 'suspended' },
           ]}
           placeholder="Search users by name, email, or phone..."
         />
@@ -96,17 +97,17 @@ const Users = () => {
         {/* Role Sub-Filter */}
         <div className="flex items-center gap-2 pt-2 border-t border-[#E2E8F0]">
           <span className="text-xs font-semibold text-[#64748B]">Filter Role:</span>
-          {['all', 'Customer', 'Business Owner'].map((role) => (
+          {[{ label: 'All Roles', val: 'all' }, { label: 'Customer', val: 'customer' }, { label: 'Business Owner', val: 'owner' }].map((roleObj) => (
             <button
-              key={role}
-              onClick={() => setRoleFilter(role.toLowerCase())}
-              className={`px-3 py-1 text-xs font-medium rounded-full transition-all ${
-                roleFilter === role.toLowerCase()
-                  ? 'bg-[#CCCCFF] text-[#0F172A] font-semibold'
-                  : 'bg-[#F8FAFC] text-[#64748B] hover:bg-[#E2E8F0]'
+              key={roleObj.val}
+              onClick={() => setRoleFilter(roleObj.val)}
+              className={`px-3 py-1 text-xs font-semibold rounded-full transition-colors ${
+                roleFilter === roleObj.val
+                  ? 'bg-[#0F172A] text-white'
+                  : 'bg-white border border-[#E2E8F0] text-[#64748B] hover:bg-[#F8FAFC]'
               }`}
             >
-              {role === 'all' ? 'All Roles' : role}
+              {roleObj.label}
             </button>
           ))}
         </div>
@@ -120,11 +121,13 @@ const Users = () => {
               {/* User Name & Avatar */}
               <td className="px-5 py-4 first:pl-6 whitespace-nowrap">
                 <div className="flex items-center gap-3">
-                  <img
-                    src={user.avatar}
-                    alt={user.name}
-                    className="w-9 h-9 rounded-full object-cover ring-2 ring-[#E2E8F0]"
-                  />
+                  <Link to={`/admin/users/${user.id}`}>
+                    <img
+                      src={user.avatar}
+                      alt={user.name}
+                      className="w-9 h-9 rounded-full object-cover ring-2 ring-[#E2E8F0]"
+                    />
+                  </Link>
                   <div>
                     <p className="font-bold text-[#0F172A] text-sm">{user.name}</p>
                     <span className="text-[10px] text-[#64748B] font-mono">{user.id}</span>

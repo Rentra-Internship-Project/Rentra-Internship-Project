@@ -18,7 +18,7 @@ const CustomerRoutes = () => (
   <Route
     path="/customer"
     element={
-      <ProtectedRoute allowedRoles={['CUSTOMER']}>
+      <ProtectedRoute allowedRoles={['CUSTOMER', 'OWNER']}>
         <CustomerLayout />
       </ProtectedRoute>
     }

@@ -23,38 +23,41 @@ const EquipmentCard = ({ equipment, onBook, onViewDetails }) => {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60" />
 
-        {/* Category Tag */}
-        <span className="absolute top-3 left-3 px-3 py-1 bg-white/90 backdrop-blur-xs text-[#0F172A] text-[11px] font-bold rounded-full shadow-xs">
-          {equipment.category}
-        </span>
+        {/* Top Badges & Actions Overlay */}
+        <div className="absolute top-3 left-3 right-3 flex justify-between items-start gap-2">
+          {/* Left Side: Category & Status */}
+          <div className="flex flex-col gap-1.5 items-start">
+            <span className="px-3 py-1 bg-white/95 backdrop-blur-md text-[#0F172A] text-[11px] font-extrabold rounded-full shadow-sm max-w-[140px] truncate">
+              {equipment.category}
+            </span>
+            <span
+              className={`px-2.5 py-1 text-[10px] font-bold rounded-full shadow-sm flex items-center gap-1 w-max ${
+                equipment.availability === 'Available'
+                  ? 'bg-[#22C55E]/95 text-white'
+                  : 'bg-[#F59E0B]/95 text-white'
+              }`}
+            >
+              {equipment.availability === 'Available' ? <FiCheckCircle className="text-[10px]" /> : <FiClock className="text-[10px]" />}
+              {equipment.availability}
+            </span>
+          </div>
 
-        {/* Availability Badge */}
-        <span
-          className={`absolute top-3 right-12 px-2.5 py-1 text-[10px] font-bold rounded-full shadow-xs flex items-center gap-1 ${
-            equipment.availability === 'Available'
-              ? 'bg-[#22C55E]/90 text-white'
-              : 'bg-[#F59E0B]/90 text-white'
-          }`}
-        >
-          {equipment.availability === 'Available' ? <FiCheckCircle className="text-xs" /> : <FiClock className="text-xs" />}
-          {equipment.availability}
-        </span>
-
-        {/* Wishlist Button */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            toggleWishlist(equipment.id);
-          }}
-          className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition-all cursor-pointer shadow-xs ${
-            isWishlisted
-              ? 'bg-[#EF4444] text-white'
-              : 'bg-white/80 hover:bg-white text-slate-700 hover:text-[#EF4444]'
-          }`}
-          aria-label="Toggle Wishlist"
-        >
-          <FiHeart className={`text-sm ${isWishlisted ? 'fill-current' : ''}`} />
-        </button>
+          {/* Right Side: Wishlist */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleWishlist(equipment.id);
+            }}
+            className={`p-2 rounded-full backdrop-blur-md transition-all cursor-pointer shadow-sm flex-shrink-0 ${
+              isWishlisted
+                ? 'bg-[#EF4444] text-white hover:bg-red-600'
+                : 'bg-white/90 hover:bg-white text-slate-700 hover:text-[#EF4444]'
+            }`}
+            aria-label="Toggle Wishlist"
+          >
+            <FiHeart className={`text-sm ${isWishlisted ? 'fill-current' : ''}`} />
+          </button>
+        </div>
       </div>
 
       {/* Card Body */}
@@ -89,7 +92,7 @@ const EquipmentCard = ({ equipment, onBook, onViewDetails }) => {
           <div>
             <p className="text-[10px] uppercase font-bold text-[#94A3B8] tracking-wider">Rental Rate</p>
             <p className="text-base font-extrabold text-[#0F172A]">
-              ${equipment.pricePerDay} <span className="text-xs font-normal text-[#64748B]">/ day</span>
+              ₹{equipment.pricePerDay} <span className="text-xs font-normal text-[#64748B]">/ day</span>
             </p>
           </div>
 

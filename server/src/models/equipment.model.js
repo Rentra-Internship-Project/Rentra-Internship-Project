@@ -7,6 +7,11 @@ const equipmentSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
+    businessId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Business',
+      default: null,
+    },
     name: {
       type: String,
       required: [true, 'Equipment name is required'],
@@ -30,11 +35,11 @@ const equipmentSchema = new mongoose.Schema(
     },
     weightTons: {
       type: Number,
-      default: 15.0,
+      default: 0,
     },
     locationAddress: {
       type: String,
-      default: 'Austin, TX',
+      default: '',
     },
     // MongoDB 2dsphere Geospatial Location Index
     location: {
@@ -45,7 +50,7 @@ const equipmentSchema = new mongoose.Schema(
       },
       coordinates: {
         type: [Number], // [longitude, latitude]
-        default: [-97.7431, 30.2672],
+        default: [73.8567, 18.5204], // Pune, Maharashtra, India
       },
     },
     availability: {
@@ -53,13 +58,36 @@ const equipmentSchema = new mongoose.Schema(
       enum: ['Available', 'Rented', 'Maintenance'],
       default: 'Available',
     },
+    platformFeeRate: {
+      type: Number,
+      default: 2, // 2% default platform fee
+    },
+    // Admin approval status — equipment is only public when Approved
+    status: {
+      type: String,
+      enum: ['Pending Approval', 'Approved', 'Rejected', 'Disabled'],
+      default: 'Pending Approval',
+    },
+    rejectionReason: {
+      type: String,
+      default: '',
+    },
+    approvedAt: {
+      type: Date,
+      default: null,
+    },
+    approvedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
+    },
     rating: {
       type: Number,
-      default: 5.0,
+      default: 0,
     },
     reviewsCount: {
       type: Number,
-      default: 1,
+      default: 0,
     },
     image: {
       type: String,

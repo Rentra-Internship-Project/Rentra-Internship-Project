@@ -15,7 +15,10 @@ export const SocketProvider = ({ children }) => {
     // Only connect if the user is logged in
     if (user?._id) {
       // Connect to the backend Socket.IO server
-      const newSocket = io('http://localhost:3000');
+      // Determine the base server URL by removing '/api' from the VITE_API_BASE_URL if present
+      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+      const serverUrl = apiBase.replace('/api', '');
+      const newSocket = io(serverUrl);
       setSocket(newSocket);
 
       // Join personal user room
@@ -25,7 +28,7 @@ export const SocketProvider = ({ children }) => {
       newSocket.on('notification', (data) => {
         setNotifications((prev) => [data, ...prev]);
         
-        // Auto-remove notification after 5 seconds
+        // Auto-remove notification from UI state after 5 seconds
         setTimeout(() => {
           setNotifications((prev) => prev.filter((n) => n.timestamp !== data.timestamp));
         }, 5000);

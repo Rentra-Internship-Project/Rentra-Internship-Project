@@ -27,21 +27,15 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
-    company: {
+    // Admin can suspend users
+    status: {
       type: String,
-      default: '',
+      enum: ['Active', 'Suspended'],
+      default: 'Active',
     },
     isVerified: {
       type: Boolean,
       default: true,
-    },
-    stripeCustomerId: {
-      type: String,
-      default: '',
-    },
-    stripeConnectAccountId: {
-      type: String,
-      default: '',
     },
     avatar: {
       type: String,
@@ -51,6 +45,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&q=80&w=1200',
     },
+    companyName: { type: String, default: '' },
+    businessType: { type: String, default: '' },
+    address: { type: String, default: '' },
+    city: { type: String, default: '' },
+    state: { type: String, default: '' },
+    zip: { type: String, default: '' },
     wishlist: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Equipment'
@@ -58,7 +58,14 @@ const userSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-    toJSON: { virtuals: true },
+    toJSON: {
+      virtuals: true,
+      transform: function(doc, ret) {
+        // Never expose password hash in JSON responses
+        delete ret.passwordHash;
+        return ret;
+      }
+    },
     toObject: { virtuals: true }
   }
 );

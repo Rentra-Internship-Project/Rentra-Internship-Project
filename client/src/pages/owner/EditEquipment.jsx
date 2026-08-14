@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FiTruck, FiMapPin, FiDollarSign, FiTag, FiFileText, FiUpload, FiCheckCircle, FiArrowLeft, FiSave } from 'react-icons/fi';
+import { FiTruck, FiMapPin, FiTag, FiFileText, FiUpload, FiCheckCircle, FiArrowLeft, FiSave } from 'react-icons/fi';
+import { FaRupeeSign } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import Button from '../../components/common/Button';
 import { useOwner } from '../../context/OwnerContext';
-import api, { equipmentService } from '../../services/api';
+import api, { equipmentService, categoryService } from '../../services/api';
 
 const EditEquipment = () => {
   const navigate = useNavigate();
@@ -28,7 +29,13 @@ const EditEquipment = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const categories = ['Earthmoving', 'Material Handling', 'Road Construction', 'Hauling', 'Lifting Equipment', 'Compaction', 'Construction', 'Agriculture', 'Industrial', 'Logistics', 'Power & Energy', 'Mining'];
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    categoryService.getAll()
+      .then((res) => setCategories((res.data || []).map((c) => c.name)))
+      .catch((err) => console.error('Failed to load categories', err));
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -204,7 +211,7 @@ const EditEquipment = () => {
             </div>
             <div>
               <label className="block text-xs font-bold text-[#0F172A] mb-1.5">
-                <span className="flex items-center gap-1.5"><FiDollarSign className="text-[11px] text-[#64748B]" /> Price Per Day ($)</span>
+                <span className="flex items-center gap-1.5"><FaRupeeSign className="text-[11px] text-[#64748B]" /> Price Per Day (₹)</span>
               </label>
               <input
                 type="number"

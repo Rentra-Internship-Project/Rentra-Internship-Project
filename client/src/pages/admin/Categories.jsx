@@ -1,18 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiPlus, FiEdit2, FiTrash2, FiLayers, FiX } from 'react-icons/fi';
 import DataTable from '../../components/admin/DataTable';
 import SearchBar from '../../components/common/SearchBar';
 import ConfirmModal from '../../components/common/ConfirmModal';
 import Button from '../../components/common/Button';
-import { mockCategories as initialCategories } from '../../data/adminMockData';
+import { categoryService } from '../../services/api';
 
 const Categories = () => {
-  const [categories, setCategories] = useState(initialCategories);
+  const [categories, setCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
   const [categoryToDelete, setCategoryToDelete] = useState(null);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    setIsLoading(true);
+    try {
+      const res = await categoryService.getAll();
+      setCategories(res.data || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Form State
   const [formName, setFormName] = useState('');
@@ -41,36 +58,32 @@ const Categories = () => {
     setIsModalOpen(true);
   };
 
-  // Save Category Handler
-  const handleSaveCategory = (e) => {
+  const handleSaveCategory = async (e) => {
     e.preventDefault();
     if (!formName.trim()) return;
 
-    if (editingCategory) {
-      // Edit
-      setCategories((prev) =>
-        prev.map((c) =>
-          c.id === editingCategory.id ? { ...c, name: formName, description: formDesc } : c
-        )
-      );
-    } else {
-      // Add New
-      const newCat = {
-        id: `CAT-${Date.now()}`,
-        name: formName,
-        description: formDesc,
-        equipmentCount: 0
-      };
-      setCategories((prev) => [...prev, newCat]);
+    try {
+      if (editingCategory) {
+        await categoryService.update(editingCategory.id || editingCategory._id, { name: formName, description: formDesc });
+      } else {
+        await categoryService.create({ name: formName, description: formDesc });
+      }
+      await fetchCategories();
+      setIsModalOpen(false);
+      setEditingCategory(null);
+    } catch (err) {
+      alert('Failed to save category');
     }
-
-    setIsModalOpen(false);
   };
 
-  // Delete Handler
-  const handleDeleteCategory = () => {
+  const handleConfirmDelete = async () => {
     if (categoryToDelete) {
-      setCategories((prev) => prev.filter((c) => c.id !== categoryToDelete.id));
+      try {
+        await categoryService.delete(categoryToDelete.id || categoryToDelete._id);
+        await fetchCategories();
+      } catch (err) {
+        alert('Failed to delete category');
+      }
       setCategoryToDelete(null);
     }
   };
@@ -231,7 +244,7 @@ const Categories = () => {
       <ConfirmModal
         isOpen={Boolean(categoryToDelete)}
         onClose={() => setCategoryToDelete(null)}
-        onConfirm={handleDeleteCategory}
+        onConfirm={handleConfirmDelete}
         title="Delete Equipment Category"
         message={`Are you sure you want to delete "${categoryToDelete?.name}"? Equipment currently listed under this category will need reassignment.`}
         confirmText="Delete Category"

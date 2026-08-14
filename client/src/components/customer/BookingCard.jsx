@@ -1,7 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { FiCalendar, FiDollarSign, FiUser, FiArrowRight, FiCheckCircle, FiClock, FiXCircle } from 'react-icons/fi';
+import { FiCalendar, FiUser, FiArrowRight, FiCheckCircle, FiClock, FiXCircle } from 'react-icons/fi';
+import { FaRupeeSign } from 'react-icons/fa';
 import Button from '../common/Button';
 
 const statusBadgeStyles = {
@@ -18,7 +19,7 @@ const statusIcons = {
   Cancelled: FiXCircle,
 };
 
-const BookingCard = ({ booking, onCancel }) => {
+const BookingCard = ({ booking, onCancel, onRequestReturn, onMarkReceived }) => {
   const navigate = useNavigate();
   const StatusIcon = statusIcons[booking.status] || FiClock;
   const totalAmount = booking.totalValue ?? booking.totalAmount ?? 0;
@@ -72,11 +73,13 @@ const BookingCard = ({ booking, onCancel }) => {
       <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-[#E2E8F0]">
         <div className="text-left sm:text-right">
           <p className="text-[10px] uppercase font-bold text-[#94A3B8] tracking-wider">Total Paid</p>
-          <p className="text-base font-extrabold text-[#0F172A]">${totalAmount.toLocaleString()}</p>
+          <p className="text-base font-extrabold text-[#0F172A] flex items-center gap-0.5">
+            <FaRupeeSign className="text-[10px]" />{totalAmount.toLocaleString()}
+          </p>
         </div>
 
         <div className="flex items-center gap-2">
-          {booking.status === 'Pending' && onCancel && (
+          {['Pending', 'Approved', 'Deposit Paid'].includes(booking.status) && onCancel && (
             <Button
               variant="secondary"
               size="xs"
@@ -86,13 +89,32 @@ const BookingCard = ({ booking, onCancel }) => {
               Cancel
             </Button>
           )}
+          {booking.status === 'Ready For Pickup' && onMarkReceived && (
+            <Button
+              variant="primary"
+              size="xs"
+              onClick={() => onMarkReceived(booking.id)}
+              className="bg-[#22C55E] text-white hover:bg-green-600 border-none"
+            >
+              Received
+            </Button>
+          )}
+          {booking.status === 'Rental Active' && onRequestReturn && (
+            <Button
+              variant="secondary"
+              size="xs"
+              onClick={() => onRequestReturn(booking.id)}
+            >
+              Return
+            </Button>
+          )}
           <Button
             variant="primary"
             size="xs"
             onClick={() => navigate(`/customer/bookings/${booking.id}`)}
             icon={FiArrowRight}
           >
-            View Details
+            Details
           </Button>
         </div>
       </div>

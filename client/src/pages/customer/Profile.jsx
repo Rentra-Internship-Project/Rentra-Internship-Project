@@ -1,23 +1,11 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import {
-  FiUser,
-  FiMail,
-  FiPhone,
-  FiMapPin,
-  FiBriefcase,
-  FiShield,
-  FiLock,
-  FiCheckCircle,
-  FiCalendar,
-  FiDollarSign,
-  FiHeart,
-  FiClock,
-  FiSave,
-} from 'react-icons/fi';
+import { FiUser, FiMail, FiPhone, FiMapPin, FiBriefcase, FiShield, FiLock, FiCheckCircle, FiCalendar, FiHeart, FiClock, FiSave } from 'react-icons/fi';
+import { FaRupeeSign } from 'react-icons/fa';
 import { useCustomer } from '../../context/CustomerContext';
 import ProfileCard from '../../components/customer/ProfileCard';
 import Button from '../../components/common/Button';
+import { authService } from '../../services/api';
 
 const Profile = () => {
   const { profile, updateProfile, bookings, wishlistEquipment } = useCustomer();
@@ -26,17 +14,17 @@ const Profile = () => {
 
   // Form State
   const [formData, setFormData] = useState({
-    name: profile.name,
-    email: profile.email,
-    phone: profile.phone,
-    companyName: profile.companyName,
-    businessType: profile.businessType,
-    address: profile.address,
-    city: profile.city,
-    state: profile.state,
-    zip: profile.zip,
-    avatar: profile.avatar || '',
-    cover: profile.cover || '',
+    name: profile?.name || '',
+    email: profile?.email || '',
+    phone: profile?.phone || '',
+    companyName: profile?.companyName || '',
+    businessType: profile?.businessType || '',
+    address: profile?.address || '',
+    city: profile?.city || '',
+    state: profile?.state || '',
+    zip: profile?.zip || '',
+    avatar: profile?.avatar || '',
+    cover: profile?.cover || '',
   });
 
   const [securityData, setSecurityData] = useState({
@@ -44,12 +32,38 @@ const Profile = () => {
     newPassword: '',
     confirmPassword: '',
     twoFactor: profile?.security?.twoFactorEnabled || false,
-    emailAlerts: profile?.security?.emailNotifications || true,
+    emailAlerts: profile?.security?.emailNotifications !== false,
     smsAlerts: profile?.security?.smsAlerts || false,
   });
 
+  // Sync state when profile loads
+  React.useEffect(() => {
+    if (profile) {
+      setFormData({
+        name: profile.name || '',
+        email: profile.email || '',
+        phone: profile.phone || '',
+        companyName: profile.companyName || '',
+        businessType: profile.businessType || '',
+        address: profile.address || '',
+        city: profile.city || '',
+        state: profile.state || '',
+        zip: profile.zip || '',
+        avatar: profile.avatar || '',
+        cover: profile.cover || '',
+      });
+      setSecurityData(prev => ({
+        ...prev,
+        twoFactor: profile.security?.twoFactorEnabled || false,
+        emailAlerts: profile.security?.emailNotifications !== false,
+        smsAlerts: profile.security?.smsAlerts || false,
+      }));
+    }
+  }, [profile]);
+
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [securitySuccess, setSecuritySuccess] = useState(false);
+  const [securityError, setSecurityError] = useState('');
 
   const handlePersonalSubmit = (e) => {
     e.preventDefault();
@@ -58,11 +72,40 @@ const Profile = () => {
     setTimeout(() => setSaveSuccess(false), 3000);
   };
 
-  const handleSecuritySubmit = (e) => {
+  const handleSecuritySubmit = async (e) => {
     e.preventDefault();
-    setSecuritySuccess(true);
-    setTimeout(() => setSecuritySuccess(false), 3000);
+    setSecurityError('');
+    
+    if (securityData.newPassword) {
+      if (securityData.newPassword !== securityData.confirmPassword) {
+        setSecurityError('New passwords do not match');
+        return;
+      }
+      try {
+        await authService.updatePassword({
+          currentPassword: securityData.currentPassword,
+          newPassword: securityData.newPassword,
+        });
+        setSecurityData({ ...securityData, currentPassword: '', newPassword: '', confirmPassword: '' });
+        setSecuritySuccess(true);
+        setTimeout(() => setSecuritySuccess(false), 3000);
+      } catch (err) {
+        setSecurityError(err.response?.data?.error || 'Failed to update password');
+      }
+    } else {
+      // Just updating preferences
+      setSecuritySuccess(true);
+      setTimeout(() => setSecuritySuccess(false), 3000);
+    }
   };
+
+  if (!profile) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="w-8 h-8 border-4 border-[#3B82F6] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -263,10 +306,26 @@ const Profile = () => {
             )}
           </div>
 
+          {securityError && (
+            <div className="p-3 bg-red-50 border border-red-200 text-red-600 text-xs font-semibold rounded-[12px] flex items-center gap-2">
+              <FiLock className="text-base" /> {securityError}
+            </div>
+          )}
+
           <form onSubmit={handleSecuritySubmit} className="space-y-6">
             {/* Password Fields */}
             <div className="space-y-4">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[#94A3B8]">Change Password</h4>
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[#94A3B8]">Change Password</h4>
+              </div>
+              
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-[12px] flex items-start gap-2">
+                <FiLock className="text-[#F59E0B] shrink-0 mt-0.5 text-sm" />
+                <p className="text-[11px] text-[#92400E] leading-relaxed font-medium">
+                  <strong>Note:</strong> If you registered using Google, you cannot update your password here. This form is only for standard email registration.
+                </p>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className="form-label">Current Password</label>
@@ -368,14 +427,14 @@ const Profile = () => {
             <div className="panel-card p-5">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-10 h-10 rounded-[12px] bg-[#CCCCFF] flex items-center justify-center text-[#0F172A] font-bold">
-                  <FiDollarSign className="text-lg" />
+                  <FaRupeeSign className="text-lg" />
                 </div>
                 <div>
                   <p className="text-[10px] uppercase font-bold text-[#94A3B8]">Total Expenditure</p>
-                  <p className="text-xl font-extrabold text-[#0F172A]">{profile.stats.totalSpent}</p>
+                  <p className="text-xl font-extrabold text-[#0F172A]">{profile.stats?.totalSpent || '₹0'}</p>
                 </div>
               </div>
-              <p className="text-[11px] text-[#64748B]">Across {bookings.length} total equipment bookings</p>
+              <p className="text-[11px] text-[#64748B]">Across {bookings?.length || 0} total equipment bookings</p>
             </div>
 
             <div className="panel-card p-5">
@@ -385,7 +444,7 @@ const Profile = () => {
                 </div>
                 <div>
                   <p className="text-[10px] uppercase font-bold text-[#94A3B8]">Active Equipment</p>
-                  <p className="text-xl font-extrabold text-[#0F172A]">{bookings.filter(b => b.status === 'Active').length} Rentals</p>
+                  <p className="text-xl font-extrabold text-[#0F172A]">{(bookings || []).filter(b => b.status === 'Active').length} Rentals</p>
                 </div>
               </div>
               <p className="text-[11px] text-[#64748B]">Currently deployed on job sites</p>
@@ -398,7 +457,7 @@ const Profile = () => {
                 </div>
                 <div>
                   <p className="text-[10px] uppercase font-bold text-[#94A3B8]">Saved Wishlist</p>
-                  <p className="text-xl font-extrabold text-[#0F172A]">{wishlistEquipment.length} Items</p>
+                  <p className="text-xl font-extrabold text-[#0F172A]">{wishlistEquipment?.length || 0} Items</p>
                 </div>
               </div>
               <p className="text-[11px] text-[#64748B]">Machinery saved for quick booking</p>

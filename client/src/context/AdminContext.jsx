@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { adminService, equipmentService } from '../services/api';
 
 const AdminContext = createContext(null);
@@ -11,84 +11,107 @@ export const AdminProvider = ({ children }) => {
   const [bookings, setBookings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch all live admin data
-  const fetchAdminData = async () => {
+  const fetchAdminData = useCallback(async () => {
     try {
       setIsLoading(true);
       const [statsRes, bizRes, usersRes, eqRes, bkRes] = await Promise.all([
         adminService.getStats(),
         adminService.getBusinesses(),
         adminService.getUsers(),
-        equipmentService.getAll(),
-        adminService.getBookings()
+        adminService.getEquipment(),   // Admin-scoped: returns ALL statuses
+        adminService.getBookings(),
       ]);
+
       setStats(statsRes.data);
-      
-      // Map Businesses
-      const mappedBiz = bizRes.data.map(b => ({
+
+      // Map Businesses — use real field names from Business model
+      const mappedBiz = (bizRes.data || []).map((b) => ({
+        ...b,
         id: b._id,
         businessName: b.businessName || 'Unknown Business',
         ownerName: b.ownerName || b.ownerId?.name || 'Unknown Owner',
-        email: b.ownerId?.email || 'N/A',
-        phone: b.contactPhone || b.ownerId?.phone || 'N/A',
-        taxId: b.taxId || 'Pending',
-        registrationNumber: b.registrationNumber || 'Pending',
-        documents: b.documents?.map((d, i) => ({ name: `Document_${i+1}.pdf`, size: '2MB', url: d })) || [],
+        email: b.email || b.ownerId?.email || 'N/A',
+        phone: b.phone || b.ownerId?.phone || 'N/A',
+        registrationNumber: b.registrationNumber || '—',
+        gstNumber: b.gstNumber || '—',
+        taxId: b.taxId || '—',
+        documents: (b.documents || []).map((d, i) => ({
+          name: `Document_${i + 1}.pdf`,
+          size: '—',
+          url: d,
+        })),
         businessType: b.businessType || 'Equipment Owner',
         status: b.status || 'Pending',
-        submittedDate: new Date(b.createdAt).toLocaleDateString()
+        submittedDate: b.createdAt
+          ? new Date(b.createdAt).toLocaleDateString('en-IN')
+          : '—',
+        rejectionReason: b.rejectionReason || '',
       }));
       setBusinesses(mappedBiz);
-      
+
       // Map Users
-      const mappedUsers = usersRes.data.map(u => ({
+      const mappedUsers = (usersRes.data || []).map((u) => ({
+        ...u,
         id: u._id,
         name: u.name,
         email: u.email,
         role: u.role,
-        phone: u.phone || 'N/A',
+        phone: u.phone || '—',
         status: u.status || 'Active',
-        joinedDate: new Date(u.createdAt).toLocaleDateString(),
-        avatar: u.avatar || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=150'
+        joinedDate: u.createdAt
+          ? new Date(u.createdAt).toLocaleDateString('en-IN')
+          : '—',
+        avatar:
+          u.avatar ||
+          'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=150',
       }));
       setUsers(mappedUsers);
 
-      // Set Equipment
+      // Equipment — already mapped via mapEquipmentResponse in api.js
       setEquipmentList(eqRes.data || []);
 
       // Map Bookings
-      const mappedBookings = bkRes.data.map(b => ({
+      const mappedBookings = (bkRes.data || []).map((b) => ({
+        ...b,
         id: b._id,
         customer: b.customerId?.name || 'Unknown Customer',
-        equipment: b.equipmentId?.name || 'Unknown Equipment',
-        startDate: new Date(b.startDate).toLocaleDateString(),
-        endDate: new Date(b.endDate).toLocaleDateString(),
-        totalValue: `₹${b.totalPrice?.toLocaleString() || b.totalValue?.toLocaleString() || '0'}`,
-        status: b.status || 'Pending'
+        owner: b.ownerId?.name || 'Unknown Owner',
+        equipment: b.equipmentName || b.equipmentId?.name || 'Unknown Equipment',
+        bookingDate: b.createdAt ? new Date(b.createdAt).toLocaleDateString('en-IN') : '—',
+        duration: `${b.durationDays || 0} days`,
+        startDate: b.startDate ? new Date(b.startDate).toLocaleDateString('en-IN') : '—',
+        endDate: b.endDate ? new Date(b.endDate).toLocaleDateString('en-IN') : '—',
+        amount: `₹${(b.totalValue || 0).toLocaleString('en-IN')}`,
+        status: b.status || 'Pending Approval',
       }));
       setBookings(mappedBookings);
-
     } catch (err) {
-      console.error('Failed to fetch admin data', err);
+      console.error('Failed to fetch admin data:', err);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchAdminData();
-  }, []);
+  }, [fetchAdminData]);
 
   return (
-    <AdminContext.Provider value={{ 
-      stats, 
-      businesses, setBusinesses, 
-      users, setUsers, 
-      equipmentList, setEquipmentList, 
-      bookings, setBookings,
-      isLoading,
-      refreshData: fetchAdminData 
-    }}>
+    <AdminContext.Provider
+      value={{
+        stats,
+        businesses,
+        setBusinesses,
+        users,
+        setUsers,
+        equipmentList,
+        setEquipmentList,
+        bookings,
+        setBookings,
+        isLoading,
+        refreshData: fetchAdminData,
+      }}
+    >
       {children}
     </AdminContext.Provider>
   );

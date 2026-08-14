@@ -25,20 +25,25 @@ const Equipment = () => {
   const filteredEquipment = useMemo(() => {
     return equipment.filter((eq) => {
       const matchesSearch =
-        eq.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        eq.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        eq.location.toLowerCase().includes(searchTerm.toLowerCase());
+        (eq.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (eq.category || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (eq.location || eq.locationAddress || '').toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesFilter =
-        statusFilter === 'all' || eq.status.toLowerCase() === statusFilter.toLowerCase();
+        statusFilter === 'all' || (eq.status || '').toLowerCase() === statusFilter.toLowerCase();
 
       return matchesSearch && matchesFilter;
     });
   }, [equipment, searchTerm, statusFilter]);
 
-  const handleDelete = (id) => {
-    setEquipment((prev) => prev.filter((eq) => eq.id !== id));
-    setDeleteTarget(null);
+  const handleDelete = async (id) => {
+    try {
+      await equipmentService.delete(id);
+      setEquipment((prev) => prev.filter((eq) => eq.id !== id));
+      setDeleteTarget(null);
+    } catch (err) {
+      alert('Failed to delete equipment: ' + (err.response?.data?.error || err.message));
+    }
   };
 
   return (

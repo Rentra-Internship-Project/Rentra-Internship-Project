@@ -162,14 +162,25 @@ const Login = () => {
               </motion.button>
             </form>
 
-            <div className="mt-4 rounded-[12px] border border-[#E2E8F0] bg-[#F8FAFC] p-3 text-[11px] text-[#64748B] flex flex-col gap-1">
-              <p className="font-bold uppercase tracking-[0.2em] text-[#94A3B8]">Demo Roles</p>
-              <div className="flex flex-wrap gap-x-4 gap-y-1">
-                <p>C: <span className="font-semibold text-[#0F172A]">customer@rentra.com</span> / <span className="font-semibold text-[#0F172A]">customer123</span></p>
-                <p>O: <span className="font-semibold text-[#0F172A]">owner@rentra.com</span> / <span className="font-semibold text-[#0F172A]">owner123</span></p>
-                <p>A: <span className="font-semibold text-[#0F172A]">admin@rentra.com</span> / <span className="font-semibold text-[#0F172A]">admin123</span></p>
-              </div>
+            <div className="mt-6 flex items-center justify-between">
+              <span className="w-1/5 border-b border-[#E2E8F0] lg:w-1/4"></span>
+              <span className="text-xs text-[#64748B] uppercase font-semibold text-center w-3/5 lg:w-1/2">Or login with</span>
+              <span className="w-1/5 border-b border-[#E2E8F0] lg:w-1/4"></span>
             </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                const params = new URLSearchParams(window.location.search);
+                const role = params.get('role') || 'customer';
+                const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+                window.location.href = `${apiBase}/auth/google?role=${role}`;
+              }}
+              className="mt-4 flex w-full items-center justify-center gap-3 rounded-[14px] border border-[#E2E8F0] bg-white px-4 py-3 text-sm font-semibold text-[#0F172A] transition hover:bg-[#F8FAFC]"
+            >
+              <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="h-5 w-5" />
+              Continue with Google
+            </button>
 
             <p className="mt-6 text-center text-sm text-[#64748B]">
               Don’t have an account?{' '}

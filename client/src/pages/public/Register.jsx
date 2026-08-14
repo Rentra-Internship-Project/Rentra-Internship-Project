@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FiArrowRight, FiEye, FiEyeOff, FiLock, FiMail, FiPackage, FiPhone, FiUser } from 'react-icons/fi';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 const Register = () => {
@@ -16,13 +16,21 @@ const Register = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [role, setRole] = useState('customer');
+  const [searchParams] = useSearchParams();
+  const initialRole = searchParams.get('role') === 'owner' ? 'owner' : 'customer';
+  const [role, setRole] = useState(initialRole);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (!agreedToTerms) {
+      setError('You must agree to the Terms & Conditions and Privacy Policy');
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError('Passwords do not match');
@@ -215,6 +223,26 @@ const Register = () => {
                 </div>
               </div>
 
+              <div className="flex items-start gap-3 mt-4">
+                <input
+                  type="checkbox"
+                  id="terms"
+                  checked={agreedToTerms}
+                  onChange={(e) => setAgreedToTerms(e.target.checked)}
+                  className="mt-1 h-4 w-4 rounded border-[#E2E8F0] text-[#0F172A] focus:ring-[#CCCCFF]"
+                />
+                <label htmlFor="terms" className="text-sm text-[#475569]">
+                  I agree to the{' '}
+                  <Link to="/terms" target="_blank" className="font-semibold text-[#5D5DEB] hover:underline">
+                    Terms & Conditions
+                  </Link>{' '}
+                  and{' '}
+                  <Link to="/privacy" target="_blank" className="font-semibold text-[#5D5DEB] hover:underline">
+                    Privacy Policy
+                  </Link>.
+                </label>
+              </div>
+
               <motion.button
                 whileHover={{ y: -2, scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
@@ -235,6 +263,24 @@ const Register = () => {
                 )}
               </motion.button>
             </form>
+
+            <div className="mt-6 flex items-center justify-between">
+              <span className="w-1/5 border-b border-[#E2E8F0] lg:w-1/4"></span>
+              <span className="text-xs text-[#64748B] uppercase font-semibold text-center w-3/5 lg:w-1/2">Or sign up with</span>
+              <span className="w-1/5 border-b border-[#E2E8F0] lg:w-1/4"></span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+                window.location.href = `${apiBase}/auth/google?role=${role}`;
+              }}
+              className="mt-4 flex w-full items-center justify-center gap-3 rounded-[14px] border border-[#E2E8F0] bg-white px-4 py-3 text-sm font-semibold text-[#0F172A] transition hover:bg-[#F8FAFC]"
+            >
+              <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="h-5 w-5" />
+              Continue with Google
+            </button>
 
             <p className="mt-6 text-center text-sm text-[#64748B]">
               Already have an account?{' '}

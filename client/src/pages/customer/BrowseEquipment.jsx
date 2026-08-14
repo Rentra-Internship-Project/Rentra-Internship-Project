@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -15,6 +15,7 @@ import SearchBar from '../../components/common/SearchBar';
 import EmptyState from '../../components/common/EmptyState';
 import Button from '../../components/common/Button';
 import FleetBundlerModal from '../../components/customer/FleetBundlerModal';
+import { categoryService } from '../../services/api';
 
 const BrowseEquipment = () => {
   const navigate = useNavigate();
@@ -30,14 +31,24 @@ const BrowseEquipment = () => {
   const [selectedAvailability, setSelectedAvailability] = useState('All');
   const [sortBy, setSortBy] = useState('default'); // 'default' | 'price-low' | 'price-high' | 'rating'
 
-  // Extract unique categories & locations
+  // Load categories from API
+  const [apiCategories, setApiCategories] = useState([]);
+  useEffect(() => {
+    categoryService.getAll()
+      .then((res) => setApiCategories(['All', ...(res.data || []).map((c) => c.name)]))
+      .catch(() => setApiCategories([]));
+  }, []);
+
+  // Extract unique categories from equipment list as fallback
   const categories = useMemo(() => {
+    if (apiCategories.length > 0) return apiCategories;
     const set = new Set(equipmentList.map((item) => item.category));
     return ['All', ...Array.from(set)];
-  }, [equipmentList]);
+  }, [equipmentList, apiCategories]);
 
+  // Extract unique locations from equipment list
   const locations = useMemo(() => {
-    const set = new Set(equipmentList.map((item) => item.location));
+    const set = new Set(equipmentList.map((item) => item.location || item.locationAddress).filter(Boolean));
     return ['All', ...Array.from(set)];
   }, [equipmentList]);
 

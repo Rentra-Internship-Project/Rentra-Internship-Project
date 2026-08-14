@@ -1,19 +1,8 @@
 import React from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  FiGrid,
-  FiBriefcase,
-  FiCheckSquare,
-  FiTruck,
-  FiPlusCircle,
-  FiCalendar,
-  FiDollarSign,
-  FiUser,
-  FiLogOut,
-  FiX,
-  FiPackage
-} from 'react-icons/fi';
+import { FiGrid, FiBriefcase, FiCheckSquare, FiTruck, FiPlusCircle, FiCalendar, FiUser, FiLogOut, FiX, FiPackage } from 'react-icons/fi';
+import { FaRupeeSign } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 
 const menuItems = [
@@ -23,7 +12,7 @@ const menuItems = [
   { name: 'My Equipment', path: '/owner/equipment', icon: FiTruck },
   { name: 'Add Equipment', path: '/owner/add-equipment', icon: FiPlusCircle },
   { name: 'Booking Requests', path: '/owner/bookings', icon: FiCalendar },
-  { name: 'Earnings', path: '/owner/earnings', icon: FiDollarSign },
+  { name: 'Earnings', path: '/owner/earnings', icon: FaRupeeSign },
   { name: 'Profile', path: '/owner/profile', icon: FiUser },
 ];
 

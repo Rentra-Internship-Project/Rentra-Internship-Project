@@ -8,44 +8,52 @@ import {
   FiSave,
   FiTruck,
   FiCalendar,
-  FiDollarSign,
   FiZap
 } from 'react-icons/fi';
+import { FaRupeeSign } from 'react-icons/fa';
 import ProfileCard from '../../components/owner/ProfileCard';
 import StatsCard from '../../components/owner/StatsCard';
 import Button from '../../components/common/Button';
 import { useAuth } from '../../context/AuthContext';
 import { useOwner } from '../../context/OwnerContext';
+import { authService } from '../../services/api';
 
 const Profile = () => {
-  const { user } = useAuth();
-  const { ownerStats } = useOwner();
+  const { user, setUser } = useAuth();
+  const { ownerStats, business } = useOwner();
   
   const profile = {
     name: user?.name || 'Owner',
     email: user?.email || '',
     phone: user?.phone || '',
-    bio: user?.bio || 'Heavy machinery owner.',
-    businessName: user?.company || 'My Business',
-    gstNumber: 'PENDING',
-    address: 'HQ',
-    city: 'Local',
-    state: 'State',
-    joinedDate: 'Recently',
+    businessName: business?.businessName || user?.companyName || 'My Business',
+    gstNumber: business?.gstNumber || 'PENDING',
+    address: business?.address || user?.address || 'HQ',
+    city: business?.city || user?.city || 'Local',
+    state: business?.state || user?.state || 'State',
+    joinedDate: user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-IN') : 'Recently',
+    avatar: user?.avatar,
+    cover: user?.cover,
     stats: {
       totalEquipment: ownerStats?.totalEquipment || 0,
       activeBookings: ownerStats?.activeBookings || 0,
       completedBookings: ownerStats?.totalEquipment || 0,
-      totalEarnings: ownerStats?.monthlyEarnings || '$0',
+      totalEarnings: ownerStats?.monthlyEarnings || '₹0',
     },
     recentActivity: []
   };
 
   // Personal Info Form
   const [name, setName] = useState(profile.name);
-  const [email, setEmail] = useState(profile.email);
   const [phone, setPhone] = useState(profile.phone);
-  const [bio, setBio] = useState(profile.bio);
+
+  // Sync state when user loads
+  useEffect(() => {
+    if (user) {
+      setName(user.name || '');
+      setPhone(user.phone || '');
+    }
+  }, [user]);
 
   // Password Form
   const [currentPassword, setCurrentPassword] = useState('');
@@ -56,13 +64,19 @@ const Profile = () => {
   const [infoMessage, setInfoMessage] = useState('');
   const [passMessage, setPassMessage] = useState('');
 
-  const handleUpdateInfo = (e) => {
+  const handleUpdateInfo = async (e) => {
     e.preventDefault();
-    setInfoMessage('Personal information updated successfully!');
+    try {
+      const res = await authService.updateProfile({ name, phone });
+      if (setUser) setUser(res.data.user);
+      setInfoMessage('Personal information updated successfully!');
+    } catch (err) {
+      setInfoMessage('Failed to update information.');
+    }
     setTimeout(() => setInfoMessage(''), 3000);
   };
 
-  const handleChangePassword = (e) => {
+  const handleChangePassword = async (e) => {
     e.preventDefault();
     if (!currentPassword || !newPassword) {
       setPassMessage('Please fill in all password fields.');
@@ -72,10 +86,15 @@ const Profile = () => {
       setPassMessage('New passwords do not match!');
       return;
     }
-    setPassMessage('Password changed successfully!');
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
+    try {
+      await authService.updatePassword({ currentPassword, newPassword });
+      setPassMessage('Password changed successfully!');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err) {
+      setPassMessage(err.response?.data?.error || 'Failed to update password');
+    }
     setTimeout(() => setPassMessage(''), 3000);
   };
 
@@ -119,7 +138,7 @@ const Profile = () => {
           <StatsCard
             title="Total Earned"
             value={profile.stats.totalEarnings}
-            icon={FiDollarSign}
+            icon={FaRupeeSign}
             accentBg="bg-emerald-50"
             iconColor="text-[#22C55E]"
           />
@@ -163,10 +182,10 @@ const Profile = () => {
                   <label className="block text-xs font-bold text-[#0F172A] mb-1">Email Address</label>
                   <input
                     type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-3.5 py-2.5 border border-[#E2E8F0] rounded-[12px] text-xs text-[#0F172A] focus:outline-none focus:border-[#CCCCFF] focus:ring-2 focus:ring-[#CCCCFF]/30"
+                    readOnly
+                    value={profile.email}
+                    className="w-full px-3.5 py-2.5 border border-[#E2E8F0] rounded-[12px] text-xs text-[#64748B] bg-[#F8FAFC] cursor-not-allowed"
+                    title="Email cannot be changed"
                   />
                 </div>
               </div>
@@ -182,16 +201,6 @@ const Profile = () => {
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-[#0F172A] mb-1">Bio</label>
-                <textarea
-                  rows="3"
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-[#E2E8F0] rounded-[12px] text-xs text-[#0F172A] focus:outline-none focus:border-[#CCCCFF] focus:ring-2 focus:ring-[#CCCCFF]/30 resize-none"
-                />
-              </div>
-
               <div className="flex justify-end pt-2">
                 <Button variant="primary" type="submit" icon={FiSave}>
                   Save Changes
@@ -199,6 +208,7 @@ const Profile = () => {
               </div>
             </form>
           </div>
+
 
           {/* 4. Security Settings */}
           <div className="bg-white border border-[#E2E8F0] rounded-[20px] p-6 shadow-xs">
@@ -223,6 +233,13 @@ const Profile = () => {
                 <FiCheckCircle className="text-base" /> {passMessage}
               </div>
             )}
+
+            <div className="mb-6 p-3 bg-amber-50 border border-amber-200 rounded-[12px] flex items-start gap-2">
+              <FiLock className="text-[#F59E0B] shrink-0 mt-0.5 text-sm" />
+              <p className="text-[11px] text-[#92400E] leading-relaxed font-medium">
+                <strong>Note:</strong> If you registered using Google, you cannot update your password here. This form is only for standard email registration.
+              </p>
+            </div>
 
             <form onSubmit={handleChangePassword} className="space-y-4">
               <div>

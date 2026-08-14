@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FiDollarSign, FiTrendingUp, FiCalendar, FiClock, FiCheck, FiArrowUpRight } from 'react-icons/fi';
+import { FiTrendingUp, FiCalendar, FiClock, FiCheck, FiArrowUpRight } from 'react-icons/fi';
+import { FaRupeeSign } from 'react-icons/fa';
 import EarningsCard from '../../components/owner/EarningsCard';
 import { ownerEarnings as mockEarnings } from '../../data/ownerMockData';
 import { useOwner } from '../../context/OwnerContext';
@@ -38,7 +39,7 @@ const Earnings = () => {
         <EarningsCard
           title="Total Earnings"
           value={ownerStats.monthlyEarnings}
-          icon={FiDollarSign}
+          icon={FaRupeeSign}
           accentBg="bg-emerald-50"
           iconColor="text-[#22C55E]"
           trend="32.5%"

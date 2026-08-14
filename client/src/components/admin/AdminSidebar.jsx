@@ -1,18 +1,8 @@
 import React from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  FiGrid,
-  FiUsers,
-  FiBriefcase,
-  FiTruck,
-  FiLayers,
-  FiCalendar,
-  FiUser,
-  FiLogOut,
-  FiX,
-  FiShield
-} from 'react-icons/fi';
+import { FiGrid, FiUsers, FiBriefcase, FiTruck, FiLayers, FiCalendar, FiUser, FiLogOut, FiX, FiShield } from 'react-icons/fi';
+import { FaRupeeSign } from 'react-icons/fa';
 
 import { useAuth } from '../../context/AuthContext';
 
@@ -23,6 +13,7 @@ const menuItems = [
   { name: 'Equipment', path: '/admin/equipment', icon: FiTruck },
   { name: 'Categories', path: '/admin/categories', icon: FiLayers },
   { name: 'Bookings', path: '/admin/bookings', icon: FiCalendar },
+  { name: 'Payments', path: '/admin/payments', icon: FaRupeeSign },
   { name: 'Profile', path: '/admin/profile', icon: FiUser },
 ];
 

@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FiBriefcase, FiUser, FiMail, FiPhone, FiMapPin, FiHash, FiFileText, FiUpload, FiCheckCircle } from 'react-icons/fi';
+import { FiBriefcase, FiUser, FiMail, FiPhone, FiMapPin, FiHash, FiFileText, FiUpload, FiCheckCircle, FiClock, FiAlertCircle } from 'react-icons/fi';
 import Button from '../../components/common/Button';
-import api from '../../services/api';
+import { businessService, mediaService } from '../../services/api';
+import { useOwner } from '../../context/OwnerContext';
+import { useNavigate } from 'react-router-dom';
 
 const RegisterBusiness = () => {
+  const { business, businessLoading, refreshBusiness } = useOwner();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     businessName: '',
     businessType: '',
@@ -16,11 +20,41 @@ const RegisterBusiness = () => {
     state: '',
     gstNumber: '',
     description: '',
+    aadharNumber: '',
+    panNumber: '',
+    bankAccountNumber: '',
+    ifscCode: '',
+    upiId: '',
   });
   const [files, setFiles] = useState([]);
   const [submitted, setSubmitted] = useState(false);
   const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Pre-populate data if business exists (e.g. for correcting a rejected application)
+  useEffect(() => {
+    if (business) {
+      setFormData({
+        businessName: business.businessName || '',
+        businessType: business.businessType || '',
+        ownerName: business.ownerName || '',
+        email: business.email || '',
+        phone: business.phone || '',
+        address: business.address || '',
+        city: business.city || '',
+        state: business.state || '',
+        gstNumber: business.gstNumber || '',
+        description: business.description || '',
+        aadharNumber: business.aadharNumber || '',
+        panNumber: business.panNumber || '',
+        bankAccountNumber: business.bankAccountNumber || '',
+        ifscCode: business.ifscCode || '',
+        upiId: business.upiId || '',
+      });
+      // Note: we can't fully pre-populate File objects securely, so users have to re-upload documents
+    }
+  }, [business]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -39,13 +73,30 @@ const RegisterBusiness = () => {
     e.preventDefault();
     setLoading(true);
     setMessage('');
+    setError('');
     try {
-      await api.post('/admin/businesses', formData);
+      // 1. Upload files to Cloudinary first
+      const uploadedDocUrls = [];
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append('file', file);
+        const res = await mediaService.uploadPhoto(formData);
+        uploadedDocUrls.push(res.data.url);
+      }
+
+      // 2. Submit registration with real Cloudinary URLs
+      const submissionData = {
+        ...formData,
+        documents: uploadedDocUrls
+      };
+      
+      // POST to /api/business — ownerId attached from JWT on backend
+      await businessService.register(submissionData);
       setSubmitted(true);
-      setMessage('Business registration submitted successfully! Your application is now under review.');
-      setTimeout(() => setMessage(''), 5000);
+      await refreshBusiness(); // Reload business status in context
+      navigate('/owner/business-status');
     } catch (err) {
-      setMessage(err.response?.data?.error || 'Failed to submit registration. Please try again.');
+      setError(err.response?.data?.error || 'Failed to submit registration. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -76,6 +127,41 @@ const RegisterBusiness = () => {
         <p className="text-sm text-[#64748B] mt-1">Submit your business details and verification documents for platform approval.</p>
       </div>
 
+      {/* Show existing business status if already registered */}
+      {!businessLoading && business && !submitted && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={`p-4 border rounded-[16px] flex items-center gap-3 ${
+            business.status === 'Approved'
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+              : business.status === 'Rejected'
+              ? 'bg-red-50 border-red-200 text-red-700'
+              : 'bg-amber-50 border-amber-200 text-amber-700'
+          }`}
+        >
+          {business.status === 'Approved' ? (
+            <FiCheckCircle className="text-xl shrink-0" />
+          ) : business.status === 'Rejected' ? (
+            <FiAlertCircle className="text-xl shrink-0" />
+          ) : (
+            <FiClock className="text-xl shrink-0" />
+          )}
+          <div>
+            <p className="font-bold text-sm">{business.businessName} — {business.status}</p>
+            {business.status === 'Rejected' && business.rejectionReason && (
+              <p className="text-xs mt-0.5">Reason: {business.rejectionReason}. Edit and resubmit below.</p>
+            )}
+            {business.status === 'Pending' && (
+              <p className="text-xs mt-0.5">Your application is being reviewed by admin.</p>
+            )}
+            {business.status === 'Approved' && (
+              <p className="text-xs mt-0.5">Your business is verified. You can now list equipment.</p>
+            )}
+          </div>
+        </motion.div>
+      )}
+
       {/* Success Message */}
       {message && (
         <motion.div
@@ -87,8 +173,22 @@ const RegisterBusiness = () => {
         </motion.div>
       )}
 
-      {/* Registration Form */}
-      <div className="bg-white border border-[#E2E8F0] rounded-[20px] p-6 md:p-8 shadow-xs">
+      {/* Error Message */}
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-4 bg-red-50 border border-red-200 text-red-700 text-sm font-semibold rounded-[16px] flex items-center gap-2"
+        >
+          <FiAlertCircle className="text-lg" /> {error}
+        </motion.div>
+      )}
+
+      {/* Hide form if Approved */}
+      {business?.status !== 'Approved' && (
+        <>
+          {/* Registration Form */}
+          <div className="bg-white border border-[#E2E8F0] rounded-[20px] p-6 md:p-8 shadow-xs">
         <div className="flex items-center gap-3 pb-5 border-b border-[#E2E8F0] mb-6">
           <div className="p-2.5 bg-[#CCCCFF]/40 text-[#0F172A] rounded-[12px]">
             <FiBriefcase className="text-xl" />
@@ -177,7 +277,7 @@ const RegisterBusiness = () => {
                 required
                 value={formData.phone}
                 onChange={handleChange}
-                placeholder="+1 (555) 000-0000"
+                placeholder="+91 98765 43210"
                 className="w-full px-3.5 py-2.5 border border-[#E2E8F0] rounded-[12px] text-sm text-[#0F172A] placeholder-[#94A3B8] focus:outline-none focus:border-[#CCCCFF] focus:ring-2 focus:ring-[#CCCCFF]/30"
               />
             </div>
@@ -194,6 +294,73 @@ const RegisterBusiness = () => {
                 placeholder="GST-XX-XXXXXXX"
                 className="w-full px-3.5 py-2.5 border border-[#E2E8F0] rounded-[12px] text-sm text-[#0F172A] placeholder-[#94A3B8] focus:outline-none focus:border-[#CCCCFF] focus:ring-2 focus:ring-[#CCCCFF]/30"
               />
+            </div>
+          </div>
+
+          {/* KYC Information */}
+          <div className="pt-4 border-t border-[#E2E8F0]">
+            <h3 className="text-base font-bold text-[#0F172A] mb-4">KYC & Financial Information</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-[#0F172A] mb-1.5">Aadhar Number</label>
+                <input
+                  type="text"
+                  name="aadharNumber"
+                  required
+                  value={formData.aadharNumber}
+                  onChange={handleChange}
+                  placeholder="XXXX-XXXX-XXXX"
+                  className="w-full px-3.5 py-2.5 border border-[#E2E8F0] rounded-[12px] text-sm text-[#0F172A] placeholder-[#94A3B8] focus:outline-none focus:border-[#CCCCFF] focus:ring-2 focus:ring-[#CCCCFF]/30"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-[#0F172A] mb-1.5">PAN Number</label>
+                <input
+                  type="text"
+                  name="panNumber"
+                  required
+                  value={formData.panNumber}
+                  onChange={handleChange}
+                  placeholder="ABCDE1234F"
+                  className="w-full px-3.5 py-2.5 border border-[#E2E8F0] rounded-[12px] text-sm text-[#0F172A] placeholder-[#94A3B8] focus:outline-none focus:border-[#CCCCFF] focus:ring-2 focus:ring-[#CCCCFF]/30"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-[#0F172A] mb-1.5">Bank Account Number</label>
+                <input
+                  type="text"
+                  name="bankAccountNumber"
+                  required
+                  value={formData.bankAccountNumber}
+                  onChange={handleChange}
+                  placeholder="XXXXXXXXXXXXXX"
+                  className="w-full px-3.5 py-2.5 border border-[#E2E8F0] rounded-[12px] text-sm text-[#0F172A] placeholder-[#94A3B8] focus:outline-none focus:border-[#CCCCFF] focus:ring-2 focus:ring-[#CCCCFF]/30"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-[#0F172A] mb-1.5">IFSC Code</label>
+                <input
+                  type="text"
+                  name="ifscCode"
+                  required
+                  value={formData.ifscCode}
+                  onChange={handleChange}
+                  placeholder="SBIN0000001"
+                  className="w-full px-3.5 py-2.5 border border-[#E2E8F0] rounded-[12px] text-sm text-[#0F172A] placeholder-[#94A3B8] focus:outline-none focus:border-[#CCCCFF] focus:ring-2 focus:ring-[#CCCCFF]/30"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-bold text-[#0F172A] mb-1.5">UPI ID (For Deposits)</label>
+                <input
+                  type="text"
+                  name="upiId"
+                  required
+                  value={formData.upiId}
+                  onChange={handleChange}
+                  placeholder="businessname@bank"
+                  className="w-full px-3.5 py-2.5 border border-[#E2E8F0] rounded-[12px] text-sm text-[#0F172A] placeholder-[#94A3B8] focus:outline-none focus:border-[#CCCCFF] focus:ring-2 focus:ring-[#CCCCFF]/30"
+                />
+              </div>
             </div>
           </div>
 
@@ -223,7 +390,7 @@ const RegisterBusiness = () => {
                 required
                 value={formData.city}
                 onChange={handleChange}
-                placeholder="e.g. Houston"
+                placeholder="e.g. Pune"
                 className="w-full px-3.5 py-2.5 border border-[#E2E8F0] rounded-[12px] text-sm text-[#0F172A] placeholder-[#94A3B8] focus:outline-none focus:border-[#CCCCFF] focus:ring-2 focus:ring-[#CCCCFF]/30"
               />
             </div>
@@ -235,7 +402,7 @@ const RegisterBusiness = () => {
                 required
                 value={formData.state}
                 onChange={handleChange}
-                placeholder="e.g. Texas"
+                placeholder="e.g. Maharashtra"
                 className="w-full px-3.5 py-2.5 border border-[#E2E8F0] rounded-[12px] text-sm text-[#0F172A] placeholder-[#94A3B8] focus:outline-none focus:border-[#CCCCFF] focus:ring-2 focus:ring-[#CCCCFF]/30"
               />
             </div>
@@ -261,7 +428,7 @@ const RegisterBusiness = () => {
             <label className="block text-xs font-bold text-[#0F172A] mb-1.5">
               <span className="flex items-center gap-1.5"><FiUpload className="text-[11px] text-[#64748B]" /> Verification Documents</span>
             </label>
-            <p className="text-[11px] text-[#64748B] mb-3">Upload business license, tax certificate, and other verification documents (PDF, JPG, PNG).</p>
+            <p className="text-[11px] text-[#64748B] mb-3 font-medium">Please upload copies of your Aadhar card, PAN card, Bank Passbook, and any business license (PDF, JPG, PNG).</p>
 
             <div className="border-2 border-dashed border-[#E2E8F0] rounded-[16px] p-6 text-center hover:border-[#CCCCFF] transition-colors bg-[#F8FAFC]/50">
               <FiUpload className="mx-auto text-2xl text-[#94A3B8] mb-2" />
@@ -309,6 +476,8 @@ const RegisterBusiness = () => {
           </div>
         </form>
       </div>
+      </>
+      )}
     </motion.div>
   );
 };

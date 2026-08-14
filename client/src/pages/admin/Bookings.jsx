@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiEye, FiCalendar, FiDollarSign, FiUser, FiTruck, FiBriefcase, FiX, FiPrinter } from 'react-icons/fi';
+import { FiEye, FiCalendar, FiUser, FiTruck, FiBriefcase, FiX, FiPrinter } from 'react-icons/fi';
+import { FaRupeeSign } from 'react-icons/fa';
 import DataTable from '../../components/admin/DataTable';
 import StatusBadge from '../../components/admin/StatusBadge';
 import SearchBar from '../../components/common/SearchBar';
@@ -66,8 +67,8 @@ const Bookings = () => {
           selectedFilter={statusFilter}
           onFilterChange={setStatusFilter}
           filterOptions={[
-            { label: 'Active Rentals', value: 'active' },
-            { label: 'Pending Approval', value: 'pending' },
+            { label: 'Active Rentals', value: 'rental active' },
+            { label: 'Pending Approval', value: 'pending approval' },
             { label: 'Completed Leases', value: 'completed' },
             { label: 'Cancelled Bookings', value: 'cancelled' }
           ]}

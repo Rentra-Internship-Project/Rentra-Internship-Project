@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FiMenu, FiBell, FiSearch, FiPackage, FiCheckCircle, FiUser } from 'react-icons/fi';
-import { ownerNotifications as initialNotifications, ownerEquipment, ownerBookings } from '../../data/ownerMockData';
+import { ownerEquipment, ownerBookings } from '../../data/ownerMockData';
 import { useAuth } from '../../context/AuthContext';
+import { useOwner } from '../../context/OwnerContext';
 
 const pageTitles = {
   '/owner/dashboard': 'Owner Dashboard',
@@ -19,7 +20,33 @@ const OwnerNavbar = ({ setMobileOpen }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { notifications, unreadNotifCount, markNotificationRead, markAllNotificationsRead } = useOwner();
   const currentTitle = pageTitles[location.pathname] || 'Owner Portal';
+
+  const handleMarkAllAsRead = async () => {
+    await markAllNotificationsRead();
+    setIsNotifOpen(false);
+  };
+
+  const handleNotificationClick = async (n) => {
+    if (!n.read) {
+      await markNotificationRead(n.id || n._id);
+    }
+    setIsNotifOpen(false);
+    
+    let targetLink = '/owner/dashboard';
+    if (n.type?.startsWith('Booking') || ['DepositPaid', 'ReadyForPickup', 'RentalActive', 'ReturnRequested', 'RentalCompleted'].includes(n.type)) {
+      targetLink = '/owner/bookings';
+    } else if (n.type?.startsWith('Business')) {
+      targetLink = '/owner/business-status';
+    } else if (n.type?.startsWith('Equipment')) {
+      targetLink = '/owner/equipment';
+    } else if (n.link) {
+      targetLink = n.link;
+    }
+    
+    navigate(targetLink);
+  };
 
   // Search State
   const [searchQuery, setSearchQuery] = useState('');
@@ -27,15 +54,11 @@ const OwnerNavbar = ({ setMobileOpen }) => {
 
   // Notification State
   const [isNotifOpen, setIsNotifOpen] = useState(false);
-  const [notifications, setNotifications] = useState(initialNotifications);
 
   // Refs for outside click
   const searchRef = useRef(null);
   const searchInputRef = useRef(null);
   const notifRef = useRef(null);
-
-  // Unread count
-  const unreadCount = useMemo(() => notifications.filter((n) => !n.read).length, [notifications]);
 
   // Real-time search across equipment and bookings
   const searchResults = useMemo(() => {
@@ -76,17 +99,6 @@ const OwnerNavbar = ({ setMobileOpen }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-
-
-  const handleMarkAsRead = (id, link) => {
-    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
-    setIsNotifOpen(false);
-    if (link) navigate(link);
-  };
-
-  const handleMarkAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-  };
 
   return (
     <header className="sticky top-0 z-20 bg-white/90 backdrop-blur-md border-b border-[#E2E8F0] px-4 md:px-8 py-3.5 flex items-center justify-between transition-all">
@@ -166,9 +178,9 @@ const OwnerNavbar = ({ setMobileOpen }) => {
             aria-label="Notifications"
           >
             <FiBell className="text-lg" />
-            {unreadCount > 0 && (
+            {unreadNotifCount > 0 && (
               <span className="absolute -top-1 -right-1 bg-[#EF4444] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-none ring-2 ring-white">
-                {unreadCount}
+                {unreadNotifCount}
               </span>
             )}
           </button>
@@ -179,13 +191,13 @@ const OwnerNavbar = ({ setMobileOpen }) => {
               <div className="flex items-center justify-between pb-2.5 border-b border-[#E2E8F0]">
                 <div className="flex items-center gap-2">
                   <h3 className="text-xs font-bold text-[#0F172A] uppercase tracking-wider">Notifications</h3>
-                  {unreadCount > 0 && (
+                  {unreadNotifCount > 0 && (
                     <span className="px-2 py-0.5 text-[10px] font-bold bg-[#EF4444]/10 text-[#EF4444] rounded-full">
-                      {unreadCount} new
+                      {unreadNotifCount} new
                     </span>
                   )}
                 </div>
-                {unreadCount > 0 && (
+                {unreadNotifCount > 0 && (
                   <button
                     onClick={handleMarkAllAsRead}
                     className="text-[11px] font-semibold text-[#3B82F6] hover:underline cursor-pointer flex items-center gap-1"
@@ -199,8 +211,8 @@ const OwnerNavbar = ({ setMobileOpen }) => {
                 {notifications.length > 0 ? (
                   notifications.map((n) => (
                     <div
-                      key={n.id}
-                      onClick={() => handleMarkAsRead(n.id, n.link)}
+                      key={n.id || n._id}
+                      onClick={() => handleNotificationClick(n)}
                       className={`p-3 text-left hover:bg-[#F8FAFC] rounded-[12px] cursor-pointer transition-colors flex items-start gap-3 my-0.5 ${
                         !n.read ? 'bg-[#CCCCFF]/10' : ''
                       }`}
@@ -217,7 +229,6 @@ const OwnerNavbar = ({ setMobileOpen }) => {
                           <p className={`text-xs ${!n.read ? 'font-bold text-[#0F172A]' : 'font-medium text-[#475569]'}`}>
                             {n.title}
                           </p>
-                          <span className="text-[10px] text-[#94A3B8] shrink-0">{n.time}</span>
                         </div>
                         <p className="text-[11px] text-[#64748B] mt-0.5 line-clamp-2">{n.message}</p>
                       </div>
@@ -231,6 +242,14 @@ const OwnerNavbar = ({ setMobileOpen }) => {
           )}
         </div>
 
+        {/* Switch Portal Button */}
+        <button
+          onClick={() => navigate('/customer/dashboard')}
+          className="hidden md:flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-[#3B82F6] bg-[#3B82F6]/10 rounded-full hover:bg-[#3B82F6]/20 transition border border-[#3B82F6]/20"
+        >
+          <FiUser /> Switch to Customer
+        </button>
+
         {/* Owner Avatar */}
         <div 
           onClick={() => navigate('/owner/profile')}
@@ -239,7 +258,7 @@ const OwnerNavbar = ({ setMobileOpen }) => {
           <div className="w-9 h-9 rounded-full overflow-hidden ring-2 ring-[#CCCCFF] bg-[#CCCCFF] flex items-center justify-center">
             {user?.avatar ? (
               <img
-                src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&q=80&w=300"
+                src={user.avatar}
                 alt={user?.name}
                 className="w-full h-full object-cover"
               />
@@ -248,7 +267,7 @@ const OwnerNavbar = ({ setMobileOpen }) => {
             )}
           </div>
           <div className="hidden xl:block text-left">
-            <p className="text-xs font-bold text-[#0F172A] leading-none">{user?.name || 'Alicia Reyes'}</p>
+            <p className="text-xs font-bold text-[#0F172A] leading-none">{user?.name || 'Owner'}</p>
             <span className="text-[10px] font-medium text-[#64748B] flex items-center gap-1 mt-0.5">
               <FiPackage className="text-[#CCCCFF] text-[10px]" /> Business Owner
             </span>

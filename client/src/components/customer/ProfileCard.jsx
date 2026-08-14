@@ -17,9 +17,9 @@ const ProfileCard = ({ profile, onEdit }) => {
 
       {/* Profile Details Container */}
       <div className="px-6 pb-6 relative">
-        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 -mt-14 mb-6">
-          <div className="flex items-end gap-4">
-            <div className="relative">
+        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4">
+            <div className="relative -mt-14">
               <img
                 src={profile.avatar}
                 alt={profile.name}
@@ -29,7 +29,7 @@ const ProfileCard = ({ profile, onEdit }) => {
                 <FiShield />
               </span>
             </div>
-            <div>
+            <div className="mt-3 sm:mt-0 pb-1">
               <div className="flex items-center gap-2">
                 <h2 className="text-xl sm:text-2xl font-extrabold text-[#0F172A]">{profile.name}</h2>
                 <span className="px-2.5 py-0.5 text-xs font-bold bg-[#CCCCFF] text-[#0F172A] rounded-full">

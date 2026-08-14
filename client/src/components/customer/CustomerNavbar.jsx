@@ -94,10 +94,23 @@ const CustomerNavbar = ({ setMobileOpen }) => {
 
 
 
-  const handleNotificationClick = (n) => {
-    markNotificationRead(n.id);
+  const handleMarkAllAsRead = async () => {
+    await markAllNotificationsRead();
     setIsNotifOpen(false);
-    if (n.link) navigate(n.link);
+  };
+
+  const handleNotificationClick = (n) => {
+    markNotificationRead(n.id || n._id);
+    setIsNotifOpen(false);
+    
+    let targetLink = '/customer/dashboard';
+    if (n.type?.startsWith('Booking') || ['DepositPaid', 'ReadyForPickup', 'RentalActive', 'ReturnRequested', 'RentalCompleted'].includes(n.type)) {
+      targetLink = n.bookingId ? `/customer/bookings/${n.bookingId}` : '/customer/bookings';
+    } else if (n.link) {
+      targetLink = n.link;
+    }
+    
+    navigate(targetLink);
   };
 
   return (
@@ -203,7 +216,7 @@ const CustomerNavbar = ({ setMobileOpen }) => {
                 </div>
                 {unreadNotifCount > 0 && (
                   <button
-                    onClick={markAllNotificationsRead}
+                    onClick={handleMarkAllAsRead}
                     className="text-[11px] font-semibold text-[#3B82F6] hover:underline cursor-pointer flex items-center gap-1"
                   >
                     <FiCheckCircle className="text-xs" /> Mark all read
@@ -234,7 +247,6 @@ const CustomerNavbar = ({ setMobileOpen }) => {
                           <p className={`text-xs ${!n.read ? 'font-bold text-[#0F172A]' : 'font-medium text-[#475569]'}`}>
                             {n.title}
                           </p>
-                          <span className="text-[10px] text-[#94A3B8] shrink-0">{n.time}</span>
                         </div>
                         <p className="text-[11px] text-[#64748B] mt-0.5 line-clamp-2">{n.message}</p>
                       </div>
@@ -249,6 +261,16 @@ const CustomerNavbar = ({ setMobileOpen }) => {
             </div>
           )}
         </div>
+
+        {/* Switch Portal Button (Only for Owners) */}
+        {profile?.role === 'OWNER' && (
+          <button
+            onClick={() => navigate('/owner/dashboard')}
+            className="hidden md:flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-[#5D5DEB] bg-[#5D5DEB]/10 rounded-full hover:bg-[#5D5DEB]/20 transition border border-[#5D5DEB]/20"
+          >
+            <FiTruck /> Switch to Owner
+          </button>
+        )}
 
         {/* Customer Avatar & Profile */}
         <div
