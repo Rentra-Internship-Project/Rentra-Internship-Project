@@ -13,6 +13,7 @@ import {
   FiSearch,
 } from 'react-icons/fi';
 import { useCustomer } from '../../context/CustomerContext';
+import { useAuth } from '../../context/AuthContext';
 import StatsCard from '../../components/customer/StatsCard';
 import BookingCard from '../../components/customer/BookingCard';
 import NotificationCard from '../../components/customer/NotificationCard';
@@ -20,6 +21,7 @@ import Button from '../../components/common/Button';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { isFirstLogin, user } = useAuth();
   const {
     profile,
     equipmentList,
@@ -32,6 +34,8 @@ const Dashboard = () => {
     isInWishlist,
     toggleWishlist,
   } = useCustomer();
+
+  const customerName = profile?.name || user?.name || 'Valued Customer';
 
   const activeRentalsCount = bookings.filter(
     (b) => b.status?.toUpperCase() === 'ACTIVE' || b.status?.toUpperCase() === 'RENTAL ACTIVE'
@@ -51,14 +55,14 @@ const Dashboard = () => {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span className="px-3 py-1 bg-[#CCCCFF] text-[#0F172A] text-xs font-bold rounded-full">
-                Welcome back
+                {isFirstLogin ? 'Welcome' : 'Welcome back'}
               </span>
               <span className="text-xs text-slate-300">
                 {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' })}
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              Hello, {profile.name}! 👋
+              {isFirstLogin ? `Welcome, ${customerName}! 👋` : `Hello, ${customerName}! 👋`}
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl">
               Manage your active heavy equipment rentals, track bookings in real-time, and discover available machinery from verified asset owners.

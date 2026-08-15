@@ -105,6 +105,15 @@ exports.createBooking = async (req, res) => {
       return res.status(400).json({ error: 'Invalid date range' });
     }
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const startDay = new Date(start);
+    startDay.setHours(0, 0, 0, 0);
+
+    if (startDay < today) {
+      return res.status(400).json({ error: 'Rental start date cannot be in the past' });
+    }
+
     // Date overlap validation — check for conflicting active bookings
     const conflicting = await Booking.findOne({
       equipmentId,

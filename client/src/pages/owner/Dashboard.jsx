@@ -1,15 +1,18 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FiTruck, FiCalendar, FiClock, FiArrowRight, FiPlusCircle, FiSettings, FiEye, FiTrendingUp, FiCheckCircle } from 'react-icons/fi';
+import { FiTruck, FiCalendar, FiClock, FiArrowRight, FiPlusCircle, FiSettings, FiEye, FiTrendingUp, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
 import { FaRupeeSign } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import StatsCard from '../../components/owner/StatsCard';
 import BookingCard from '../../components/owner/BookingCard';
 import { useOwner } from '../../context/OwnerContext';
+import { useAuth } from '../../context/AuthContext';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { equipmentList, bookings, ownerStats, businessStatus, isLoading } = useOwner();
+  const { user, isFirstLogin } = useAuth();
+  const ownerName = user?.name || 'Owner';
 
   const recentBookings = bookings.slice(0, 3);
   const recentEquipment = equipmentList.slice(0, 3);
@@ -51,7 +54,9 @@ const Dashboard = () => {
       <div className="bg-gradient-to-r from-[#CCCCFF]/40 via-white to-white border border-[#E2E8F0] rounded-[20px] p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <span className="text-xs font-bold uppercase tracking-wider text-[#64748B]">Business Operations</span>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-[#0F172A] mt-1">Welcome back, Alicia 👋</h1>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-[#0F172A] mt-1">
+            {isFirstLogin ? `Welcome, ${ownerName} 👋` : `Welcome back, ${ownerName} 👋`}
+          </h1>
           <p className="text-xs md:text-sm text-[#64748B] mt-1">Here is a summary of your equipment, bookings, and revenue on the Rentra marketplace.</p>
         </div>
         <div className="flex items-center gap-3">

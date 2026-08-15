@@ -11,9 +11,10 @@ const OAuthCallback = () => {
   useEffect(() => {
     const token = searchParams.get('token');
     const role = searchParams.get('role');
+    const isNew = searchParams.get('isNew') === 'true';
 
     if (token && role) {
-      loginWithToken(token).then((result) => {
+      loginWithToken(token, isNew).then((result) => {
         if (result.success) {
           const userRole = result.user?.role?.toUpperCase();
           if (userRole === 'ADMIN') {

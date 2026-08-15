@@ -7,10 +7,13 @@ import RecentActivity from '../../components/admin/RecentActivity';
 import QuickActions from '../../components/admin/QuickActions';
 import { mockActivities } from '../../data/adminMockData';
 import { useAdminContext } from '../../context/AdminContext';
+import { useAuth } from '../../context/AuthContext';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { stats, isLoading } = useAdminContext();
+  const { user, isFirstLogin } = useAuth();
+  const adminName = user?.name || 'Admin';
 
   if (isLoading || !stats) {
     return <div className="p-8 text-center text-[#64748B]">Loading Admin Stats...</div>;
@@ -27,7 +30,9 @@ const Dashboard = () => {
       <div className="bg-gradient-to-r from-[#CCCCFF]/40 via-white to-white border border-[#E2E8F0] rounded-[20px] p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <span className="text-xs font-bold uppercase tracking-wider text-[#64748B]">Platform Operations</span>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-[#0F172A] mt-1">Welcome back, Victoria 👋</h1>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-[#0F172A] mt-1">
+            {isFirstLogin ? `Welcome, ${adminName} 👋` : `Welcome back, ${adminName} 👋`}
+          </h1>
           <p className="text-xs md:text-sm text-[#64748B] mt-1">Here is what is happening across the Rentra Equipment Rental Marketplace today.</p>
         </div>
         <div className="flex items-center gap-3">
