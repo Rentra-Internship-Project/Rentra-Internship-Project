@@ -1,4 +1,4 @@
-# Rentra — Client-Side Documentation
+ # Rentra — Client-Side Documentation
 
 > **Multi-Portal Heavy Equipment Rental Marketplace** — Built with React 19, Vite 8, Tailwind CSS 4, and Framer Motion 12
 
