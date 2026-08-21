@@ -13,7 +13,7 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     // Only connect if the user is logged in
-    if (user?._id) {
+    if (user?.id || user?._id) {
       // Connect to the backend Socket.IO server
       // Determine the base server URL by removing '/api' from the VITE_API_BASE_URL if present
       const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
@@ -22,7 +22,7 @@ export const SocketProvider = ({ children }) => {
       setSocket(newSocket);
 
       // Join personal user room
-      newSocket.emit('join_room', user._id);
+      newSocket.emit('join_room', user.id || user._id);
 
       // Listen for notifications
       newSocket.on('notification', (data) => {

@@ -1,4 +1,4 @@
-# Rentra — Client-Side Documentation
+# Rentra — Full-Stack Marketplace Documentation
 
 > **Multi-Portal Heavy Equipment Rental Marketplace** — Built with React 19, Vite 8, Tailwind CSS 4, and Framer Motion 12
 
@@ -51,7 +51,7 @@ flowchart LR
     class A,B,C marketplace;
 ```
 
-All three portals (Admin, Customer, Owner) are organized within a single client application that shares a unified design system and UI kit, but maintains distinct routing, state management, and mock‑data layers for each portal. This architecture allows each portal to evolve independently while providing a consistent look and feel across the whole platform.
+All three portals (Admin, Customer, Owner) are organized within a single React client application that connects to a robust Node.js/Express backend. This architecture provides distinct routing and state management for each portal while sharing a unified design system, ensuring a consistent look and feel backed by a secure, real-time API.
 
 ---
 
@@ -61,9 +61,12 @@ All three portals (Admin, Customer, Owner) are organized within a single client 
 - **Smooth Animations** – Framer Motion powers page transitions, hover effects, modal/drawer animations, and staggered list entrances.
 - **Context‑Based State Management** – React Context (useContext) provides scoped state for each portal (AdminContext, CustomerContext, AuthContext).
 - **Modular Component Library** – Reusable UI components (Button, Loader, SearchBar, ConfirmModal, EmptyState, Modal) plus portal‑specific widgets (DataTable, StatsCard, BookingCard, EquipmentCard, etc.).
-- **Mock Data Layers** – Each portal consumes domain‑specific mock data files, enabling rapid UI development without a backend.
-- **Extensible Service Layer** – Placeholder adminService.js illustrates future API integration patterns.
-- **Separation of Concerns** – Clear division between layouts, pages, routes, services, utils, and assets.
+- **Real-Time API & WebSockets** – Live booking status updates and notifications powered by Socket.IO.
+- **Secure Authentication** – JWT-based sessions, Bcrypt password hashing, and seamless Google OAuth 2.0 login.
+- **Background Jobs** – Redis & BullMQ handle heavy tasks like PDF contract generation and emails asynchronously.
+- **Escrow Payments** – Razorpay integration for secure 20% advance deposits on equipment rentals.
+- **Cloud Storage** – Cloudinary & Multer for secure, scalable image uploads for users and machinery.
+- **Separation of Concerns** – Clear MVC backend architecture combined with a modular React frontend component library.
 - **Ready for Production** – Vite‑based builds produce optimized, cache‑friendly static assets suitable for any static‑host (Vercel, Netlify, S3+CloudFront, Docker, etc.).
 
 ---
@@ -72,14 +75,17 @@ All three portals (Admin, Customer, Owner) are organized within a single client 
 
 | Layer                | Technology       | Version | Purpose                              |
 | -------------------- | ---------------- | ------- | ------------------------------------ |
-| **Framework**  | React            | 19.2.8  | UI library with concurrent features  |
-| **Build Tool** | Vite             | 8.2.0   | Lightning‑fast dev server & bundler |
-| **Styling**    | Tailwind CSS     | 4.3.3   | Utility‑first CSS (Vite plugin)     |
-| **Animation**  | Framer Motion    | 12.43.0 | Production‑ready animations         |
-| **Routing**    | React Router DOM | 7.18.2  | Client‑side routing                 |
-| **Icons**      | React Icons      | 5.7.0   | Feather icon set                     |
-| **Linting**    | Oxlint           | 1.75.0  | Fast Rust‑based linter (Admin only) |
-| **TypeScript** | @types/react     | 19.2.17 | Type definitions (dev‑only)         |
+| **Framework (Client)** | React            | 19.2.8  | UI library with concurrent features  |
+| **Build Tool**         | Vite             | 8.2.0   | Lightning‑fast dev server & bundler |
+| **Styling**            | Tailwind CSS     | 4.3.3   | Utility‑first CSS (Vite plugin)     |
+| **Animation**          | Framer Motion    | 12.43.0 | Production‑ready animations         |
+| **Backend Framework**  | Node.js / Express| 5.2.1   | REST API routing and logic          |
+| **Database**           | MongoDB / Mongoose| 9.8.1  | NoSQL database and ORM              |
+| **Real-Time**          | Socket.IO        | 4.8.3   | WebSocket communication             |
+| **Auth & Security**    | JWT / Bcrypt / Passport | | Token-based auth & Google OAuth 2.0 |
+| **Payments**           | Razorpay         | 2.9.8   | Secure deposit/escrow processing    |
+| **Background Jobs**    | Redis / BullMQ   | 6.0.10  | Asynchronous worker queues          |
+| **File Storage**       | Cloudinary / Multer | 2.10.0 | Image hosting and parsing           |
 
 ### Shared Dependencies (package.json)
 

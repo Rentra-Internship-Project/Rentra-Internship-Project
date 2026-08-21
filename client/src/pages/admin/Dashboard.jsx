@@ -24,10 +24,10 @@ const Dashboard = () => {
       className="space-y-8"
     >
       {/* Welcome Banner */}
-      <div className="bg-gradient-to-r from-[#CCCCFF]/40 via-white to-white border border-[#E2E8F0] rounded-[20px] p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-gradient-to-r from-[#CCCCFF]/40 via-white to-white border border-[#E2E8F0] rounded-[5px] p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <span className="text-xs font-bold uppercase tracking-wider text-[#64748B]">Platform Operations</span>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-[#0F172A] mt-1">Welcome back, Victoria 👋</h1>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-[#0F172A] mt-1">Welcome back, Sairaj 👋</h1>
           <p className="text-xs md:text-sm text-[#64748B] mt-1">Here is what is happening across the Rentra Equipment Rental Marketplace today.</p>
         </div>
         <div className="flex items-center gap-3">

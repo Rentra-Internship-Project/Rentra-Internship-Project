@@ -267,7 +267,7 @@ const EquipmentDetails = () => {
                   onClick={() => navigate(`/customer/booking-summary/${equipment.id}`, {
                     state: { includeOperator, operatorDailyRate }
                   })}
-                  className="w-full bg-[#0F172A] hover:bg-black text-white shadow-lg shadow-[#0F172A]/25 hover:shadow-[#0F172A]/40 transform hover:-translate-y-0.5 transition-all text-sm py-4"
+                  className="w-full bg-purple-700 hover:bg-purple-900 text-white shadow-lg shadow-purple-700/25 hover:shadow-purple-900/40 transform hover:-translate-y-0.5 transition-all text-sm py-4"
                   icon={FiArrowRight}
                 >
                   Proceed to Booking Summary
