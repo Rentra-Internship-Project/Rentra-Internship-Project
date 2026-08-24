@@ -36,8 +36,9 @@ router.get(
       JWT_SECRET,
       { expiresIn: '7d' }
     );
+    const isNew = req.user._isNewUser ? 'true' : 'false';
     // Redirect back to frontend with token
-    res.redirect(`${CLIENT_URL}/oauth-callback?token=${token}&role=${req.user.role}`);
+    res.redirect(`${CLIENT_URL}/oauth-callback?token=${token}&role=${req.user.role}&isNew=${isNew}`);
   }
 );
 

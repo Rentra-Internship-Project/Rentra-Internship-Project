@@ -42,6 +42,7 @@ passport.use(
           if (updated) {
             await user.save();
           }
+          user._isNewUser = false;
           return done(null, user);
         }
 
@@ -58,7 +59,9 @@ passport.use(
           role: requestedRole,
           avatar: avatar || undefined,
           isVerified: true,
+          isFirstLogin: true,
         });
+        user._isNewUser = true;
 
         // Add welcome notification
         const Notification = require('../models/notification.model');

@@ -19,13 +19,47 @@ const BookingSummary = () => {
 
   const equipment = equipmentList.find((e) => e.id === id) || equipmentList.find((e) => e._id === id);
 
+  const getTodayStr = () => new Date().toISOString().split('T')[0];
+  const getTomorrowStr = (baseDateStr) => {
+    const d = baseDateStr ? new Date(baseDateStr) : new Date();
+    d.setDate(d.getDate() + 1);
+    return d.toISOString().split('T')[0];
+  };
+
   // Dates & Form State
-  const [startDate, setStartDate] = useState('2026-08-12');
-  const [endDate, setEndDate] = useState('2026-08-14');
+  const [startDate, setStartDate] = useState(getTodayStr());
+  const [endDate, setEndDate] = useState(getTomorrowStr());
   const [siteAddress, setSiteAddress] = useState('104 Industrial Parkway, Site B, Austin TX');
   const [notes, setNotes] = useState('Gate passcode 4821. Operator certification attached.');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+
+  const handleStartDateChange = (newStart) => {
+    setErrorMsg('');
+    const today = getTodayStr();
+    if (newStart < today) {
+      setErrorMsg('Rental start date cannot be in the past.');
+      setStartDate(today);
+      if (endDate < today) {
+        setEndDate(getTomorrowStr(today));
+      }
+      return;
+    }
+    setStartDate(newStart);
+    if (endDate <= newStart) {
+      setEndDate(getTomorrowStr(newStart));
+    }
+  };
+
+  const handleEndDateChange = (newEnd) => {
+    setErrorMsg('');
+    if (newEnd < startDate) {
+      setErrorMsg('Rental end date cannot be earlier than start date.');
+      setEndDate(startDate);
+      return;
+    }
+    setEndDate(newEnd);
+  };
 
   // Fallback while loading
   if (!equipment) {
@@ -77,8 +111,20 @@ const BookingSummary = () => {
 
   const handleProceedToPayment = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
     setErrorMsg('');
+
+    const today = getTodayStr();
+    if (startDate < today) {
+      setErrorMsg('Rental start date cannot be in the past.');
+      return;
+    }
+
+    if (endDate < startDate) {
+      setErrorMsg('Rental end date cannot be earlier than start date.');
+      return;
+    }
+
+    setIsSubmitting(true);
 
     const res = await createBooking({
       equipmentId: equipment.id || equipment._id,
@@ -151,8 +197,9 @@ const BookingSummary = () => {
                 <label className="block text-xs font-semibold text-[#64748B] mb-1">Rental Start Date</label>
                 <input
                   type="date"
+                  min={getTodayStr()}
                   value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
+                  onChange={(e) => handleStartDateChange(e.target.value)}
                   required
                   className="w-full px-3 py-2 bg-white border border-[#E2E8F0] rounded-[10px] text-sm text-[#0F172A] focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600"
                 />
@@ -162,8 +209,9 @@ const BookingSummary = () => {
                 <label className="block text-xs font-semibold text-[#64748B] mb-1">Rental End Date</label>
                 <input
                   type="date"
+                  min={startDate || getTodayStr()}
                   value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
+                  onChange={(e) => handleEndDateChange(e.target.value)}
                   required
                   className="w-full px-3 py-2 bg-white border border-[#E2E8F0] rounded-[10px] text-sm text-[#0F172A] focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600"
                 />

@@ -21,11 +21,18 @@ const Wishlist = () => {
   const [itemToRemove, setItemToRemove] = useState(null);
   const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
 
+  const getTodayStr = () => new Date().toISOString().split('T')[0];
+  const getTomorrowStr = (baseDateStr) => {
+    const d = baseDateStr ? new Date(baseDateStr) : new Date();
+    d.setDate(d.getDate() + 1);
+    return d.toISOString().split('T')[0];
+  };
+
   // Booking Modal
   const [selectedEquipment, setSelectedEquipment] = useState(null);
   const [isBookModalOpen, setIsBookModalOpen] = useState(false);
-  const [startDate, setStartDate] = useState('2026-08-15');
-  const [endDate, setEndDate] = useState('2026-08-20');
+  const [startDate, setStartDate] = useState(getTodayStr());
+  const [endDate, setEndDate] = useState(getTomorrowStr());
   const [siteAddress, setSiteAddress] = useState('104 Industrial Parkway, Austin TX');
   const [bookingNotes, setBookingNotes] = useState('');
   const [isSubmittingBooking, setIsSubmittingBooking] = useState(false);
@@ -214,8 +221,15 @@ const Wishlist = () => {
                 <label className="form-label">Rental Start Date</label>
                 <input
                   type="date"
+                  min={getTodayStr()}
                   value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    const today = getTodayStr();
+                    const nextStart = val < today ? today : val;
+                    setStartDate(nextStart);
+                    if (endDate <= nextStart) setEndDate(getTomorrowStr(nextStart));
+                  }}
                   required
                   className="form-input"
                 />
@@ -224,8 +238,12 @@ const Wishlist = () => {
                 <label className="form-label">Rental End Date</label>
                 <input
                   type="date"
+                  min={startDate || getTodayStr()}
                   value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val >= startDate) setEndDate(val);
+                  }}
                   required
                   className="form-input"
                 />
