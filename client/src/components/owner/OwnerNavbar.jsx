@@ -260,6 +260,11 @@ const OwnerNavbar = ({ setMobileOpen }) => {
               <img
                 src={user.avatar}
                 alt={user?.name}
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&q=80&w=300";
+                }}
                 className="w-full h-full object-cover"
               />
             ) : (

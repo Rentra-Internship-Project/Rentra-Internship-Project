@@ -17,7 +17,16 @@ const ProfileCard = ({ profile }) => {
         <div className="relative shrink-0">
           <div className="w-20 h-20 rounded-full overflow-hidden ring-4 ring-[#CCCCFF] shadow-lg">
             {avatar ? (
-              <img src={avatar} alt={name} className="w-full h-full object-cover" />
+              <img
+                src={avatar}
+                alt={name}
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&q=80&w=300";
+                }}
+                className="w-full h-full object-cover"
+              />
             ) : (
               <div className="w-full h-full bg-[#CCCCFF] flex items-center justify-center text-2xl font-bold text-[#0F172A]">
                 {name?.charAt(0)}

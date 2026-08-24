@@ -42,54 +42,6 @@ export const ownerStats = {
   avgRating: 4.8
 };
 
-export const ownerNotifications = [
-  {
-    id: 1,
-    title: 'New Booking Request',
-    message: 'James Wilson requested Caterpillar 320 Excavator for 5 days (Aug 12–17).',
-    time: '8m ago',
-    read: false,
-    type: 'booking',
-    link: '/owner/bookings'
-  },
-  {
-    id: 2,
-    title: 'Equipment Approved ✓',
-    message: 'Your listing "Genie S-85 XC Telescopic Boom Lift" has been approved by Admin.',
-    time: '1h ago',
-    read: false,
-    type: 'equipment',
-    link: '/owner/equipment'
-  },
-  {
-    id: 3,
-    title: 'Business Verification Approved',
-    message: 'Titan Heavy Rentals Inc. has been verified and is now live on Rentra.',
-    time: '2h ago',
-    read: false,
-    type: 'business',
-    link: '/owner/business-status'
-  },
-  {
-    id: 4,
-    title: 'New Customer Booking Confirmed',
-    message: 'Sophia Martinez confirmed booking #RNT-9081 for John Deere Tractor — 6 days.',
-    time: '5h ago',
-    read: true,
-    type: 'booking',
-    link: '/owner/bookings'
-  },
-  {
-    id: 5,
-    title: 'Payout Processed',
-    message: 'Your earnings payout of $8,450 has been transferred to your bank account.',
-    time: '1d ago',
-    read: true,
-    type: 'payment',
-    link: '/owner/earnings'
-  }
-];
-
 export const ownerEquipment = [
   {
     id: 'EQP-001',
