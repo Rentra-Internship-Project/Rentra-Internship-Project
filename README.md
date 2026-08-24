@@ -1,48 +1,86 @@
-# Rentra - High-Value Asset Rental Marketplace
+# Rentra Core Platform
 
-Rentra is a full-stack, 3-sided marketplace built on the **MERN Stack**. It connects Customers with Equipment Owners, facilitated by a comprehensive Admin dashboard. The platform handles complex workflows including real-time notifications, secure escrow payments, and a 9-stage booking lifecycle.
+**Rentra** is an enterprise-grade, B2B/B2C marketplace platform designed for the high-value asset rental industry. The platform bridges the gap between equipment owners and customers through a secure, scalable, and heavily moderated environment. 
 
----
-
-## 🚀 Tech Stack
-
-- **Frontend:** React.js, Vite, Tailwind CSS, React Router DOM, Context API
-- **Backend:** Node.js, Express.js
-- **Database:** MongoDB, Mongoose
-- **Payments & Security:** Razorpay API, JWT, Bcrypt, Google Passport.js
-- **Real-Time & Background:** Socket.IO, Redis, BullMQ
-- **Storage:** Cloudinary (Images)
+Developed on the MERN stack, Rentra focuses on transactional integrity, utilizing an escrow-based payment system, rigorous KYC validation workflows, and real-time state synchronization to manage complex booking lifecycles.
 
 ---
 
-## 🧠 Core Features
+## 🏗️ Architecture Overview
 
-1. **Role-Based Portals:** Three completely isolated dashboards (Customer, Owner, Admin) protected by robust JWT middleware.
-2. **Escrow Payment System:** Customers pay a 20% deposit via Razorpay to lock the booking. The remaining balance is paid directly to the owner upon pickup.
-3. **9-Stage Booking Lifecycle:** A complex state machine handling statuses from `Pending Owner Approval` to `Active Rental` and `Completed`.
-4. **Real-Time Notifications:** Socket.IO instantly notifies owners of new booking requests without requiring a page refresh.
-5. **Optimized Search:** Real-time frontend filtering for heavy machinery, cameras, and event equipment.
+The system is built on a monolithic Node.js/Express backend servicing a decoupled React Single Page Application (SPA). To manage the complexity of a 3-sided marketplace (Customer, Owner, Admin), the architecture enforces strict boundaries across data access, state management, and API routing.
+
+### 1. Security & Role-Based Access Control (RBAC)
+- **Authentication:** Stateless authentication utilizing JSON Web Tokens (JWT) stored securely. Integrated Google OAuth 2.0 (Passport.js) as a secondary authentication provider.
+- **Authorization:** Custom middleware intercepts all API requests to enforce role hierarchy (`CUSTOMER`, `OWNER`, `ADMIN`). Owners inherit Customer privileges, ensuring DRY route definitions.
+- **Data Integrity:** Mongoose schemas enforce strict data typing, pre-save hooks for `bcrypt` password hashing, and data sanitization to prevent NoSQL injection.
+
+### 2. Transactional Integrity & Escrow
+- **Payment Routing:** Integrated with Razorpay's API. Customers pay a mandatory 20% advance deposit which is held in escrow. This locks the booking state and mitigates no-show risks.
+- **State Machine:** Booking entities do not use simple boolean flags. They are managed by a strict 9-stage state machine (`PENDING_APPROVAL`, `AWAITING_PAYMENT`, `DISPATCHED`, `ACTIVE`, `COMPLETED`, `DISPUTED`, etc.) preventing race conditions and invalid state transitions during the rental lifecycle.
+
+### 3. Asynchronous Processing & Real-Time Sync
+- **Message Broker:** CPU-heavy tasks and third-party API calls (e.g., Cloudinary media uploads, automated email dispatch) are offloaded to a **Redis-backed BullMQ** task queue to ensure the main Express event loop remains unblocked.
+- **WebSocket Layer:** Bidirectional real-time communication powered by **Socket.IO**. Owners receive instant push notifications for incoming requests, state changes, and admin verifications without client-side polling.
 
 ---
 
-## ⚙️ Local Setup
+## 🚀 Infrastructure & Tech Stack
 
-### Prerequisites
-- Node.js (v18+)
-- MongoDB locally installed or an Atlas URI
-- Razorpay API Keys
-- Cloudinary Credentials
+| Layer | Technologies |
+|-------|-------------|
+| **Frontend SPA** | React.js (Vite), Tailwind CSS, Framer Motion, Context API |
+| **Backend API** | Node.js, Express.js (RESTful architecture) |
+| **Database** | MongoDB (Atlas), Mongoose ORM |
+| **Cache & Queues**| Redis, BullMQ |
+| **3rd Party Integrations**| Razorpay (Payments), Cloudinary (CDN), Google OAuth |
 
-### 1. Backend Setup
-```bash
-cd server
-npm install
-# Create a .env file based on .env.example
-npm run dev
+---
+
+## 📂 Repository Structure
+
+```text
+rentra-platform/
+├── client/                 # React SPA (Vite)
+│   ├── src/
+│   │   ├── components/     # Reusable UI components
+│   │   ├── context/        # Isolated Global State (Auth, Customer, Owner, Admin)
+│   │   ├── pages/          # Role-specific route views
+│   │   └── services/       # Axios API client modules
+├── server/                 # Node.js REST API
+│   ├── src/
+│   │   ├── controllers/    # Request handling & business logic
+│   │   ├── middleware/     # JWT validation, RBAC, Error handling
+│   │   ├── models/         # Mongoose Schemas & Validation
+│   │   └── routes/         # Express route definitions
+└── README.md
 ```
 
-### 2. Frontend Setup
+---
+
+## ⚙️ Local Development Setup
+
+### 1. Environment Configuration
+Ensure you have Node.js (v18+) and Redis running locally. Create a `.env` file in the `/server` directory with the following required variables:
+
+```env
+PORT=5000
+MONGODB_URI=your_mongodb_cluster_uri
+JWT_SECRET=your_secure_jwt_secret
+RAZORPAY_KEY_ID=your_razorpay_key
+RAZORPAY_KEY_SECRET=your_razorpay_secret
+CLOUDINARY_URL=your_cloudinary_url
+REDIS_URL=redis://127.0.0.1:6379
+```
+
+### 2. Initialization
 ```bash
+# Terminal 1: Initialize Backend
+cd server
+npm install
+npm run dev
+
+# Terminal 2: Initialize Frontend
 cd client
 npm install
 npm run dev
@@ -50,15 +88,12 @@ npm run dev
 
 ---
 
-## 👥 Project Team & Contributions
+## 👥 Engineering Team
 
-This project was built collaboratively by our team:
+The platform was architected and developed collaboratively by:
 
-- **Purvesh Jadhav (Full-Stack Developer & Architect):** Designed the core system architecture, database relationships, and MVC backend structure. Built the complete Node.js/Express RESTful API, MongoDB data models, and engineered the 20% escrow deposit system using Razorpay. Designed the global React Context state management across all user portals.
-- **Aryan Barbate (Backend Developer):** Assisted with core backend routing and JWT authentication. Integrated Redis/BullMQ for asynchronous background tasks and handled Multer/Cloudinary media upload pipelines.
-- **Pruthviraj Bhosale (Frontend Developer):** Developed the Customer Module UI, including equipment search, rental flows, and the customer dashboard.
-- **Aryan Kulkarni (Frontend Developer):** Developed the Owner Module UI, including business registration, equipment listings, and booking management interfaces.
-- **Ayush Bhor (Frontend Developer):** Developed the Admin Module UI, focusing on platform analytics, verifications, and oversight dashboards.
-
----
-> *Rentra Internship Project - 2026*
+- **Purvesh Jadhav (Full-Stack Developer & Architect):** Engineered the core system architecture, database relationships, and MVC backend structure. Developed the comprehensive Node.js/Express REST API, MongoDB schemas, and integrated the Razorpay escrow deposit system. Architected the global React Context state management separating the logic for all three user portals.
+- **Aryan Barbate (Backend Developer):** Assisted with backend API routing and JWT authentication flows. Handled Multer/Cloudinary media upload pipelines and integrated Redis/BullMQ for background task processing.
+- **Pruthviraj Bhosale (Frontend Developer):** Developed the Customer Module UI, implementing the equipment search interface, filtering logic, rental checkout flows, and customer dashboard.
+- **Aryan Kulkarni (Frontend Developer):** Developed the Owner Module UI, including complex business KYC registration forms, dynamic asset listings, and owner booking management interfaces.
+- **Ayush Bhor (Frontend Developer):** Developed the Admin Module UI, focusing on high-level platform analytics, manual user/equipment verification workflows, and global oversight dashboards.
