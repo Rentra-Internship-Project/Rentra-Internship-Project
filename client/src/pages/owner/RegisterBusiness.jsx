@@ -470,8 +470,8 @@ const RegisterBusiness = () => {
 
           {/* Submit */}
           <div className="flex justify-end pt-4 border-t border-[#E2E8F0]">
-            <Button variant="primary" type="submit" icon={FiBriefcase} size="lg" disabled={loading}>
-              {loading ? 'Submitting...' : 'Submit Registration'}
+            <Button variant="primary" type="submit" icon={FiBriefcase} size="lg" isLoading={loading}>
+              Submit Registration
             </Button>
           </div>
         </form>
