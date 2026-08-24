@@ -21,8 +21,13 @@ const ProfileCard = ({ profile, onEdit }) => {
           <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4">
             <div className="relative -mt-14">
               <img
-                src={profile.avatar}
+                src={profile.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300"}
                 alt={profile.name}
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300";
+                }}
                 className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover ring-4 ring-white shadow-md bg-white"
               />
               <span className="absolute bottom-1 right-1 w-5 h-5 rounded-full bg-[#22C55E] ring-2 ring-white flex items-center justify-center text-white text-[10px]" title="Account Active">

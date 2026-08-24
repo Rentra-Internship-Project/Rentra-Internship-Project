@@ -278,8 +278,13 @@ const CustomerNavbar = ({ setMobileOpen }) => {
           className="flex items-center gap-3 pl-2 border-l border-[#E2E8F0] cursor-pointer group"
         >
           <img
-            src={profile.avatar}
+            src={profile.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300"}
             alt={profile.name}
+            referrerPolicy="no-referrer"
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300";
+            }}
             className="w-9 h-9 rounded-full object-cover ring-2 ring-[#CCCCFF] group-hover:ring-[#B8B8FF] transition-all"
           />
           <div className="hidden xl:block text-left">

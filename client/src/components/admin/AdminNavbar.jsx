@@ -294,6 +294,11 @@ const AdminNavbar = ({ setMobileOpen }) => {
           <img
             src={user?.avatar || "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=150"}
             alt={user?.name || "Admin"}
+            referrerPolicy="no-referrer"
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=150";
+            }}
             className="w-9 h-9 rounded-full object-cover ring-2 ring-[#CCCCFF]"
           />
           <div className="hidden xl:block text-left">

@@ -6,8 +6,13 @@ const ProfileCard = ({ profile }) => {
     <div className="bg-white border border-[#E2E8F0] rounded-[20px] p-6 shadow-xs">
       <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
         <img
-          src={profile.avatar}
+          src={profile.avatar || "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=150"}
           alt={profile.name}
+          referrerPolicy="no-referrer"
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=150";
+          }}
           className="w-24 h-24 rounded-full object-cover ring-4 ring-[#CCCCFF] shadow-sm"
         />
         <div className="text-center sm:text-left flex-1">
