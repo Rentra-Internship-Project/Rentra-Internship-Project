@@ -1,69 +1,103 @@
-# Rentra - High-Value Asset Rental Marketplace
+# Rentra Core Platform 🏗️
 
-Rentra is a full-stack, 3-sided marketplace built on the **MERN Stack**. It connects Customers with Equipment Owners, facilitated by a comprehensive Admin dashboard. The platform handles complex workflows including real-time notifications, secure escrow payments, and a 9-stage booking lifecycle.
+**Rentra** is a sophisticated, highly scalable B2B/B2C marketplace platform explicitly engineered to disrupt the high-value asset rental sector. We provide a secure digital infrastructure for renting heavy machinery, production gear, event logistics, and specialized industrial equipment.
 
----
-
-## 👑 Lead Architect & Core Engineering
-
-This project was built collaboratively, but the core system was architected and developed by:
-
-**Purvesh Jadhav (Lead Full-Stack Developer)**
-- **System Design:** Engineered the overarching architecture, database relationships, and MVC backend structure.
-- **Backend API:** Built the entire Node.js/Express RESTful API and highly secure MongoDB (Mongoose) data models.
-- **Security & Auth:** Implemented custom JWT authentication and integrated **Google OAuth 2.0 (Passport.js)**.
-- **Payments:** Engineered the 20% escrow deposit system using the **Razorpay Gateway** for secure financial routing.
-- **Frontend State:** Designed the global state management using React Context API across three isolated user portals (Admin, Owner, Customer).
-
-### 🤝 Team Contributions
-- **Frontend UI Team:** Pruthviraj Bhosale, Ayush Bhor, Aryan Kulkarni (React UI, Tailwind Styling, Responsive Layouts).
-- **Backend Contributor:** Aryan Barbate (Redis/BullMQ integration for background tasks, Multer/Cloudinary media uploads).
+Unlike standard peer-to-peer marketplaces, Rentra is built around absolute **transactional security and trust**. By enforcing rigorous KYC verification algorithms, managing a robust 20% upfront escrow routing system, and utilizing bidirectional real-time state synchronization, Rentra solves the hardest problems in high-value asset management: fraud prevention, double-booking, and payment security.
 
 ---
 
-## 🚀 Tech Stack
+## 🏛️ Advanced System Architecture
 
-- **Frontend:** React.js, Vite, Tailwind CSS, React Router DOM, Context API
-- **Backend:** Node.js, Express.js
-- **Database:** MongoDB, Mongoose
-- **Payments & Security:** Razorpay API, JWT, Bcrypt, Google Passport.js
-- **Real-Time & Background:** Socket.IO, Redis, BullMQ
-- **Storage:** Cloudinary (Images)
+The platform is designed around a decoupled monolith pattern, separating the high-performance Node.js REST API from the React Client. It manages the extreme complexity of three entirely separate user ecosystems (Customer, Owner, Admin) through strict role-based access boundaries.
 
----
+### 1. Robust Security & Role-Based Access Control (RBAC)
+- **Zero-Trust Auth Strategy:** Rentra utilizes stateless JSON Web Tokens (JWT) signed with highly secure environment variables. For frictionless onboarding, we integrated **Google OAuth 2.0 via Passport.js**.
+- **Role Inheritance Routing:** Custom Express middleware intercepts all API traffic to enforce strict access control (`CUSTOMER`, `OWNER`, `ADMIN`). The system employs a permission inheritance tree (e.g., an `OWNER` inherits all `CUSTOMER` abilities natively), enforcing DRY routing principles.
+- **Sanitization Pipeline:** Our MongoDB models are heavily typed. We utilize Mongoose pre-save hooks to enforce strict `bcrypt` password hashing and actively sanitize payloads to prevent NoSQL injection attacks.
 
-## 🧠 Core Features
+### 2. Transactional Integrity & The Escrow State Machine
+- **Razorpay Escrow Integration:** High-value rentals cannot rely on trust. Customers are required to pay a mandatory 20% advance deposit via Razorpay. This capital is securely routed to an escrow state, programmatically locking the booking and mitigating the risk of costly no-shows.
+- **9-Stage Immutable Booking Lifecycle:** Bookings are managed by a highly strict state machine designed to prevent race conditions. The state flows sequentially: `PENDING_APPROVAL` ➡️ `AWAITING_PAYMENT` ➡️ `PAYMENT_SECURED` ➡️ `DISPATCHED` ➡️ `ACTIVE_RENTAL` ➡️ `COMPLETED` (or `DISPUTED`). It is impossible for a booking to bypass a logical step.
 
-1. **Role-Based Portals:** Three completely isolated dashboards (Customer, Owner, Admin) protected by robust JWT middleware.
-2. **Escrow Payment System:** Customers pay a 20% deposit via Razorpay to lock the booking. The remaining balance is paid directly to the owner upon pickup.
-3. **9-Stage Booking Lifecycle:** A complex state machine handling statuses from `Pending Owner Approval` to `Active Rental` and `Completed`.
-4. **Real-Time Notifications:** Socket.IO instantly notifies owners of new booking requests without requiring a page refresh.
-5. **Optimized Search:** Real-time frontend filtering for heavy machinery, cameras, and event equipment.
+### 3. Asynchronous Task Queues & Real-Time Sync
+- **Redis & BullMQ Architecture:** To ensure the core Node.js event loop remains blazing fast and unblocked, all CPU-heavy tasks are offloaded to Redis. Generating PDF invoices, compressing/uploading media to Cloudinary, and dispatching transactional emails are processed asynchronously by background BullMQ workers.
+- **Socket.IO Bidirectional Engine:** The platform abandons slow client-side HTTP polling in favor of a true WebSocket layer. Equipment owners receive instant, real-time push notifications the exact millisecond a customer requests their asset or an Admin approves their business KYC.
 
 ---
 
-## ⚙️ Local Setup
+## 🚀 Infrastructure & Tech Stack
 
-### Prerequisites
-- Node.js (v18+)
-- MongoDB locally installed or an Atlas URI
-- Razorpay API Keys
-- Cloudinary Credentials
+| Domain | Core Technologies |
+|-------|-------------|
+| **Frontend SPA** | React.js (Vite), Tailwind CSS, Framer Motion, React Context API |
+| **Backend API** | Node.js, Express.js (RESTful Architecture) |
+| **Database** | MongoDB (Atlas Cloud), Mongoose ORM |
+| **Cache & Queues**| Redis (In-Memory Data Store), BullMQ |
+| **3rd Party APIs**| Razorpay (Financial Routing), Cloudinary (CDN), Google OAuth 2.0 |
 
-### 1. Backend Setup
-```bash
-cd server
-npm install
-# Create a .env file based on .env.example
-npm run dev
+---
+
+## 📂 Repository Structure Map
+
+```text
+rentra-platform/
+├── client/                 # React SPA (Vite)
+│   ├── src/
+│   │   ├── components/     # Reusable, atomic UI components (Buttons, Modals, Cards)
+│   │   ├── context/        # Isolated Global State (Auth, Customer, Owner, Admin)
+│   │   ├── pages/          # Role-specific route views (Separated by User Type)
+│   │   └── services/       # Axios API client modules for backend communication
+├── server/                 # Node.js REST API
+│   ├── src/
+│   │   ├── controllers/    # Request handling, data parsing, and business logic
+│   │   ├── middleware/     # JWT validation, RBAC enforcement, Error catching
+│   │   ├── models/         # Mongoose Schemas, validation hooks, and relationships
+│   │   └── routes/         # Express endpoint definitions mapped to controllers
+└── README.md
 ```
 
-### 2. Frontend Setup
+---
+
+## ⚙️ Local Development & Deployment Setup
+
+### 1. Environment Variable Configuration
+Ensure you have Node.js (v18+) and Redis running locally. Create a `.env` file in the `/server` directory with the following secure variables:
+
+```env
+PORT=5000
+MONGODB_URI=your_mongodb_cluster_uri
+JWT_SECRET=your_secure_jwt_secret
+RAZORPAY_KEY_ID=your_razorpay_key
+RAZORPAY_KEY_SECRET=your_razorpay_secret
+CLOUDINARY_URL=your_cloudinary_url
+REDIS_URL=redis://127.0.0.1:6379
+```
+
+### 2. Initialization Workflow
+Open two terminal instances to boot the monolithic architecture:
 ```bash
+# Terminal 1: Initialize the Backend Server
+cd server
+npm install
+npm run dev
+
+# Terminal 2: Initialize the Frontend Client
 cd client
 npm install
 npm run dev
 ```
+
+---
+
+## 👥 Engineering Team
+
+The platform was architected and developed collaboratively by:
+
+- **Purvesh Jadhav (Full-Stack Developer & Architect):** Engineered the core system architecture, database relationships, and MVC backend structure. Developed the comprehensive Node.js/Express REST API, MongoDB schemas, and integrated the Razorpay escrow deposit system. Architected the global React Context state management separating the logic for all three user portals.
+- **Aryan Barbate (Backend Developer):** Assisted with backend API routing and JWT authentication flows. Implemented **Socket.IO for real-time notifications**, handled Multer/Cloudinary media upload pipelines, and integrated Redis/BullMQ for asynchronous background task processing.
+- **Pruthviraj Bhosale (Frontend Developer):** Developed the Customer Module UI, implementing the equipment search interface, complex filtering algorithms, secure rental checkout flows, and the interactive customer dashboard.
+- **Aryan Kulkarni (Frontend Developer):** Developed the Owner Module UI, engineering the complex business KYC registration forms, dynamic asset listing interfaces, and the owner-side booking management hub.
+- **Ayush Bhor (Frontend Developer):** Developed the Admin Module UI, focusing on high-level platform analytics, manual user/equipment verification workflow interfaces, and global oversight dashboards.
 
 ---
 > *Rentra Internship Project - 2026*
