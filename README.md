@@ -16,8 +16,10 @@ This project was built collaboratively, but the core system was architected and 
 - **Frontend State:** Designed the global state management using React Context API across three isolated user portals (Admin, Owner, Customer).
 
 ### 🤝 Team Contributions
-- **Frontend UI Team:** Pruthviraj Bhosale, Ayush Bhor, Aryan Kulkarni (React UI, Tailwind Styling, Responsive Layouts).
-- **Backend Contributor:** Aryan Barbate (Redis/BullMQ integration for background tasks, Multer/Cloudinary media uploads).
+- **Pruthviraj Bhosale (Frontend):** Developed the **Customer Module UI**, including equipment search, rental flows, and the user dashboard.
+- **Aryan Kulkarni (Frontend):** Developed the **Owner Module UI**, including business registration, equipment listings, and owner booking management.
+- **Ayush Bhor (Frontend):** Developed the **Admin Module UI**, focusing on platform analytics, verifications, and oversight dashboards.
+- **Aryan Barbate (Backend):** Integrated Redis/BullMQ for background tasks and handled Multer/Cloudinary media pipelines.
 
 ---
 
