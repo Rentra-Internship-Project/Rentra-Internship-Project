@@ -4,25 +4,6 @@ Rentra is a full-stack, 3-sided marketplace built on the **MERN Stack**. It conn
 
 ---
 
-## 👑 Lead Architect & Core Engineering
-
-This project was built collaboratively, but the core system was architected and developed by:
-
-**Purvesh Jadhav (Lead Full-Stack Developer)**
-- **System Design:** Engineered the overarching architecture, database relationships, and MVC backend structure.
-- **Backend API:** Built the entire Node.js/Express RESTful API and highly secure MongoDB (Mongoose) data models.
-- **Security & Auth:** Implemented custom JWT authentication and integrated **Google OAuth 2.0 (Passport.js)**.
-- **Payments:** Engineered the 20% escrow deposit system using the **Razorpay Gateway** for secure financial routing.
-- **Frontend State:** Designed the global state management using React Context API across three isolated user portals (Admin, Owner, Customer).
-
-### 🤝 Team Contributions
-- **Pruthviraj Bhosale (Frontend):** Developed the **Customer Module UI**, including equipment search, rental flows, and the user dashboard.
-- **Aryan Kulkarni (Frontend):** Developed the **Owner Module UI**, including business registration, equipment listings, and owner booking management.
-- **Ayush Bhor (Frontend):** Developed the **Admin Module UI**, focusing on platform analytics, verifications, and oversight dashboards.
-- **Aryan Barbate (Backend):** Integrated Redis/BullMQ for background tasks and handled Multer/Cloudinary media pipelines.
-
----
-
 ## 🚀 Tech Stack
 
 - **Frontend:** React.js, Vite, Tailwind CSS, React Router DOM, Context API
@@ -66,6 +47,18 @@ cd client
 npm install
 npm run dev
 ```
+
+---
+
+## 👥 Project Team & Contributions
+
+This project was built collaboratively by our team:
+
+- **Purvesh Jadhav (Full-Stack Developer & Architect):** Designed the core system architecture, database relationships, and MVC backend structure. Built the complete Node.js/Express RESTful API, MongoDB data models, and engineered the 20% escrow deposit system using Razorpay. Designed the global React Context state management across all user portals.
+- **Aryan Barbate (Backend Developer):** Assisted with core backend routing and JWT authentication. Integrated Redis/BullMQ for asynchronous background tasks and handled Multer/Cloudinary media upload pipelines.
+- **Pruthviraj Bhosale (Frontend Developer):** Developed the Customer Module UI, including equipment search, rental flows, and the customer dashboard.
+- **Aryan Kulkarni (Frontend Developer):** Developed the Owner Module UI, including business registration, equipment listings, and booking management interfaces.
+- **Ayush Bhor (Frontend Developer):** Developed the Admin Module UI, focusing on platform analytics, verifications, and oversight dashboards.
 
 ---
 > *Rentra Internship Project - 2026*
