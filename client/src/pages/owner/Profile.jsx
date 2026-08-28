@@ -234,54 +234,56 @@ const Profile = () => {
               </div>
             )}
 
-            <div className="mb-6 p-3 bg-amber-50 border border-amber-200 rounded-[12px] flex items-start gap-2">
-              <FiLock className="text-[#F59E0B] shrink-0 mt-0.5 text-sm" />
-              <p className="text-[11px] text-[#92400E] leading-relaxed font-medium">
-                <strong>Note:</strong> If you registered using Google, you cannot update your password here. This form is only for standard email registration.
-              </p>
-            </div>
-
-            <form onSubmit={handleChangePassword} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-[#0F172A] mb-1">Current Password</label>
-                <input
-                  type="password"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  placeholder="••••••••••••"
-                  className="w-full px-3.5 py-2.5 border border-[#E2E8F0] rounded-[12px] text-xs text-[#0F172A] focus:outline-none focus:border-[#CCCCFF] focus:ring-2 focus:ring-[#CCCCFF]/30"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {user?.authProvider !== 'google' ? (
+              <form onSubmit={handleChangePassword} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-[#0F172A] mb-1">New Password</label>
+                  <label className="block text-xs font-bold text-[#0F172A] mb-1">Current Password</label>
                   <input
                     type="password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
                     placeholder="••••••••••••"
                     className="w-full px-3.5 py-2.5 border border-[#E2E8F0] rounded-[12px] text-xs text-[#0F172A] focus:outline-none focus:border-[#CCCCFF] focus:ring-2 focus:ring-[#CCCCFF]/30"
                   />
                 </div>
-                <div>
-                  <label className="block text-xs font-bold text-[#0F172A] mb-1">Confirm New Password</label>
-                  <input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="••••••••••••"
-                    className="w-full px-3.5 py-2.5 border border-[#E2E8F0] rounded-[12px] text-xs text-[#0F172A] focus:outline-none focus:border-[#CCCCFF] focus:ring-2 focus:ring-[#CCCCFF]/30"
-                  />
-                </div>
-              </div>
 
-              <div className="flex justify-end pt-2">
-                <Button variant="warning" type="submit" icon={FiLock}>
-                  Update Password
-                </Button>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-[#0F172A] mb-1">New Password</label>
+                    <input
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="••••••••••••"
+                      className="w-full px-3.5 py-2.5 border border-[#E2E8F0] rounded-[12px] text-xs text-[#0F172A] focus:outline-none focus:border-[#CCCCFF] focus:ring-2 focus:ring-[#CCCCFF]/30"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-[#0F172A] mb-1">Confirm New Password</label>
+                    <input
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="••••••••••••"
+                      className="w-full px-3.5 py-2.5 border border-[#E2E8F0] rounded-[12px] text-xs text-[#0F172A] focus:outline-none focus:border-[#CCCCFF] focus:ring-2 focus:ring-[#CCCCFF]/30"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-end pt-2">
+                  <Button variant="warning" type="submit" icon={FiLock}>
+                    Update Password
+                  </Button>
+                </div>
+              </form>
+            ) : (
+              <div className="p-4 bg-[#F8FAFC] border border-[#E2E8F0] rounded-[16px]">
+                <h4 className="text-xs font-bold text-[#0F172A] mb-1">Google Authentication</h4>
+                <p className="text-[11px] text-[#64748B]">
+                  Your account is secured via Google OAuth. You do not need a password to sign in.
+                </p>
               </div>
-            </form>
+            )}
           </div>
         </div>
 

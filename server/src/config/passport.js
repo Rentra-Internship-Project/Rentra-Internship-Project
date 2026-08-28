@@ -60,6 +60,7 @@ passport.use(
           avatar: avatar || undefined,
           isVerified: true,
           isFirstLogin: true,
+          authProvider: 'google',
         });
         user._isNewUser = true;
 

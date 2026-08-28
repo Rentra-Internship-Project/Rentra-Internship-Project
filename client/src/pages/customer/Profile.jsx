@@ -313,52 +313,54 @@ const Profile = () => {
           )}
 
           <form onSubmit={handleSecuritySubmit} className="space-y-6">
-            {/* Password Fields */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-[#94A3B8]">Change Password</h4>
+            {/* Password Fields - Hidden for Google Auth Users */}
+            {profile?.authProvider !== 'google' ? (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#94A3B8]">Change Password</h4>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <label className="form-label">Current Password</label>
+                    <input
+                      type="password"
+                      placeholder="••••••••"
+                      value={securityData.currentPassword}
+                      onChange={(e) => setSecurityData({ ...securityData, currentPassword: e.target.value })}
+                      className="form-input"
+                    />
+                  </div>
+                  <div>
+                    <label className="form-label">New Password</label>
+                    <input
+                      type="password"
+                      placeholder="••••••••"
+                      value={securityData.newPassword}
+                      onChange={(e) => setSecurityData({ ...securityData, newPassword: e.target.value })}
+                      className="form-input"
+                    />
+                  </div>
+                  <div>
+                    <label className="form-label">Confirm Password</label>
+                    <input
+                      type="password"
+                      placeholder="••••••••"
+                      value={securityData.confirmPassword}
+                      onChange={(e) => setSecurityData({ ...securityData, confirmPassword: e.target.value })}
+                      className="form-input"
+                    />
+                  </div>
+                </div>
               </div>
-              
-              <div className="p-3 bg-amber-50 border border-amber-200 rounded-[12px] flex items-start gap-2">
-                <FiLock className="text-[#F59E0B] shrink-0 mt-0.5 text-sm" />
-                <p className="text-[11px] text-[#92400E] leading-relaxed font-medium">
-                  <strong>Note:</strong> If you registered using Google, you cannot update your password here. This form is only for standard email registration.
+            ) : (
+              <div className="p-4 bg-[#F8FAFC] border border-[#E2E8F0] rounded-[16px]">
+                <h4 className="text-xs font-bold text-[#0F172A] mb-1">Google Authentication</h4>
+                <p className="text-[11px] text-[#64748B]">
+                  Your account is secured via Google OAuth. You do not need a password to sign in.
                 </p>
               </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label className="form-label">Current Password</label>
-                  <input
-                    type="password"
-                    placeholder="••••••••"
-                    value={securityData.currentPassword}
-                    onChange={(e) => setSecurityData({ ...securityData, currentPassword: e.target.value })}
-                    className="form-input"
-                  />
-                </div>
-                <div>
-                  <label className="form-label">New Password</label>
-                  <input
-                    type="password"
-                    placeholder="••••••••"
-                    value={securityData.newPassword}
-                    onChange={(e) => setSecurityData({ ...securityData, newPassword: e.target.value })}
-                    className="form-input"
-                  />
-                </div>
-                <div>
-                  <label className="form-label">Confirm Password</label>
-                  <input
-                    type="password"
-                    placeholder="••••••••"
-                    value={securityData.confirmPassword}
-                    onChange={(e) => setSecurityData({ ...securityData, confirmPassword: e.target.value })}
-                    className="form-input"
-                  />
-                </div>
-              </div>
-            </div>
+            )}
 
             {/* Toggles */}
             <div className="space-y-4 pt-4 border-t border-[#E2E8F0]">

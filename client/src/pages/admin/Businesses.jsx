@@ -251,7 +251,14 @@ const Businesses = () => {
               <div className="mt-2">
                 <h4 className="text-xs font-bold text-[#0F172A] uppercase tracking-wider mb-2">Uploaded Verification Files</h4>
                 <div className="space-y-2">
-                  {(selectedDocsBusiness.documents || []).map((doc, idx) => (
+                  {(selectedDocsBusiness.documents || []).map((doc, idx) => {
+                    const isObject = typeof doc === 'object' && doc !== null;
+                    const url = isObject ? doc.url : doc;
+                    const name = isObject ? doc.name : (url?.split('/').pop() || 'Document');
+                    const size = isObject ? doc.size : '';
+                    const isValidUrl = url && url.startsWith('http');
+
+                    return (
                     <div
                       key={idx}
                       className="flex items-center justify-between p-3 border border-[#E2E8F0] rounded-[12px] hover:border-[#CCCCFF] transition-colors"
@@ -259,18 +266,18 @@ const Businesses = () => {
                       <div className="flex items-center gap-3">
                         <FiFileText className="text-[#3B82F6] text-lg" />
                         <div>
-                          <p className="text-xs font-semibold text-[#0F172A]">{typeof doc === 'string' ? doc.split('/').pop() || 'Document' : doc.name || 'Document'}</p>
-                          <span className="text-[10px] text-[#64748B]">{typeof doc === 'string' ? 'File' : doc.size || ''}</span>
+                          <p className="text-xs font-semibold text-[#0F172A]">{name}</p>
+                          {size && <span className="text-[10px] text-[#64748B]">{size}</span>}
                         </div>
                       </div>
                       <a
-                        href={typeof doc === 'string' && doc.startsWith('http') ? doc : '#'}
-                        target={typeof doc === 'string' && doc.startsWith('http') ? '_blank' : '_self'}
+                        href={isValidUrl ? url : '#'}
+                        target={isValidUrl ? '_blank' : '_self'}
                         rel="noreferrer"
                         onClick={(e) => {
-                          if (typeof doc !== 'string' || !doc.startsWith('http')) {
+                          if (!isValidUrl) {
                             e.preventDefault();
-                            alert(`File URL not available for ${typeof doc === 'string' ? doc : doc.name}`);
+                            alert(`File URL not available for ${name}`);
                           }
                         }}
                         className="p-2 text-[#3B82F6] hover:bg-blue-50 rounded-[8px] transition-colors inline-block"
@@ -279,7 +286,7 @@ const Businesses = () => {
                         <FiDownload className="text-base" />
                       </a>
                     </div>
-                  ))}
+                  )})}
                 </div>
               </div>
 
