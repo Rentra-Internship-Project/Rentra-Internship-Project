@@ -1,5 +1,5 @@
-// BullMQ Background Worker Processing Jobs
-console.log('⚡ BullMQ Worker initialized for background job processing (PDFKit contracts, transactional emails)');
+// Background Worker Processing Jobs
+console.log('⚡ Worker initialized for background job processing (PDFKit contracts, transactional emails)');
 
 async function processEmailNotificationJob(bookingData) {
   console.log(`📧 Worker Queue 1: Dispatching confirmation email for Booking ID: ${bookingData.id}`);
