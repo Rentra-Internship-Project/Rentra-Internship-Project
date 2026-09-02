@@ -44,6 +44,11 @@ exports.getAllEquipment = async (req, res) => {
       filter.operatorAvailable = true;
     }
 
+    // High-performance text search
+    if (req.query.q) {
+      filter.$text = { $search: req.query.q };
+    }
+
     const results = await Equipment.find(filter)
       .populate('ownerId', 'name phone email')
       .populate('businessId', 'businessName city state')

@@ -106,5 +106,9 @@ const equipmentSchema = new mongoose.Schema(
 );
 
 equipmentSchema.index({ location: '2dsphere' });
+// Advanced MongoDB text indexing for high-performance string searches
+equipmentSchema.index({ name: 'text', description: 'text', category: 'text' });
+// Compound index to heavily optimize the public catalog queries
+equipmentSchema.index({ status: 1, availability: 1 });
 
 module.exports = mongoose.models.Equipment || mongoose.model('Equipment', equipmentSchema);
