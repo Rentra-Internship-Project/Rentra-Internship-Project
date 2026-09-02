@@ -271,7 +271,7 @@ exports.getUserDetails = async (req, res) => {
   }
 };
 
-// ADMIN: Update user status
+// ADMIN: Update user status and forcefully disconnect active sessions
 exports.updateUser = async (req, res) => {
   try {
     const { status } = req.body;
@@ -280,7 +280,24 @@ exports.updateUser = async (req, res) => {
     }
     const user = await User.findByIdAndUpdate(req.params.id, { status }, { new: true });
     if (!user) return res.status(404).json({ error: 'User not found' });
-    res.json({ user, message: `User ${status}` });
+
+    // SECURITY: If account is suspended, forcefully terminate their live WebSocket connection immediately
+    if (status === 'Suspended') {
+      const io = req.app.get('io');
+      if (io) {
+        // Emit a specialized termination event
+        io.to(`user_${user._id}`).emit('force_logout', { reason: 'Account suspended by administrator' });
+        
+        // Disconnect all underlying TCP sockets for this user instantly
+        const sockets = await io.in(`user_${user._id}`).fetchSockets();
+        for (const socket of sockets) {
+          socket.disconnect(true);
+        }
+        console.log(`🛡️ Security: Forcefully terminated ${sockets.length} live connections for suspended user ${user._id}`);
+      }
+    }
+
+    res.json({ user, message: `User ${status} and sessions synchronized` });
   } catch (err) {
     res.status(500).json({ error: 'Failed to update user', details: err.message });
   }

@@ -34,6 +34,13 @@ export const SocketProvider = ({ children }) => {
         }, 5000);
       });
 
+      // Listen for admin suspension force-kick
+      newSocket.on('force_logout', (data) => {
+        console.error('🔒 Security event:', data.reason);
+        localStorage.removeItem('rentra_token');
+        window.location.href = '/login?error=account_suspended';
+      });
+
       return () => {
         newSocket.disconnect();
       };
