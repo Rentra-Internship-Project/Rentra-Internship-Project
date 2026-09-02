@@ -107,6 +107,7 @@ app.post('/api/upload', authenticateToken, upload.single('file'), async (req, re
 });
 
 // Centralized Error Handling Middleware
+app.use('/api/*', (req, res) => res.status(404).json({ error: 'API route not found' }));
 app.use(errorMiddleware);
 
 module.exports = app;
