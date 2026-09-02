@@ -24,6 +24,7 @@ const equipmentSchema = new mongoose.Schema(
     pricePerDay: {
       type: Number,
       required: [true, 'Price per day is required'],
+      min: [0, 'Price cannot be negative'],
     },
     operatorAvailable: {
       type: Boolean,
