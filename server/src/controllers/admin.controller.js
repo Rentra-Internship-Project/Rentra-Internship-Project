@@ -78,7 +78,7 @@ exports.getBusinesses = async (req, res) => {
   try {
     const businesses = await Business.find({})
       .populate('ownerId', 'name email phone')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 }).limit(500);
     res.json(businesses);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch businesses', details: err.message });
@@ -146,7 +146,7 @@ exports.getEquipment = async (req, res) => {
     const equipment = await Equipment.find({})
       .populate('ownerId', 'name email phone')
       .populate('businessId', 'businessName city state')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 }).limit(500);
     res.json(equipment);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch equipment', details: err.message });
@@ -224,7 +224,7 @@ exports.rejectEquipment = async (req, res) => {
 
 exports.getUsers = async (req, res) => {
   try {
-    const users = await User.find({}).sort({ createdAt: -1 });
+    const users = await User.find({}).sort({ createdAt: -1 }).limit(500);
     res.json(users);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch users', details: err.message });
@@ -237,7 +237,7 @@ exports.getBookings = async (req, res) => {
       .populate('customerId', 'name email avatar')
       .populate('ownerId', 'name email phone')
       .populate('equipmentId', 'name image')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 }).limit(500);
     res.json(bookings);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch bookings', details: err.message });
