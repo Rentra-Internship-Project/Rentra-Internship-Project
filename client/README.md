@@ -1,594 +1,348 @@
-# Rentra — Client-Side Documentation
+# Rentra — Frontend Client Documentation 💻
 
-> **Multi-Portal Heavy Equipment Rental Marketplace** — Built with React 19, Vite 8, Tailwind CSS 4, and Framer Motion 12
+> **Enterprise Heavy Equipment & Machinery Rental Marketplace Client**  
+> Built with **React 19**, **Vite 8**, **Tailwind CSS 4**, **Framer Motion 12**, **Socket.IO Client**, and **Axios**.
 
 ---
 
-## Table of Contents
+## 📋 Table of Contents
 
-- [Project Overview](#project-overview)
-- [Key Features](#key-features)
-- [Technology Stack](#technology-stack)
-- [System Architecture](#system-architecture)
-  - [Three-Portal Design](#three-portal-design)
-  - [Data Flow &amp; State Management](#data-flow--state-management)
-- [Directory Structure](#directory-structure)
-- [Component Library](#component-library)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Running the Applications](#running-the-applications)
-- [Development Workflow](#development-workflow)
-  - [Available Scripts](#available-scripts)
-  - [Environment Variables](#environment-variables)
+- [Overview](#overview)
+- [Architecture & Portal Ecosystem](#architecture--portal-ecosystem)
+- [State Management & Provider Hierarchy](#state-management--provider-hierarchy)
+- [Centralized API Service & Interceptors](#centralized-api-service--interceptors)
+- [Real-Time WebSocket Engine](#real-time-websocket-engine)
+- [Groq AI Assistant Floating Widget](#groq-ai-assistant-floating-widget)
+- [Digital Handover & E-Signature Pad](#digital-handover--e-signature-pad)
+- [Directory & Component Layout](#directory--component-layout)
+- [Route Configuration & Access Control](#route-configuration--access-control)
+- [Key UX & Polish Features](#key-ux--polish-features)
+- [Getting Started & Development](#getting-started--development)
 - [Building for Production](#building-for-production)
-- [Deployment Options](#deployment-options)
-- [Future Enhancements](#future-enhancements)
-- [Contributing](#contributing)
-- [License](#license)
-- [Acknowledgements](#acknowledgements)
 
 ---
 
-## Project Overview
+## Overview
 
-Rentra is a **three-sided marketplace** that connects:
+The **Rentra Client** is a single-page application (SPA) that delivers a unified yet role-partitioned user experience across three user tiers:
 
-- **Customers** – Individuals or businesses looking to rent heavy machinery, construction equipment, or other business assets.
-- **Owners** – Equipment owners who can list their assets, manage incoming booking requests, track earnings, and maintain their inventory.
-- **Admins** – Platform operators responsible for verifying users, moderating content, managing disputes, and ensuring smooth marketplace operations.
+1. **Customers**: Search and filter heavy equipment catalog, calculate deposit and transport costs, place bookings with a 20% advance escrow deposit via Razorpay, track active rentals, and generate PDF invoices.
+2. **Equipment Owners**: Register business KYB profiles, list machinery with detailed specs and images via Cloudinary, accept/reject booking requests, manage rental fleets, and review revenue analytics.
+3. **Platform Administrators**: Supervise all system activities, perform business KYC approvals, moderate machinery listings, manage category taxonomies, monitor escrow payments, and enforce user access control with instant account banning.
+
+The client communicates seamlessly with the Node.js / Express backend via a centralized Axios service (`src/services/api.js`) and maintains persistent bidirectional real-time communication via Socket.IO.
+
+---
+
+## Architecture & Portal Ecosystem
 
 ```mermaid
-flowchart LR
-    A[Customers] -->|Rent Equipment| B[Owners]
-    B[Owners] -->|List Assets| A[Customers]
-    A[Customers] -->|Payments/Reviews| C[Admins]
-    B[Owners] -->|Compliance/Reports| C[Admins]
-    C[Admins] -->|Verification/Moderation| A[Customers]
-    C[Admins] -->|Approval/Dispute Resolution| B[Owners]
+flowchart TD
+    subgraph Browser ["Client Application (Single Vite SPA)"]
+        Router["React Router v7 (AppRoutes.jsx)"]
 
-    classDef marketplace fill:#333,stroke:#3b82f6,stroke-width:2px;
-    class A,B,C marketplace;
-```
+        subgraph PublicScope ["Public Tier"]
+            Landing["Landing Page (/)"]
+            Auth["Login / Register (/login, /register)"]
+            OAuth["OAuth Callback (/oauth-callback)"]
+            Legal["Terms / Privacy / Contact"]
+            NotFound["404 Fallback (*)"]
+        end
 
-All three portals (Admin, Customer, Owner) are organized within a single client application that shares a unified design system and UI kit, but maintains distinct routing, state management, and mock‑data layers for each portal. This architecture allows each portal to evolve independently while providing a consistent look and feel across the whole platform.
+        subgraph CustomerScope ["Customer Portal (/customer/*)"]
+            CustLayout["CustomerLayout (with CustomerProvider)"]
+            CustPages["Dashboard, BrowseCatalog, Details, Summary, Bookings, Wishlist"]
+        end
 
----
+        subgraph OwnerScope ["Owner Portal (/owner/*)"]
+            OwnerLayout["OwnerLayout (with OwnerProvider)"]
+            OwnerPages["Dashboard, AddEquipment, Fleet, Earnings, KYB Registration"]
+        end
 
-## Key Features
+        subgraph AdminScope ["Admin Portal (/admin/*)"]
+            AdminLayout["AdminLayout (with AdminProvider)"]
+            AdminPages["Dashboard, Users, Businesses, Equipment Moderation, Payments"]
+        end
 
-- **Responsive UI** – Optimized for mobile, tablet, and desktop experiences using Tailwind CSS breakpoints.
-- **Smooth Animations** – Framer Motion powers page transitions, hover effects, modal/drawer animations, and staggered list entrances.
-- **Context‑Based State Management** – React Context (useContext) provides scoped state for each portal (AdminContext, CustomerContext, AuthContext).
-- **Modular Component Library** – Reusable UI components (Button, Loader, SearchBar, ConfirmModal, EmptyState, Modal) plus portal‑specific widgets (DataTable, StatsCard, BookingCard, EquipmentCard, etc.).
-- **Mock Data Layers** – Each portal consumes domain‑specific mock data files, enabling rapid UI development without a backend.
-- **Extensible Service Layer** – Placeholder adminService.js illustrates future API integration patterns.
-- **Separation of Concerns** – Clear division between layouts, pages, routes, services, utils, and assets.
-- **Ready for Production** – Vite‑based builds produce optimized, cache‑friendly static assets suitable for any static‑host (Vercel, Netlify, S3+CloudFront, Docker, etc.).
+        subgraph GlobalWidgets ["Global Interactive Widgets"]
+            AIChatbot["Groq Floating AI Assistant"]
+            ToastNotice["Socket.IO Live Notification Toast"]
+            InspectionModal["Digital Inspection & E-Signature Pad"]
+        end
+    end
 
----
-
-## Technology Stack
-
-| Layer                | Technology       | Version | Purpose                              |
-| -------------------- | ---------------- | ------- | ------------------------------------ |
-| **Framework**  | React            | 19.2.8  | UI library with concurrent features  |
-| **Build Tool** | Vite             | 8.2.0   | Lightning‑fast dev server & bundler |
-| **Styling**    | Tailwind CSS     | 4.3.3   | Utility‑first CSS (Vite plugin)     |
-| **Animation**  | Framer Motion    | 12.43.0 | Production‑ready animations         |
-| **Routing**    | React Router DOM | 7.18.2  | Client‑side routing                 |
-| **Icons**      | React Icons      | 5.7.0   | Feather icon set                     |
-| **Linting**    | Oxlint           | 1.75.0  | Fast Rust‑based linter (Admin only) |
-| **TypeScript** | @types/react     | 19.2.17 | Type definitions (dev‑only)         |
-
-### Shared Dependencies (package.json)
-
-```json
-{
-  "dependencies": {
-    "@tailwindcss/vite": "^4.3.3",
-    "framer-motion": "^12.43.0",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8",
-    "react-icons": "^5.7.0",
-    "react-router-dom": "^7.18.2",
-    "tailwindcss": "^4.3.3"
-  }
-}
+    Router --> PublicScope
+    Router --> CustomerScope
+    Router --> OwnerScope
+    Router --> AdminScope
 ```
 
 ---
 
-## System Architecture
+## State Management & Provider Hierarchy
 
-### Portal Comparison
+Rentra employs a clean, scoped React Context architecture:
 
-| Feature                      | Admin Portal     | Customer Portal  | Owner Portal             |
-| ---------------------------- | ---------------- | ---------------- | ------------------------ |
-| **Port**               | 3000             | 3001             | 3002                     |
-| **Auth**               | None (simulated) | None (simulated) | **Login Required** |
-| **Pages**              | 7                | 11               | 9                        |
-| **Context**            | AdminContext     | CustomerContext  | AuthContext              |
-| **Mock Data**          | adminMockData    | customerMockData | ownerMockData            |
-| **Protected Routes**   | No               | No               | **Yes**            |
-| **Real-time Search**   | ✅               | ✅               | ✅                       |
-| **Notifications**      | ✅               | ✅               | ✅                       |
-| **Wishlist**           | No               | ✅               | No                       |
-| **Earnings/Analytics** | No               | No               | ✅                       |
-
-All three portals import the same `index.css` (Tailwind base) and can reuse any component from `components/common/`.
-
----
-
-## Data Flow & State Management
-
-React Context provides each portal with a custom hook that returns state and action creators. Mock data files enable rapid development without a backend.
+1. **Global Providers** (`src/App.jsx`):
+   - `AuthProvider`: Manages user authentication state, JWT storage in `localStorage`, user session profile, and role validation.
+   - `SocketProvider`: Manages the real-time WebSocket connection to the backend, binds user rooms, handles reconnects, and enforces instant disconnection if a user is banned.
+2. **Scoped Domain Providers** (Embedded in Portal Layouts):
+   - `CustomerProvider`: Encapsulates catalog filters, customer bookings, wishlist items, and Razorpay deposit state inside `CustomerLayout.jsx`.
+   - `OwnerProvider`: Manages equipment inventory, owner earnings, booking requests, and business verification inside `OwnerLayout.jsx`.
+   - `AdminProvider`: Handles platform-wide aggregation feeds, user management, equipment moderation, and payment audits inside `AdminLayout.jsx`.
 
 ```mermaid
-sequenceDiagram
-    participant U as User
-    participant C as Component
-    participant CX as Context Provider
-    participant M as Mock Data
-    participant S as Service Layer
+graph TD
+    App["App.jsx"] --> Scroll["ScrollToTop"]
+    Scroll --> AuthP["AuthProvider"]
+    AuthP --> SocketP["SocketProvider"]
+    SocketP --> Routes["AppRoutes"]
+    SocketP --> Toast["NotificationToast"]
 
-    U->>C: Interaction (click, type, navigate)
-    C->>CX: Dispatch action (useContext hook)
-    CX->>M: Read/Write mock data (current)
-    CX-->>C: Updated state
-    C->>C: Re-render with new data
-
-    Note over S,M: Future: Replace mock with real API
-    S->>M: Normalized data (when API integrated)
-    M-->>S: Request for processing
-    S->>CX: Updated state from API
+    Routes -->|/customer/*| CL["CustomerLayout"] --> CP["CustomerProvider"]
+    Routes -->|/owner/*| OL["OwnerLayout"] --> OP["OwnerProvider"]
+    Routes -->|/admin/*| AL["AdminLayout"] --> AP["AdminProvider"]
 ```
-
-### Data Flow Sequence
-
-1. **User Interaction** – User clicks a button, submits a form, or navigates
-2. **Component Action** – Component dispatches an action via context hook (e.g., `toggleWishlist(equipmentId)`)
-3. **Context Update** – Context reads/writes to mock data file or prepares API call
-4. **State Propagation** – Updated state is broadcast to all components subscribed to the context
-5. **Re-render** – Affected components re-render with new data
-6. **Future API** – Service layer will eventually replace mock data with REST/GraphQL calls
 
 ---
 
-## Directory Structure
+## Centralized API Service & Interceptors
 
-```
-client/
-├── index.html
-├── package.json
-├── package-lock.json
-├── vite.config.js
-├── public/
-│   └── favicon.svg
-└── src/
-    ├── assets/
-    │   ├── Folder structure.jpeg
-    │   ├── hero.png
-    │   ├── react.svg
-    │   └── vite.svg
-    ├── components/
-    │   ├── admin/
-    │   │   ├── AdminNavbar.jsx
-    │   │   ├── AdminSidebar.jsx
-    │   │   ├── DataTable.jsx
-    │   │   ├── ProfileCard.jsx
-    │   │   ├── QuickActions.jsx
-    │   │   ├── RecentActivity.jsx
-    │   │   └── StatusBadge.jsx
-    │   ├── common/
-    │   │   ├── Button.jsx
-    │   │   ├── ConfirmModal.jsx
-    │   │   ├── EmptyState.jsx
-    │   │   ├── Loader.jsx
-    │   │   ├── Modal.jsx
-    │   │   └── SearchBar.jsx
-    │   ├── customer/
-    │   │   ├── BookingCard.jsx
-    │   │   ├── CustomerNavbar.jsx
-    │   │   ├── CustomerSidebar.jsx
-    │   │   ├── EquipmentCard.jsx
-    │   │   ├── NotificationCard.jsx
-    │   │   ├── ProfileCard.jsx
-    │   │   ├── StatsCard.jsx
-    │   │   └── WishlistCard.jsx
-    │   └── owner/
-    │       ├── BookingCard.jsx
-    │       ├── BusinessCard.jsx
-    │       ├── EarningsCard.jsx
-    │       ├── EquipmentCard.jsx
-    │       ├── OwnerNavbar.jsx
-    │       ├── OwnerSidebar.jsx
-    │       ├── ProfileCard.jsx
-    │       ├── StatsCard.jsx
-    │       └── StatusCard.jsx
-    ├── context/
-    │   ├── AdminContext.jsx
-    │   ├── AuthContext.jsx
-    │   └── CustomerContext.jsx
-    ├── data/
-    │   ├── adminMockData.js
-    │   ├── customerMockData.js
-    │   └── ownerMockData.js
-    ├── hooks/
-    │   └── useAdminData.js
-    ├── layouts/
-    │   ├── AdminLayout.jsx
-    │   ├── CustomerLayout.jsx
-    │   └── OwnerLayout.jsx
-    ├── pages/
-    │   ├── admin/
-    │   │   ├── Bookings.jsx
-    │   │   ├── Businesses.jsx
-    │   │   ├── Categories.jsx
-    │   │   ├── Dashboard.jsx
-    │   │   ├── Equipment.jsx
-    │   │   ├── Profile.jsx
-    │   │   └── Users.jsx
-    │   ├── customer/
-    │   │   ├── BookingDetails.jsx
-    │   │   ├── BookingSummary.jsx
-    │   │   ├── Bookings.jsx
-    │   │   ├── BrowseEquipment.jsx
-    │   │   ├── Dashboard.jsx
-    │   │   ├── DepositPayment.jsx
-    │   │   ├── EquipmentDetails.jsx
-    │   │   ├── Notifications.jsx
-    │   │   ├── PaymentSuccess.jsx
-    │   │   ├── Profile.jsx
-    │   │   └── Wishlist.jsx
-    │   ├── owner/
-    │   │   ├── AddEquipment.jsx
-    │   │   ├── Bookings.jsx
-    │   │   ├── BusinessStatus.jsx
-    │   │   ├── Dashboard.jsx
-    │   │   ├── Earnings.jsx
-    │   │   ├── EditEquipment.jsx
-    │   │   ├── Equipment.jsx
-    │   │   ├── Profile.jsx
-    │   │   └── RegisterBusiness.jsx
-    │   └── public/
-    │       ├── Home.jsx
-    │       ├── Login.jsx
-    │       └── Register.jsx
-    ├── routes/
-    │   ├── AdminRoutes.jsx
-    │   ├── AppRoutes.jsx
-    │   ├── CustomerRoutes.jsx
-    │   ├── OwnerRoutes.jsx
-    │   └── ProtectedRoute.jsx
-    ├── services/
-    │   └── adminService.js
-    ├── index.css
-    ├── App.jsx
-    └── main.jsx
-```
+All HTTP REST requests are routed through `src/services/api.js`. This central module provides:
 
-This is a single client application with all three portals (Admin, Customer, Owner) organized within the `src/` directory.
+- **JWT Request Interceptor:** Automatically attaches the active JWT Bearer token to all outgoing requests from `localStorage.getItem('token')`.
+- **Automatic Header Configuration:** Properly configures `Content-Type` for JSON payloads and `multipart/form-data` for file uploads.
+- **Unified Error Handling:** Standardizes error response extraction for clean UI notifications.
+- **Direct Domain Methods:**
+  - `authAPI`: `login()`, `register()`, `getMe()`, `updateProfile()`
+  - `customerAPI`: `getEquipment()`, `getEquipmentById()`, `createBooking()`, `getMyBookings()`, `getWishlist()`, `addToWishlist()`
+  - `ownerAPI`: `getMyEquipment()`, `addEquipment()`, `updateEquipment()`, `getOwnerBookings()`, `updateBookingStatus()`, `getEarnings()`, `registerBusiness()`
+  - `adminAPI`: `getStats()`, `getUsers()`, `updateUserRole()`, `toggleUserBan()`, `getBusinesses()`, `verifyBusiness()`, `getEquipment()`, `verifyEquipment()`, `getPayments()`
+  - `razorpayAPI`: `createOrder()`, `verifyPayment()`
+  - `chatAPI`: `sendMessage()` (routes to Groq AI)
 
 ---
 
-## Component Library
+## Real-Time WebSocket Engine
 
-### Shared Common Components (All Portals)
+The frontend integrates **Socket.IO Client** (`socket.io-client` `v4.8`) via `src/context/SocketContext.jsx`.
 
-| Component              | Location                               | Description                                                                                                  |
-| ---------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| **Button**       | `components/common/Button.jsx`       | Animated button with variants (primary, secondary, danger, success, warning, outline) and sizes (sm, md, lg) |
-| **Loader**       | `components/common/Loader.jsx`       | Spinner with customizable label                                                                              |
-| **SearchBar**    | `components/common/SearchBar.jsx`    | Search input + filter dropdown combo                                                                         |
-| **ConfirmModal** | `components/common/ConfirmModal.jsx` | Accessible confirmation dialog                                                                               |
-| **EmptyState**   | `components/common/EmptyState.jsx`   | Illustration + action for empty states                                                                       |
-| **Modal**        | `components/common/Modal.jsx`        | Base modal (Customer, Owner)                                                                                 |
-
-### Admin-Specific Components
-
-| Component                | Location                                | Description                                               |
-| ------------------------ | --------------------------------------- | --------------------------------------------------------- |
-| **AdminSidebar**   | `components/admin/AdminSidebar.jsx`   | Fixed sidebar with navigation, mobile drawer              |
-| **AdminNavbar**    | `components/admin/AdminNavbar.jsx`    | Top bar with real-time search, notifications, user avatar |
-| **DataTable**      | `components/admin/DataTable.jsx`      | Generic table wrapper with columns                        |
-| **StatsCard**      | `components/admin/StatsCard.jsx`      | Metric card with icon, value, trend                       |
-| **StatusBadge**    | `components/admin/StatusBadge.jsx`    | Colored status indicator                                  |
-| **ProfileCard**    | `components/admin/ProfileCard.jsx`    | Admin profile display                                     |
-| **QuickActions**   | `components/admin/QuickActions.jsx`   | Action button grid                                        |
-| **RecentActivity** | `components/admin/RecentActivity.jsx` | Activity feed list                                        |
-
-### Customer-Specific Components
-
-| Component                  | Location                                     | Description                                      |
-| -------------------------- | -------------------------------------------- | ------------------------------------------------ |
-| **CustomerSidebar**  | `components/customer/CustomerSidebar.jsx`  | Navigation + promotional "Become Owner" card     |
-| **CustomerNavbar**   | `components/customer/CustomerNavbar.jsx`   | Top bar with search, notifications, profile link |
-| **BookingCard**      | `components/customer/BookingCard.jsx`      | Booking summary with timeline                    |
-| **EquipmentCard**    | `components/customer/EquipmentCard.jsx`    | Equipment preview card                           |
-| **NotificationCard** | `components/customer/NotificationCard.jsx` | Notification list item                           |
-| **ProfileCard**      | `components/customer/ProfileCard.jsx`      | Customer profile                                 |
-| **StatsCard**        | `components/customer/StatsCard.jsx`        | Clickable metric card                            |
-| **WishlistCard**     | `components/customer/WishlistCard.jsx`     | Wishlist equipment card                          |
-
-### Owner-Specific Components
-
-| Component               | Location                               | Description                        |
-| ----------------------- | -------------------------------------- | ---------------------------------- |
-| **OwnerSidebar**  | `components/owner/OwnerSidebar.jsx`  | Navigation for owner features      |
-| **OwnerNavbar**   | `components/owner/OwnerNavbar.jsx`   | Top bar with search, notifications |
-| **BookingCard**   | `components/owner/BookingCard.jsx`   | Booking request with accept/reject |
-| **BusinessCard**  | `components/owner/BusinessCard.jsx`  | Business info display              |
-| **EarningsCard**  | `components/owner/EarningsCard.jsx`  | Revenue metric card                |
-| **EquipmentCard** | `components/owner/EquipmentCard.jsx` | Owner equipment management         |
-| **ProfileCard**   | `components/owner/ProfileCard.jsx`   | Owner profile                      |
-| **StatsCard**     | `components/owner/StatsCard.jsx`     | Metric card (shared design)        |
-| **StatusCard**    | `components/owner/StatusCard.jsx`    | Status indicator card              |
+### Key Capabilities:
+- **User Room Binding:** Automatically joins user-specific room `user_<id>` upon authentication.
+- **Role Room Binding:** Authenticated admins automatically join `admin_room` to receive instant updates on new business KYB submissions and listing approvals.
+- **Push Notification Toasts:** `NotificationToast.jsx` triggers smooth animated banners upon receipt of:
+  - Deposit payment confirmation.
+  - Owner booking acceptance or rejection.
+  - Handover and return milestones.
+  - Admin business verification status.
+- **Forced Disconnect on Ban:** When an Administrator bans a user, the backend emits `USER_BANNED`, immediately logging out the client and severing socket connectivity.
 
 ---
 
-## Getting Started
+## Groq AI Assistant Floating Widget
 
-### Prerequisites
+Located in `src/components/common/FloatingChatbot.jsx`:
+- Available throughout the application for instant user assistance.
+- Backed by server-side Groq LPU inference using `openai/gpt-oss-120b` and `llama-3.1-8b-instant`.
+- Supports natural language machinery recommendations, calculation of towing requirements, explanations of the 20% escrow deposit structure, and rental terms.
+- Features typing indicators, markdown message formatting, conversation history preservation, and expandable drawer design.
 
-- **Node.js** ≥ 20.x (recommended)
-- **npm** ≥ 10.x (comes with Node 20)
-- **Git** (optional, for cloning the repository)
+---
 
-### Installation
+## Digital Handover & E-Signature Pad
 
-1. Clone the repository (if you haven’t already):
+Located in `src/components/common/DigitalInspectionModal.jsx` and `src/components/common/SignaturePad.jsx`:
+- **HTML5 Canvas Signature Capture:** Allows customers and owners to digitally sign pre-rental inspection agreements directly on touchscreens or desktops.
+- **Inspection Checklist:** Verifies odometer/hour-meter readings, fuel/battery levels, existing damages, and safety equipment.
+- **Dynamic PDF Generation:** Exports high-fidelity, printable rental receipts and inspection certificates using `jspdf` and `jspdf-autotable`.
 
-   ```bash
-   git clone <repository‑url>
-   cd Rentra-Internship-Project
-   ```
-2. Install dependencies:
+---
 
-   ```bash
-   npm install
-   ```
+## Directory & Component Layout
 
-### Running the Applications
+```text
+client/src/
+├── assets/                       # Static SVGs, logos, and illustrations
+├── components/
+│   ├── admin/
+│   │   ├── AdminNavbar.jsx       # Header with global search & admin avatar
+│   │   ├── AdminSidebar.jsx      # Navigation drawer with responsive mobile menu
+│   │   ├── DataTable.jsx         # Generic sorting, filtering table wrapper
+│   │   ├── ProfileCard.jsx       # Administrative credentials summary
+│   │   ├── QuickActions.jsx      # Rapid approval and export triggers
+│   │   ├── RecentActivity.jsx    # Audit trail event feed
+│   │   └── StatusBadge.jsx       # Dynamic color-coded status badges
+│   ├── common/
+│   │   ├── Button.jsx            # Animated button with async spinner state
+│   │   ├── ConfirmModal.jsx      # Accessible action confirmation dialog
+│   │   ├── DemoRoleSwitcher.jsx  # One-click portal switching for evaluations
+│   │   ├── DigitalInspectionModal.jsx # Handover inspection dialog
+│   │   ├── EmptyState.jsx        # Illustrated placeholder for empty lists
+│   │   ├── FloatingChatbot.jsx   # Groq AI interactive chat assistant
+│   │   ├── Loader.jsx            # High-performance CSS loading spinner
+│   │   ├── Modal.jsx             # Flexible backdrop modal shell
+│   │   ├── NotificationToast.jsx # Real-time Socket.IO notification banner
+│   │   ├── ScrollToTop.jsx       # Viewport reset on route navigation
+│   │   ├── SearchBar.jsx         # Debounced query & category filter input
+│   │   └── SignaturePad.jsx      # HTML5 Canvas digital signature pad
+│   ├── customer/
+│   │   ├── BookingCard.jsx       # Booking card with timeline and action buttons
+│   │   ├── CustomerNavbar.jsx    # Navigation bar with notifications and profile
+│   │   ├── CustomerSidebar.jsx   # Customer navigation menu with "Become an Owner"
+│   │   ├── EquipmentCard.jsx     # Catalog listing card with badges and pricing
+│   │   ├── NotificationCard.jsx  # Notification item
+│   │   ├── ProfileCard.jsx       # Customer profile view
+│   │   ├── StatsCard.jsx         # Metric card with interactive transitions
+│   │   └── WishlistCard.jsx      # Saved equipment card
+│   └── owner/
+│       ├── BookingCard.jsx       # Incoming booking request with Accept/Reject
+│       ├── BusinessCard.jsx      # Company details & KYB status card
+│       ├── EarningsCard.jsx      # Revenue analytics metric card
+│       ├── EquipmentCard.jsx     # Owner machinery listing with Edit/Delete
+│       ├── OwnerNavbar.jsx       # Owner portal top bar
+│       ├── OwnerSidebar.jsx      # Fleet management navigation
+│       ├── ProfileCard.jsx       # Owner profile summary
+│       ├── StatsCard.jsx         # Metric summary card
+│       └── StatusCard.jsx        # Operational status indicator
+├── context/
+│   ├── AdminContext.jsx          # Admin state and management functions
+│   ├── AuthContext.jsx           # User authentication and JWT management
+│   ├── CustomerContext.jsx       # Customer browse and booking state
+│   ├── OwnerContext.jsx          # Fleet and business management state
+│   └── SocketContext.jsx         # Real-time WebSocket connection state
+├── layouts/
+│   ├── AdminLayout.jsx           # Admin portal wrapper with AdminProvider
+│   ├── CustomerLayout.jsx        # Customer portal wrapper with CustomerProvider
+│   └── OwnerLayout.jsx           # Owner portal wrapper with OwnerProvider
+├── pages/
+│   ├── admin/
+│   │   ├── Bookings.jsx          # System-wide booking manager
+│   │   ├── Businesses.jsx        # Business KYB verification dashboard
+│   │   ├── Categories.jsx        # Machinery taxonomy management
+│   │   ├── Dashboard.jsx         # Operational overview metrics
+│   │   ├── Equipment.jsx         # Machinery listing moderation
+│   │   ├── Payments.jsx          # Escrow monitoring & refund controls
+│   │   ├── Profile.jsx           # Admin security settings
+│   │   ├── UserDetails.jsx       # Deep user profile & audit view
+│   │   └── Users.jsx             # User directory with ban enforcement
+│   ├── customer/
+│   │   ├── BookingDetails.jsx    # Live booking status, invoice, inspection
+│   │   ├── BookingSummary.jsx    # Pre-checkout summary & 20% deposit breakdown
+│   │   ├── Bookings.jsx          # Customer rental history
+│   │   ├── BrowseEquipment.jsx   # Searchable machinery catalog
+│   │   ├── Dashboard.jsx         # Customer activity hub
+│   │   ├── DepositPayment.jsx    # Deposit payment entry
+│   │   ├── EquipmentDetails.jsx  # Technical specifications & pricing calculator
+│   │   ├── Notifications.jsx     # Customer alerts inbox
+│   │   ├── PaymentSuccess.jsx    # Razorpay success receipt
+│   │   ├── Profile.jsx           # Account details & security
+│   │   └── Wishlist.jsx          # Saved equipment items
+│   ├── owner/
+│   │   ├── AddEquipment.jsx      # Equipment listing creator with image upload
+│   │   ├── Bookings.jsx          # Owner booking requests & approval queue
+│   │   ├── BusinessStatus.jsx    # KYB verification tracker
+│   │   ├── Dashboard.jsx         # Owner fleet metrics & quick links
+│   │   ├── Earnings.jsx          # Revenue breakdown & payout history
+│   │   ├── EditEquipment.jsx     # Update machinery listing specs
+│   │   ├── Equipment.jsx         # Manage fleet inventory
+│   │   ├── Profile.jsx           # Owner profile & business details
+│   │   └── RegisterBusiness.jsx  # KYB company registration & document upload
+│   └── public/
+│       ├── Contact.jsx           # Platform support form
+│       ├── Home.jsx              # Alternative landing overview
+│       ├── Landing.jsx           # Primary marketing landing page
+│       ├── Login.jsx             # Multi-role login with Google OAuth
+│       ├── NotFound.jsx          # Global 404 error page
+│       ├── OAuthCallback.jsx     # Google OAuth token processing callback
+│       ├── Privacy.jsx           # Privacy policy
+│       ├── Register.jsx          # User registration
+│       └── Terms.jsx             # Rental terms & conditions
+├── routes/
+│   ├── AdminRoutes.jsx           # Admin portal route declarations
+│   ├── AppRoutes.jsx             # Master client routing table
+│   ├── CustomerRoutes.jsx        # Customer portal route declarations
+│   ├── OwnerRoutes.jsx           # Owner portal route declarations
+│   └── ProtectedRoute.jsx        # Role-based access control guard
+├── services/
+│   ├── adminService.js           # Supplemental admin helpers
+│   └── api.js                    # Centralized Axios API service with JWT interceptor
+├── App.jsx                       # Root component with providers
+├── index.css                     # Tailwind CSS 4 style imports
+└── main.jsx                      # Vite entry point with ErrorBoundary
+```
 
-Since this is a single client application with all three portals organized within the same codebase, you can run the development server and access each portal through different routes:
+---
 
+## Route Configuration & Access Control
+
+Rentra routes are strictly protected by `src/routes/ProtectedRoute.jsx`:
+
+| Route Path | Allowed Roles | Context Provider | Description |
+| :--- | :--- | :--- | :--- |
+| `/` | Public | None | High-impact marketing landing page |
+| `/login`, `/register` | Public | None | User authentication & Google OAuth |
+| `/oauth-callback` | Public | None | Captures JWT returned by Google OAuth |
+| `/customer/*` | `CUSTOMER`, `OWNER` | `CustomerProvider` | Browse catalog, book machinery, view invoices |
+| `/owner/*` | `OWNER` | `OwnerProvider` | Fleet management, booking approvals, earnings |
+| `/admin/*` | `ADMIN` | `AdminProvider` | Operations, moderation, KYB approvals, ban users |
+| `*` | Public | None | Global 404 Not Found fallback |
+
+---
+
+## Key UX & Polish Features
+
+- **Automatic Scroll Restoration:** `ScrollToTop.jsx` executes on every route change to reset the scroll position to the top of the viewport.
+- **Dynamic Document Titles:** Standardized document titles update on route changes for clean browser tab navigation and SEO.
+- **Async Loading Spinner State:** The shared `Button.jsx` accepts `isLoading` and `loadingText` props, disabling the button and displaying a spinner during async API operations.
+- **Input Field Protection:** Form fields enforce `maxLength` restrictions and regex sanitization to safeguard the database against oversized or malformed payloads.
+- **Google OAuth Profile Picture Fix:** Uses `referrerPolicy="no-referrer"` on avatars to prevent Google CDN 403 Forbidden errors.
+- **Global 404 Page:** `NotFound.jsx` catches all undefined routes with a clean illustration and return navigation button.
+
+---
+
+## Getting Started & Development
+
+### 1. Prerequisites
+- **Node.js**: `v20.x` or higher
+- **npm**: `v10.x` or higher
+
+### 2. Installation
+```bash
+cd client
+npm install
+```
+
+### 3. Environment Configuration
+Create a `.env` or `.env.local` file in the `client/` root:
+```env
+VITE_API_BASE_URL=http://localhost:3000/api
+VITE_SOCKET_URL=http://localhost:3000
+VITE_RAZORPAY_KEY_ID=rzp_test_your_key_id
+```
+
+### 4. Run Development Server
 ```bash
 npm run dev
 ```
-
-Then access the portals at:
-
-- **Admin Portal**: http://localhost:5173/admin (or as configured in routes)
-- **Customer Portal**: http://localhost:5173/customer
-- **Owner Portal**: http://localhost:5173/owner
-
-*Note: The actual ports and routes may vary based on your Vite configuration and routing setup. The application uses React Router for client-side routing between portals.*
-
-The Vite dev server provides hot‑module replacement (HMR), so edits to JSX, CSS, or config update instantly in the browser.
-
----
-
-## Development Workflow
-
-### Available Scripts
-
-| Script              | Description                                                           |
-| ------------------- | --------------------------------------------------------------------- |
-| `npm run dev`     | Starts the Vite development server                                    |
-| `npm run build`   | Produces a production‑ready bundle in the`dist/` folder            |
-| `npm run preview` | Serves the built`dist/` locally for previewing the production build |
-| `npm run lint`    | Runs Oxlint to check for code-quality issues                          |
-
-### Environment Variables
-
-Create a `.env.local` file in the project root (optional). Example:
-
-```env
-VITE_API_BASE_URL=http://localhost:4000/api
-```
-
-These variables are accessible via `import.meta.env.VITE_*` in the source code.
-
----
-
-## Technology Adoption Radar
-
-| Technology       | Adoption Level | Maturity | Notes                                           |
-| ---------------- | -------------- | -------- | ----------------------------------------------- |
-| React 19         | ●●●●●     | High     | Latest concurrent features, excellent ecosystem |
-| Vite 8           | ●●●●●     | High     | Lightning-fast HMR, excellent DX                |
-| Tailwind CSS 4   | ●●●●○     | High     | Utility-first, JIT compiler, excellent defaults |
-| Framer Motion 12 | ●●●●○     | High     | Production-ready animations, spring physics     |
-| React Router v7  | ●●●●●     | High     | Data‑loading APIs, nested routing              |
-| React Icons      | ●●●●●     | High     | Feather icon set, treeshakable                  |
-| Oxlint           | ●●○○○     | Medium   | Fast Rust linter (Admin only)                   |
-| Context API      | ●●●●●     | High     | Built‑in state management, no extra deps       |
-| Mock Data        | ●●○○○     | Low      | Placeholder for API integration                 |
-
-_● = Adoption level (1-5), ○ = Maturity assessment_
+The application will start at **http://localhost:5173**.
 
 ---
 
 ## Building for Production
 
-To generate static assets for deployment:
+To produce a production-ready, minified static bundle:
 
 ```bash
-# Build each portal
-cd client/Admin && npm run build
-cd ../Customer && npm run build
-cd ../Owner && npm run build
+npm run build
 ```
 
-Each command creates a `dist/` directory containing:
+This generates an optimized static distribution in `client/dist/`.
 
-- `index.html`
-- `assets/` with hashed JavaScript and CSS chunks
-- Optional static assets (images, fonts) copied from the `public/` folder (if added later).
-
----
-
-## Deployment Options
-
-| Platform                      | Steps                                                                                                                                  |
-| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| **Vercel**              | Import the repo, set the root directory to`client/Admin` (repeat for Customer/Owner) or use a monorepo setup with separate projects. |
-| **Netlify**             | Build command:`npm run build` (run per portal), Publish directory: `dist`.                                                         |
-| **AWS S3 + CloudFront** | Upload the contents of each`dist/` bucket, configure CloudFront for SPA fallback (`/index.html`).                                  |
-| **Docker**              | Use a multi‑stage Dockerfile (see below) to build the app and serve with Nginx.                                                       |
-| **GitHub Pages**        | Set`base` in `vite.config.js` to `"/<repo-name>/"` and `npm run build`; push the `dist/` folder to the `gh-pages` branch.  |
-
-### Example Dockerfile (single portal)
-
-```dockerfile
-# --- Build stage ---
-FROM node:20-alpine AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
-
-# --- Production stage ---
-FROM nginx:alpine
-COPY --from=builder /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
-```
-
-`nginx.conf` (simple SPA config):
-
-```nginx
-server {
-    listen 80;
-    root /usr/share/nginx/html;
-    index index.html;
-
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-
-    # Cache static assets
-    location /assets/ {
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-    }
-}
+To preview the production build locally:
+```bash
+npm run preview
 ```
 
 ---
 
-## Booking Flow (Customer Portal)
-
-```mermaid
-sequenceDiagram
-    participant C as Customer
-    participant UI as Customer Portal
-    participant CX as CustomerContext
-    participant M as Mock Data
-    participant O as Owner Portal
-
-    C->>UI: Browse Equipment
-    UI->>CX: equipmentList
-    CX-->>UI: mockEquipment[]
-
-    C->>UI: Click "Book Now" on Equipment
-    UI->>UI: Navigate /customer/booking-summary/:id
-    UI->>CX: prepareBookingSummary(bookingData)
-    CX->>CX: Create draftBooking with ID, dates, pricing
-    CX-->>UI: bookingSummary
-
-    C->>UI: Review & Confirm Deposit
-    UI->>CX: confirmDepositPayment(bookingId, paymentMethod)
-    CX->>CX: Create booking with status "Pending Owner Approval"
-    CX->>CX: depositStatus = "Deposit Paid"
-    CX->>CX: Add to bookings[], clear draftBooking
-    CX->>CX: Create notification
-    CX-->>UI: createdBooking
-
-    UI->>C: Show PaymentSuccess page
-
-    Note over O: Owner receives notification
-    O->>O: Accept/Reject booking
-    O->>CX: (via shared backend in future)
-    CX->>CX: Update booking status
-    CX->>CX: Create notification for customer
-
-    C->>UI: Pay Remaining Balance
-    UI->>CX: payRemainingBalance(bookingId, paymentMethod)
-    CX->>CX: status = "Rental Active"
-    CX->>CX: remainingBalance = 0
-    CX->>CX: Update timeline
-    CX->>CX: Create notification
-
-    Note over C,O: Rental period
-
-    C->>UI: Rental Completes
-    CX->>CX: refundStatus = "Deposit Refunded"
-    CX->>CX: Create notification
-```
-
----
-
-## Future Enhancements
-
-- **Real API Integration** – Replace mock data with a GraphQL or REST backend; implement authentication (JWT/OAuth) for Owner portal.
-- **TypeScript Migration** – Add strict typing across all portals for improved developer experience and fewer runtime errors.
-- **Testing Suite** – Unit and integration tests using Vitest + React Testing Library; end‑to‑end tests with Cypress or Playwright.
-- **Storybook** – Interactive component documentation and visual regression testing.
-- **PWA Support** – Enable offline browsing and installable experience for the Customer portal (service worker, manifest).
-- **Real‑time Notifications** – WebSocket or Server‑Sent Events for live updates (new bookings, messages, approvals).
-- **Internationalisation (i18n)** – Add locale‑based strings (e.g., `react-i18next`) to support multiple languages.
-- **Advanced Analytics** – Charts and exportable reports for Owners and Admins (sales, utilization, revenue).
-- **Role‑Based Access Control (Admin)** – Granular permissions (super‑admin, moderator, support) within the Admin portal.
-- **Design‑Token Package** – Extract Tailwind CSS variables into a shareable npm package for consistent theming across micro‑frontends.
-
----
-
-## Contributing
-
-We welcome contributions! Please follow these steps:
-
-1. **Fork** the repository and create a new branch from `main`:
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-2. Make your changes, adhering to the existing code style (see `.editorconfig` if present, otherwise follow the prevailing conventions).
-3. **Test** your changes locally by running the dev servers and/or the production build.
-4. Commit with a clear, conventional commit message:
-   ```
-   feat: add equipment search filter
-   fix: resolve typo in customer navbar
-   docs: update README with deployment instructions
-   ```
-5. Push to your fork and open a **Pull Request** against the `main` branch.
-6. Ensure the CI checks pass (if any) and address any review feedback.
-
-### Code of Conduct
-
-Please be respectful and constructive in all interactions. Harassment, discrimination, or disruptive behavior will not be tolerated.
-
----
-
-## License
-
-This project is licensed under the **MIT License** – see the [LICENSE](LICENSE) file for details.
-
----
-
-## Acknowledgements
-
-- **React** team for the powerful UI library.
-- **Vite** for the lightning‑fast build tooling.
-- **Tailwind CSS** for the utility‑first styling approach.
-- **Framer Motion** for delivering production‑ready animations with minimal code.
-- **React Router** for enabling seamless client‑side navigation.
-- **React Icons** (Feather set) for the clean, consistent iconography.
-- **Oxlint** for helping keep the Admin portal’s codebase tidy.
-- The open‑source community whose tools and libraries make projects like Rentra possible.
-
----
-
-> _Documentation generated from codebase analysis – Last updated: 2026‑08‑08_
+> *Rentra Client Documentation — Updated 2026*

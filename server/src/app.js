@@ -18,20 +18,34 @@ const { authenticateToken } = require('./middleware/auth.middleware');
 
 const app = express();
 
+// Trust reverse proxy for SSL termination on platforms like Render
+app.set('trust proxy', 1);
+
 // Middlewares
 app.use(helmet());
+
 // CORS Configuration
-const allowedOrigins = [
-  process.env.CLIENT_URL || 'http://localhost:5173',
-  'http://localhost:5174'
-];
+const configuredClients = (process.env.CLIENT_URL || 'http://localhost:5173')
+  .split(',')
+  .map((url) => url.trim().replace(/\/+$/, ''))
+  .filter(Boolean);
+
+const defaultOrigins = ['http://localhost:5173', 'http://localhost:5174'];
+const allowedOrigins = Array.from(new Set([...defaultOrigins, ...configuredClients]));
 
 app.use(cors({ 
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin) return callback(null, true);
+    const cleanOrigin = origin.replace(/\/+$/, '');
+    const isAllowed =
+      allowedOrigins.includes(cleanOrigin) ||
+      cleanOrigin.endsWith('.vercel.app') ||
+      process.env.NODE_ENV !== 'production';
+
+    if (isAllowed) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error(`Not allowed by CORS: ${origin}`));
     }
   }, 
   credentials: true 

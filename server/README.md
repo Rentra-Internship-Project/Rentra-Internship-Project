@@ -1,165 +1,370 @@
-# Rentra — MERN + Redis + Socket.IO Enterprise Backend API Server
+# Rentra — Backend REST API & Real-Time Engine ⚙️
 
-> **Complete Backend Technical Architecture & Master Specification**  
-> Technology Stack: **Node.js 20+, Express 5, MongoDB (Mongoose 9), Redis 7, Socket.IO 4, JWT (with HttpOnly Refresh Cookies), Stripe Connect Escrow, Cloudinary, and BullMQ**  
-> Supports **Dual Execution Modes**:
-> - ⚡ **Evaluation Mode**: Zero-cost ($0), 1-command Express + Persistent Local Data Store (`server/data/db.json`) for rapid evaluation testing & professor demos.
-> - 🚀 **Enterprise Production Mode**: Full-stack Mongoose models, Redis caching, Socket.IO notifications, and Stripe Connect escrow.
+> **Enterprise Node.js & Express API Gateway for Heavy Equipment Rental**  
+> Technology Stack: **Node.js 20+**, **Express 5**, **MongoDB Atlas & Mongoose 9**, **Socket.IO 4**, **Razorpay Escrow**, **Groq AI (openai/gpt-oss-120b)**, **Cloudinary CDN**, and **Passport Google OAuth 2.0**.
 
 ---
 
-## 🛠️ Technology Stack Breakdown
+## 📋 Table of Contents
 
-- **Core Framework**: Node.js v20+ & Express 5 (REST API Gateway)
-- **Database Layer**: MongoDB Atlas with Mongoose 9 ORM & `2dsphere` Geospatial Indexing
-- **Caching & Queues**: Redis 7, `@socket.io/redis-adapter`, and BullMQ background queue workers
-- **Real-Time Layer**: Socket.IO 4 with JWT Handshake Authentication
-- **Security & Auth**: Dual JWTs (15-min Access Token + 7-day HttpOnly SameSite=Strict Refresh Cookie), bcryptjs, Helmet security headers, and Redis Rate Limiting
-- **Payments & Escrow**: Stripe Connect Express & Webhooks API (`payment_intent.succeeded`, 20% deposit hold manual capture)
-- **Storage & PDF**: Cloudinary API with Multer storage + PDFKit contract generator
+- [System Architecture](#system-architecture)
+- [Key Features & Recent Enhancements](#key-features--recent-enhancements)
+- [Database Models & Indexing Architecture](#database-models--indexing-architecture)
+- [Razorpay Escrow & Payment Lifecycle](#razorpay-escrow--payment-lifecycle)
+- [Groq AI Chatbot Controller](#groq-ai-chatbot-controller)
+- [Socket.IO Real-Time Notification Engine](#socketio-real-time-notification-engine)
+- [Security, RBAC & Ban Enforcement](#security-rbac--ban-enforcement)
+- [Complete Directory Layout](#complete-directory-layout)
+- [REST API Endpoint Specifications](#rest-api-endpoint-specifications)
+- [Environment Configuration & Quick Start](#environment-configuration--quick-start)
 
 ---
 
-## 🏗️ Exhaustive Directory Structure (`server/`)
+## System Architecture
 
+The Rentra backend is organized as a high-performance, modular MVC REST API paired with a stateful WebSocket engine.
+
+```mermaid
+flowchart TD
+    subgraph Client ["Client Layer"]
+        ViteApp["React 19 Client SPA"]
+    end
+
+    subgraph ServerCore ["Node.js 20+ & Express 5 (server/index.js)"]
+        HTTPGateway["Express 5 HTTP Server (:3000)"]
+        SocketGateway["Socket.IO WebSocket Engine (:3000)"]
+
+        subgraph MiddlewarePipeline ["Global Security & Pipeline"]
+            Helmet["Helmet HTTP Headers"]
+            CORS["CORS Handler (Origin Whitelist)"]
+            RateLimit["Sliding Window Rate Limiter"]
+            JWTMiddleware["JWT Authentication Guard"]
+            RBACGuard["RBAC Permission Guard (CUSTOMER, OWNER, ADMIN)"]
+            MulterMemory["Multer Memory Buffer"]
+            Unhandled404["Global 404 Catcher"]
+            ErrorHandler["Centralized Error Middleware"]
+        end
+
+        subgraph Controllers ["Controllers & Business Logic"]
+            AuthController["Auth Controller (JWT + Google OAuth)"]
+            EquipController["Equipment Controller (Search, Limits)"]
+            BookingController["Booking Controller (9-Stage Lifecycle)"]
+            RazorpayController["Razorpay Escrow Controller (HMAC-SHA256)"]
+            AdminController["Admin Operations & Ban Manager"]
+            ChatController["Groq AI Chatbot Controller"]
+            BizController["Business KYB Controller"]
+            CatController["Category Taxonomy Controller"]
+            NotifyController["Notification Controller"]
+        end
+    end
+
+    subgraph DataServices ["Data Stores & Cloud Providers"]
+        MongoAtlas[("MongoDB Atlas Cloud / Memory Server")]
+        CloudinaryCDN[("Cloudinary Asset Storage")]
+        RazorpayGateway["Razorpay Payments & Escrow"]
+        GroqCloud["Groq AI LPU (openai/gpt-oss-120b)"]
+        GoogleAuth["Google Cloud Identity API"]
+    end
+
+    ViteApp <-->|REST API Requests| HTTPGateway
+    ViteApp <-->|Real-Time Bidirectional Events| SocketGateway
+
+    HTTPGateway --> Helmet --> CORS --> RateLimit --> JWTMiddleware --> RBACGuard
+    RBACGuard --> Controllers
+
+    Controllers <--> MongoAtlas
+    Controllers <--> CloudinaryCDN
+    Controllers <--> RazorpayGateway
+    Controllers <--> GroqCloud
+    Controllers <--> GoogleAuth
 ```
+
+---
+
+## Key Features & Recent Enhancements
+
+### 1. Dual Database Strategy
+- **MongoDB Atlas Cloud:** Production-ready clustering with replica set support and custom database name scoping (`MONGO_DB_NAME`).
+- **Zero-Friction Evaluation Fallback:** If `MONGO_URL` is omitted, the server automatically boots an in-memory database server (`mongodb-memory-server`), enabling instant evaluation, demo presentations, and automated testing with zero database setup required.
+
+### 2. High-Performance Indexing & Query Safety
+- **Full-Text Catalog Search:** Indexes `{ title: 'text', category: 'text' }` on the `Equipment` collection for fast full-text matching.
+- **Compound Query Indexing:** Indexes `{ status: 1, dailyRate: 1 }` for high-speed catalog filtering and sort performance.
+- **Document Query Limiting:** All catalog and collection queries enforce `.limit(100)` constraints to prevent unbound MongoDB fetches and memory exhaustion.
+- **Validation Constraints:** Equipment daily rates and pricing are strictly protected against negative numbers at the schema level.
+
+### 3. Instant Session Termination on Ban
+- When an Administrator flags an account as banned, the backend:
+  1. Sets `isBanned: true` in the database.
+  2. The JWT authentication middleware immediately denies further requests.
+  3. The WebSocket server instantly disconnects all active socket connections belonging to that user ID.
+
+### 4. Groq AI Chatbot Assistant
+- The `/api/chat` route proxies requests to **Groq Cloud** using high-throughput LPU inference with `openai/gpt-oss-120b` (and automatic fallback to `llama-3.1-8b-instant` and `groq/compound`).
+- The system prompt enforces domain boundaries: machinery recommendations, rental policies, towing weight rules, and escrow terms. Filters reasoning `<think>` tags before delivering clean responses to the client.
+
+### 5. Media Pipeline via Cloudinary
+- Accepts image uploads through Multer in-memory storage.
+- Encodes files into base64 Data URIs and uploads directly to Cloudinary (`rentra_equipment` folder), returning secure HTTPS CDN URLs.
+
+---
+
+## Database Models & Indexing Architecture
+
+### 1. User Model (`src/models/user.model.js`)
+- **Fields:** `name`, `email` (lowercased, trimmed, unique index), `password` (bcrypt hashed), `role` (`CUSTOMER`, `OWNER`, `ADMIN`), `googleId`, `avatar`, `phone`, `isBanned`, `isVerified`.
+- **Pre-Save Hook:** Automatically hashes plain passwords using `bcryptjs` with salt rounds = 10.
+
+### 2. Business Model (`src/models/business.model.js`)
+- **Fields:** `ownerId` (ref `User`), `companyName`, `registrationNumber`, `taxId`, `address`, `documents` (array of Cloudinary URLs), `status` (`PENDING`, `VERIFIED`, `REJECTED`), `rejectionReason`.
+
+### 3. Equipment Model (`src/models/equipment.model.js`)
+- **Fields:** `ownerId` (ref `User`), `businessId` (ref `Business`), `title`, `category`, `dailyRate` (min: 0), `description`, `specifications`, `location` (GeoJSON Point `[longitude, latitude]`), `images` (array of Cloudinary URLs), `status` (`AVAILABLE`, `RENTED`, `MAINTENANCE`), `isApproved` (Boolean).
+- **Indexes:**
+  ```javascript
+  equipmentSchema.index({ title: 'text', category: 'text' });
+  equipmentSchema.index({ status: 1, dailyRate: 1 });
+  equipmentSchema.index({ location: '2dsphere' });
+  ```
+
+### 4. Booking Model (`src/models/booking.model.js`)
+- **Fields:** `equipmentId` (ref `Equipment`), `customerId` (ref `User`), `ownerId` (ref `User`), `startDate`, `endDate`, `durationDays`, `rentalSubtotal`, `depositAmount` (mandatory 20%), `platformFee`, `totalAmount`, `status` (`PENDING_DEPOSIT`, `PENDING_APPROVAL`, `APPROVED`, `ACTIVE`, `RETURNED_INSPECTED`, `COMPLETED`, `CANCELLED`, `DISPUTED`), `razorpayOrderId`, `razorpayPaymentId`, `digitalSignature`, `inspectionDetails`.
+
+### 5. Notification Model (`src/models/notification.model.js`)
+- **Fields:** `userId` (ref `User`), `title`, `message`, `type` (`BOOKING`, `PAYMENT`, `SYSTEM`, `KYC`), `readStatus` (Boolean), `metadata`.
+
+---
+
+## Razorpay Escrow & Payment Lifecycle
+
+```mermaid
+sequenceDiagram
+    participant Customer as Customer Client
+    participant Server as Express REST API
+    participant Razorpay as Razorpay Cloud Gateway
+    participant Owner as Owner Client
+
+    Customer->>Server: POST /api/razorpay/create-order { bookingId, amount (20% deposit) }
+    Server->>Razorpay: razorpay.orders.create({ amount: depositInPaise, currency: 'INR' })
+    Razorpay-->>Server: Order Object { id: order_xyz, status: 'created' }
+    Server-->>Customer: { orderId: 'order_xyz', amount, key: RAZORPAY_KEY_ID }
+
+    Customer->>Customer: Render Razorpay Checkout Modal
+    Customer->>Razorpay: Submit Payment Details
+    Razorpay-->>Customer: Payment Success Callback { razorpay_payment_id, razorpay_order_id, razorpay_signature }
+
+    Customer->>Server: POST /api/razorpay/verify-payment { orderId, paymentId, signature, bookingId }
+    Server->>Server: Compute crypto.createHmac('sha256', RAZORPAY_KEY_SECRET)
+    Server->>Server: Verify Generated Signature === razorpay_signature
+
+    alt Signature Valid
+        Server->>Server: Update Booking status -> PENDING_APPROVAL
+        Server->>Server: Record depositAmount & razorpayPaymentId in Escrow
+        Server->>Owner: Socket.IO Emit: "BOOKING_REQUEST" (New Booking Pending Approval)
+        Server-->>Customer: { success: true, message: "Escrow Deposit Secured" }
+    else Signature Invalid
+        Server-->>Customer: 400 Bad Request { error: "Cryptographic signature verification failed" }
+    end
+```
+
+---
+
+## Groq AI Chatbot Controller
+
+- **Endpoint:** `POST /api/chat`
+- **Controller:** `src/controllers/chat.controller.js`
+- **Engine:** Groq High-Performance Inference Cloud
+- **Candidate Models:**
+  1. `openai/gpt-oss-120b` (Primary)
+  2. `openai/gpt-oss-20b`
+  3. `groq/compound-mini`
+  4. `groq/compound`
+  5. `llama-3.1-8b-instant` (Fallback)
+- **Features:** Automatic system prompt injection (`src/utils/chatbotPrompt.js`), conversation history preservation, `<think>` token filtering for reasoning models, and automatic model failover.
+
+---
+
+## Socket.IO Real-Time Notification Engine
+
+The WebSocket engine is initialized in `src/config/socket.js` and attached to the HTTP server in `index.js`.
+
+### Supported Events:
+
+| Event Name | Direction | Payload | Description |
+| :--- | :--- | :--- | :--- |
+| `connection` | Client $\rightarrow$ Server | Token / Handshake | Authenticates socket connection |
+| `join_room` | Client $\rightarrow$ Server | `{ userId }` | Joins user-specific room `user_<id>` |
+| `BOOKING_STATUS_CHANGED` | Server $\rightarrow$ Client | `{ bookingId, newStatus }` | Broadcast to customer and owner |
+| `NEW_NOTIFICATION` | Server $\rightarrow$ Client | `{ title, message, type }` | Delivers real-time push notification |
+| `USER_BANNED` | Server $\rightarrow$ Client | `{ userId, reason }` | Forces client logout and terminates socket |
+
+---
+
+## Security, RBAC & Ban Enforcement
+
+1. **Helmet Headers:** Secures HTTP response headers against clickjacking, MIME sniffing, and XSS attacks.
+2. **CORS Whitelisting:** Restricts API consumption to trusted origins (`http://localhost:5173`, `http://localhost:5174`).
+3. **Sliding Rate Limiter:** Protects against denial-of-service and brute-force authentication attacks.
+4. **JWT Authentication Guard (`auth.middleware.js`):** Validates Bearer tokens, inspects database user records, and immediately halts requests if `user.isBanned === true`.
+5. **Role-Based Access Control (`rbac.middleware.js`):** Enforces strict privilege trees:
+   - `ADMIN` $\rightarrow$ System-wide operations, KYC verification, ban management.
+   - `OWNER` $\rightarrow$ Fleet listings, booking responses, earnings inspection.
+   - `CUSTOMER` $\rightarrow$ Catalog browsing, booking creation, rental management.
+6. **Unhandled Route Protection:** `app.use('/api', (req, res) => res.status(404)...)` prevents dangling client connections on undefined endpoints.
+
+---
+
+## Complete Directory Layout
+
+```text
 server/
-├── index.js                      # Application Entry Point & Server Launcher
-├── package.json                  # Dependencies & Scripts
-├── .env.example                  # Environment Template
-├── data/
-│   └── db.json                   # Persistent Local Evaluation DB Store
+├── index.js                      # HTTP & Socket.IO server bootstrapper
+├── package.json                  # Dependencies & scripts
+├── .env.example                  # Environment configuration template
 ├── src/
-│   ├── app.js                    # Express App Setup & Global Middlewares
+│   ├── app.js                    # Express 5 application setup, middlewares, routes
 │   ├── config/
-│   │   ├── db.js                 # MongoDB Mongoose Connection Pool
-│   │   ├── redis.js              # Redis Client Configuration (ioredis)
-│   │   ├── socket.js             # Socket.IO Server & Redis Adapter
-│   │   ├── cloudinary.js         # Cloudinary SDK Configuration
-│   │   ├── stripe.js             # Stripe SDK Client Initializer
-│   │   └── constants.js          # App Constants (Roles, Statuses, Fees)
+│   │   ├── db.js                 # MongoDB Atlas connection & in-memory fallback
+│   │   ├── passport.js           # Passport Google OAuth 2.0 strategy
+│   │   └── socket.js             # Socket.IO event emitter and room manager
+│   ├── controllers/
+│   │   ├── admin.controller.js   # Analytics, user ban, KYB moderation
+│   │   ├── auth.controller.js    # Login, register, Google OAuth callback
+│   │   ├── booking.controller.js # Booking creation & 9-stage state machine
+│   │   ├── business.controller.js# Owner KYB profile & document management
+│   │   ├── category.controller.js# Machinery category management
+│   │   ├── chat.controller.js    # Groq AI assistant endpoint
+│   │   ├── equipment.controller.js# Equipment listings, text search, queries
+│   │   ├── notification.controller.js# Notification inbox & read receipts
+│   │   └── razorpay.controller.js# Escrow order generation & signature verify
 │   ├── middleware/
-│   │   ├── auth.middleware.js    # JWT Verification & Cookie Token Guard
-│   │   ├── rbac.middleware.js    # Role-Based Access Control Guard (ADMIN, OWNER, CUSTOMER)
-│   │   ├── rateLimiter.js        # Redis-Backed Rate Limiting Middleware
-│   │   ├── upload.middleware.js  # Multer Storage & Cloudinary Pipeline
-│   │   └── error.middleware.js   # Global Error & Async Exception Handler (Mongoose 11000)
-│   ├── modules/
-│   │   ├── auth/                 # Auth Routes, Controllers (Login, Register, Refresh, Logout)
-│   │   ├── users/                # User Schemas & Profile Handlers
-│   │   ├── businesses/           # Owner Business KYB Verification
-│   │   ├── categories/           # Machinery Category Taxonomies
-│   │   ├── equipment/            # Equipment Catalog, Mongoose 2dsphere Search & Bundles
-│   │   ├── bookings/             # Bookings, Lowboy Hauling & Engine Overtime Calculator
-│   │   ├── inspection/           # Digital E-Signature & Photo Inspection
-│   │   ├── escrow/               # Payment Escrow & Stripe Connect Webhooks
-│   │   ├── payouts/              # Owner Financial Earnings & Transfers
-│   │   └── admin/                # Platform Analytics Aggregation ($facet)
-│   └── jobs/
-│       └── worker.js             # BullMQ Queue Processor (Email Notifications, PDFKit Contracts)
+│   │   ├── auth.middleware.js    # JWT verification & ban status checker
+│   │   ├── errorMiddleware.js    # Centralized Express error handler
+│   │   ├── rateLimiter.js        # IP-based sliding window rate limiter
+│   │   ├── rbac.middleware.js    # Role-based access control guard
+│   │   └── upload.middleware.js  # Multer memory storage pipeline
+│   ├── models/
+│   │   ├── booking.model.js      # Booking lifecycle schema
+│   │   ├── business.model.js     # Owner business KYB schema
+│   │   ├── category.model.js     # Equipment category taxonomy schema
+│   │   ├── equipment.model.js    # Indexed machinery catalog schema
+│   │   ├── notification.model.js # System & push notification schema
+│   │   └── user.model.js         # User account schema with bcrypt hooks
+│   ├── routes/
+│   │   ├── admin.routes.js       # /api/admin endpoints
+│   │   ├── auth.routes.js        # /api/auth endpoints
+│   │   ├── booking.routes.js     # /api/bookings endpoints
+│   │   ├── business.routes.js    # /api/business endpoints
+│   │   ├── category.routes.js    # /api/categories endpoints
+│   │   ├── chat.routes.js        # /api/chat Groq AI assistant endpoints
+│   │   ├── equipment.routes.js   # /api/equipment endpoints
+│   │   ├── notification.routes.js# /api/notifications endpoints
+│   │   └── razorpay.routes.js    # /api/razorpay escrow endpoints
+│   └── utils/
+│       ├── chatbotPrompt.js      # Groq AI system prompt & instructions
+│       ├── seedCategories.js     # Machinery category seeder
+│       └── seedData.js           # Comprehensive sample marketplace dataset
 ```
 
 ---
 
-## 🗄️ Database Schemas & Core Features
+## REST API Endpoint Specifications
 
-### 1. Equipment Model (`src/modules/equipment/equipment.model.js`)
-```javascript
-const mongoose = require('mongoose');
+### Authentication (`/api/auth`)
+- `POST /api/auth/register` — Register a new account (`name`, `email`, `password`, `role`).
+- `POST /api/auth/login` — Authenticate credentials and receive a JWT Bearer token.
+- `GET /api/auth/me` — Retrieve the current authenticated user profile.
+- `PUT /api/auth/profile` — Update user profile information.
+- `GET /api/auth/google` — Initiate Google OAuth 2.0 authentication.
+- `GET /api/auth/google/callback` — Google OAuth redirect callback.
 
-const equipmentSchema = new mongoose.Schema({
-  ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  businessId: { type: mongoose.Schema.Types.ObjectId, ref: 'Business', required: true },
-  title: { type: String, required: true },
-  category: { type: String, required: true },
-  dailyRate: { type: Number, required: true },
-  
-  // Unique Feature 1: Certified Operator Option
-  operatorAvailable: { type: Boolean, default: false },
-  operatorDailyRate: { type: Number, default: 150 },
-  
-  // Unique Feature 3: Lowboy Hauling Specs & PostGIS 2dsphere Location
-  weightTons: { type: Number, required: true },
-  location: {
-    type: { type: String, enum: ['Point'], default: 'Point' },
-    coordinates: { type: [Number], index: '2dsphere' } // [longitude, latitude]
-  },
-  images: [{ type: String }],
-  status: { type: String, enum: ['AVAILABLE', 'RENTED', 'MAINTENANCE'], default: 'AVAILABLE' }
-}, { timestamps: true });
+### Equipment Catalog (`/api/equipment`)
+- `GET /api/equipment` — Query machinery catalog (supports full-text `search`, `category`, `minPrice`, `maxPrice`, `.limit(100)`).
+- `GET /api/equipment/:id` — Fetch detailed specifications for an asset.
+- `POST /api/equipment` — List new equipment (Protected: `OWNER`).
+- `PUT /api/equipment/:id` — Update equipment details (Protected: `OWNER`).
+- `DELETE /api/equipment/:id` — Remove an equipment listing (Protected: `OWNER`).
 
-module.exports = mongoose.model('Equipment', equipmentSchema);
-```
+### Bookings & Escrow (`/api/bookings`)
+- `POST /api/bookings` — Create a new rental booking request.
+- `GET /api/bookings/my-bookings` — Retrieve all bookings for the logged-in user.
+- `GET /api/bookings/owner` — Retrieve incoming booking requests for equipment owners.
+- `GET /api/bookings/:id` — Fetch single booking details and timeline.
+- `PATCH /api/bookings/:id/status` — Transition booking state (`APPROVED`, `ACTIVE`, `COMPLETED`, `CANCELLED`).
+- `POST /api/bookings/:id/inspection` — Record pre/post digital handover inspection.
 
-### 2. Booking Model (`src/modules/bookings/booking.model.js`)
-```javascript
-const mongoose = require('mongoose');
+### Razorpay Escrow (`/api/razorpay`)
+- `POST /api/razorpay/create-order` — Generate Razorpay Order for 20% advance deposit.
+- `POST /api/razorpay/verify` — Verify cryptographic HMAC-SHA256 signature and lock deposit in escrow.
 
-const bookingSchema = new mongoose.Schema({
-  equipmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Equipment', required: true },
-  customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  startDate: { type: Date, required: true },
-  endDate: { type: Date, required: true },
-  durationDays: { type: Number, required: true },
-  
-  // Unique Feature Selections & Financial Breakdown
-  includeOperator: { type: Boolean, default: false },
-  distanceKm: { type: Number, default: 25 },
-  haulingFee: { type: Number, required: true },
-  rentalSubtotal: { type: Number, required: true },
-  depositAmount: { type: Number, required: true },
-  platformFee: { type: Number, required: true },
-  gstTax: { type: Number, required: true },
-  grandTotal: { type: Number, required: true },
-  
-  // Unique Feature 4: Engine Hour Overtime Meter
-  allowedEngineHours: { type: Number, default: 8 },
-  loggedEngineHours: { type: Number, default: 0 },
-  overtimeHours: { type: Number, default: 0 },
-  overtimeSurcharge: { type: Number, default: 0 },
-  
-  // Unique Feature 5: Digital E-Signature Inspection
-  signatureDataUrl: { type: String, default: null },
-  inspectionPhotos: [{ type: String }],
-  
-  paymentIntentId: { type: String, default: '' },
-  status: { 
-    type: String, 
-    enum: ['PENDING_DEPOSIT', 'PENDING_OWNER_APPROVAL', 'APPROVED', 'ACTIVE', 'RETURNED_INSPECTED', 'COMPLETED', 'CANCELLED'], 
-    default: 'PENDING_DEPOSIT' 
-  }
-}, { timestamps: true });
+### AI Assistant (`/api/chat`)
+- `POST /api/chat` — Send conversation context to Groq AI (`openai/gpt-oss-120b`).
 
-module.exports = mongoose.model('Booking', bookingSchema);
-```
+### Administration (`/api/admin`)
+- `GET /api/admin/stats` — High-level platform statistics (users, revenue, rentals).
+- `GET /api/admin/users` — System user directory.
+- `PATCH /api/admin/users/:id/role` — Update a user's role.
+- `PATCH /api/admin/users/:id/ban` — Toggle user ban and sever active WebSocket session.
+- `GET /api/admin/businesses` — Pending and verified KYB business registrations.
+- `PATCH /api/admin/businesses/:id/verify` — Approve or reject business KYB.
+- `GET /api/admin/equipment` — Equipment listings pending moderation.
+- `PATCH /api/admin/equipment/:id/verify` — Approve or reject equipment listing.
+- `GET /api/admin/payments` — Escrow and payout transaction audit log.
+
+### Media Upload (`/api/upload`)
+- `POST /api/upload` — Multipart image upload to Cloudinary (Protected).
 
 ---
 
-## 🚀 Quick Start Execution
+## Environment Configuration & Quick Start
 
-1. **Install Dependencies**:
-   ```bash
-   cd server
-   npm install
-   ```
+### 1. Installation
+```bash
+cd server
+npm install
+```
 
-2. **Configure Environment Variables (`server/.env`)**:
-   ```env
-   PORT=3000
-   NODE_ENV=development
-   CLIENT_URL=http://localhost:5173
-   MONGO_URI=mongodb://localhost:27017/rentra
-   REDIS_URL=redis://localhost:6379
-   JWT_SECRET=super_secret_jwt_key_98765
-   JWT_REFRESH_SECRET=super_secret_refresh_key_12345
-   STRIPE_SECRET_KEY=sk_test_51...
-   STRIPE_WEBHOOK_SECRET=whsec_...
-   CLOUDINARY_URL=cloudinary://api_key:api_secret@cloud_name
-   ```
+### 2. Configure Environment (`server/.env`)
+```env
+PORT=3000
+NODE_ENV=development
+JWT_SECRET=rentra_super_secret_jwt_key_2026
 
-3. **Start Dev Server**:
-   ```bash
-   npm run dev
-   ```
-   - Express Server running on: `http://localhost:3000`
-   - Health Check route: `GET http://localhost:3000`
+# Database
+# Leave blank to automatically use local in-memory database
+MONGO_URL=
+MONGO_DB_NAME=rentra_db
+
+# Client Origins
+SOCKET_CORS_ORIGIN=http://localhost:5173
+CLIENT_URL=http://localhost:5173
+
+# Razorpay Escrow Credentials
+RAZORPAY_KEY_ID=rzp_test_your_key_id
+RAZORPAY_KEY_SECRET=your_razorpay_key_secret
+
+# Cloudinary Media Storage
+CLOUDINARY_CLOUD_NAME=rentra-assets
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+
+# Groq AI Assistant (https://console.groq.com/keys)
+GROQ_API_KEY=gsk_your_groq_api_key
+GROQ_MODEL=openai/gpt-oss-120b
+
+# Google OAuth 2.0 Credentials (Optional)
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+```
+
+### 3. Run Development Server
+```bash
+npm run dev
+```
+
+- Server running at: **http://localhost:3000**
+- Health Check endpoint: **http://localhost:3000/**
+
+---
+
+> *Rentra Backend API Documentation — Updated 2026*
