@@ -17,6 +17,7 @@
 - [Complete Directory Layout](#complete-directory-layout)
 - [REST API Endpoint Specifications](#rest-api-endpoint-specifications)
 - [Environment Configuration & Quick Start](#environment-configuration--quick-start)
+- [Production Deployment on Render (render.yaml)](#production-deployment-on-render-renderyaml)
 
 ---
 
@@ -106,6 +107,15 @@ flowchart TD
 ### 5. Media Pipeline via Cloudinary
 - Accepts image uploads through Multer in-memory storage.
 - Encodes files into base64 Data URIs and uploads directly to Cloudinary (`rentra_equipment` folder), returning secure HTTPS CDN URLs.
+
+### 6. Native In-Memory Sliding-Window Cache Store
+- Replaced external Redis infrastructure with a lightweight native JavaScript `Map` store in `src/config/redis.js`.
+- Implements async `get`, `set`, and `del` methods with automatic timer TTL deletion.
+- Powers the IP-based API rate limiter (`rateLimiter.js`) with sub-millisecond memory performance at $0 infrastructure cost.
+
+### 7. Production Deployment Blueprint (`render.yaml`)
+- Includes an infrastructure-as-code declaration for [Render](https://render.com/).
+- Defines root directory execution (`server`), build commands (`npm install`), production start script (`npm start`), health check routing (`/`), and environment variable bindings for zero-friction continuous deployment.
 
 ---
 
@@ -364,6 +374,18 @@ npm run dev
 
 - Server running at: **http://localhost:3000**
 - Health Check endpoint: **http://localhost:3000/**
+
+---
+
+## Production Deployment on Render (render.yaml)
+
+The Rentra backend includes a declarative [Render Blueprint](https://render.com/docs/blueprint-spec) (`render.yaml`) located in the project root:
+
+1. Connect your repository to [Render](https://dashboard.render.com/).
+2. Select **New +** -> **Blueprint**.
+3. Render automatically provisions the web service using `server/` as the root directory, installs dependencies, and runs `npm start`.
+4. The server is configured with `app.set('trust proxy', 1)` to correctly terminate HTTPS behind Render's load balancers.
+5. See [DEPLOYMENT.md](../deployment.md) for full deployment instructions and free-tier keep-alive configurations.
 
 ---
 
