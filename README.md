@@ -100,49 +100,56 @@ Rentra follows a clean, decoupled full-stack MERN architecture built for speed, 
 
 ```mermaid
 flowchart TB
-    subgraph Client ["Client Layer (React 19 + Vite 8 + Tailwind CSS 4)"]
-        Landing["Public Landing & Auth"]
-        CustApp["Customer Portal"]
-        OwnerApp["Owner Fleet Portal"]
+    subgraph Client ["Client Layer (React 19 + Vite 8 + Tailwind 4)"]
+        Landing["Public Landing & Auth Pages"]
+        CustApp["Customer Portal Views"]
+        OwnerApp["Owner Fleet Hub"]
         AdminApp["Admin Control Center"]
-        AIWidget["Groq Floating AI Chatbot"]
+        AIWidget["Groq Floating AI Assistant"]
         SocketC["Socket.IO Client Engine"]
         AxiosSvc["Axios API Client (JWT Interceptor)"]
     end
 
     subgraph Backend ["Server Layer (Node.js 20+ & Express 5)"]
-        Gateway["REST API Gateway (Helmet, CORS, Rate Limit)"]
-        AuthMiddleware["JWT Guard & Instant Ban Validator"]
-        MulterPipeline["Multer In-Memory Storage"]
+        Gateway["REST API Gateway (app.js)"]
+        AuthGuard["JWT Guard & Ban Validator"]
         SocketS["Socket.IO WebSocket Server"]
         
-        subgraph Controllers ["Core Controllers"]
-            AuthController["Auth & OAuth Controller"]
-            EquipController["Equipment Catalog (Indexed)"]
-            BookingController["Escrow & Booking State Machine"]
-            ChatController["Groq AI Assistant Controller"]
-            AdminController["Admin Moderation & Aggregations"]
-            RazorpayController["Razorpay Payment & Verification"]
-        end
+        AuthController["Auth Controller"]
+        EquipController["Equipment Catalog Controller"]
+        BookingController["Booking & Escrow Controller"]
+        ChatController["Groq AI Chat Controller"]
+        AdminController["Admin Moderation Controller"]
+        RazorpayController["Razorpay Escrow Controller"]
+        UploadService["Multer Upload Pipeline"]
     end
 
     subgraph External ["Cloud Infrastructure & Third Parties"]
-        MongoAtlas[("MongoDB Atlas Cloud / Local Memory")]
+        MongoAtlas[("MongoDB Atlas Cloud / Memory Server")]
         CloudinaryCDN[("Cloudinary Media CDN")]
         RazorpayAPI["Razorpay Payment Gateway"]
         GroqAPI["Groq AI Cloud (openai/gpt-oss-120b)"]
         GoogleOAuth["Google Cloud OAuth 2.0"]
     end
 
-    Client -->|HTTPS REST| Gateway
-    SocketC <-->|Bidirectional WebSockets| SocketS
-    Gateway --> AuthMiddleware
-    AuthMiddleware --> Controllers
-    MulterPipeline --> CloudinaryCDN
-    Controllers <--> MongoAtlas
-    RazorpayController <--> RazorpayAPI
-    ChatController <--> GroqAPI
-    AuthController <--> GoogleOAuth
+    AxiosSvc -->|HTTPS REST| Gateway
+    SocketC ---|WebSockets| SocketS
+    Gateway --> AuthGuard
+    AuthGuard --> AuthController
+    AuthGuard --> EquipController
+    AuthGuard --> BookingController
+    AuthGuard --> ChatController
+    AuthGuard --> AdminController
+    AuthGuard --> RazorpayController
+    Gateway --> UploadService
+
+    UploadService --> CloudinaryCDN
+    EquipController --> MongoAtlas
+    BookingController --> MongoAtlas
+    AdminController --> MongoAtlas
+    RazorpayController --> RazorpayAPI
+    ChatController --> GroqAPI
+    AuthController --> GoogleOAuth
 ```
 
 ### 1. Robust Security, Authentication & Ban Enforcement
@@ -154,8 +161,9 @@ flowchart TB
 ### 2. Transactional Escrow & 9-Stage State Machine
 - **20% Advance Escrow Deposit:** Customers commit a mandatory 20% down payment held securely in escrow via Razorpay before an equipment owner confirms delivery.
 - **Cryptographic Verification:** Server verifies payments with HMAC-SHA256 signatures (`crypto.createHmac`) before updating booking statuses.
-- **Deterministic State Transitions:** Prevents race conditions and double-bookings with an immutable lifecycle:
-  $$\text{PENDING\_DEPOSIT} \longrightarrow \text{PENDING\_APPROVAL} \longrightarrow \text{APPROVED} \longrightarrow \text{ACTIVE} \longrightarrow \text{RETURNED\_INSPECTED} \longrightarrow \text{COMPLETED} \quad (\text{or } \text{CANCELLED} / \text{DISPUTED})$$
+- **Deterministic State Transitions:** Prevents race conditions and double-bookings with an immutable 9-stage lifecycle:
+  > `PENDING_DEPOSIT` ➔ `PENDING_APPROVAL` ➔ `APPROVED` ➔ `ACTIVE` ➔ `RETURNED_INSPECTED` ➔ `COMPLETED`  
+  > *(Alternative terminal states: `CANCELLED` | `DISPUTED`)*
 
 ### 3. Groq AI Equipment Assistant
 - **Ultra-Fast LLM Inference:** Powered by Groq's high-throughput LPU cloud running `openai/gpt-oss-120b` with seamless failover to `llama-3.1-8b-instant` and `groq/compound`.

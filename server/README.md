@@ -35,48 +35,48 @@ flowchart TD
         SocketGateway["Socket.IO WebSocket Engine (:3000)"]
 
         subgraph MiddlewarePipeline ["Global Security & Pipeline"]
-            Helmet["Helmet HTTP Headers"]
-            CORS["CORS Handler (Origin Whitelist)"]
+            Helmet["Helmet Security Headers"]
             RateLimit["Sliding Window Rate Limiter"]
             JWTMiddleware["JWT Authentication Guard"]
-            RBACGuard["RBAC Permission Guard (CUSTOMER, OWNER, ADMIN)"]
+            RBACGuard["RBAC Permission Guard"]
             MulterMemory["Multer Memory Buffer"]
-            Unhandled404["Global 404 Catcher"]
-            ErrorHandler["Centralized Error Middleware"]
         end
 
-        subgraph Controllers ["Controllers & Business Logic"]
-            AuthController["Auth Controller (JWT + Google OAuth)"]
-            EquipController["Equipment Controller (Search, Limits)"]
-            BookingController["Booking Controller (9-Stage Lifecycle)"]
-            RazorpayController["Razorpay Escrow Controller (HMAC-SHA256)"]
-            AdminController["Admin Operations & Ban Manager"]
-            ChatController["Groq AI Chatbot Controller"]
-            BizController["Business KYB Controller"]
-            CatController["Category Taxonomy Controller"]
-            NotifyController["Notification Controller"]
-        end
+        AuthController["Auth Controller (JWT + Google OAuth)"]
+        EquipController["Equipment Catalog Controller"]
+        BookingController["Booking & Escrow Controller"]
+        RazorpayController["Razorpay Escrow Controller"]
+        AdminController["Admin Operations & Ban Controller"]
+        ChatController["Groq AI Chatbot Controller"]
     end
 
     subgraph DataServices ["Data Stores & Cloud Providers"]
         MongoAtlas[("MongoDB Atlas Cloud / Memory Server")]
-        CloudinaryCDN[("Cloudinary Asset Storage")]
-        RazorpayGateway["Razorpay Payments & Escrow"]
-        GroqCloud["Groq AI LPU (openai/gpt-oss-120b)"]
+        CloudinaryCDN[("Cloudinary Media CDN")]
+        RazorpayGateway["Razorpay Payments Gateway"]
+        GroqCloud["Groq AI LPU Cloud"]
         GoogleAuth["Google Cloud Identity API"]
     end
 
-    ViteApp <-->|REST API Requests| HTTPGateway
-    ViteApp <-->|Real-Time Bidirectional Events| SocketGateway
+    ViteApp -->|REST API Requests| HTTPGateway
+    ViteApp ---|Real-Time WebSockets| SocketGateway
 
-    HTTPGateway --> Helmet --> CORS --> RateLimit --> JWTMiddleware --> RBACGuard
-    RBACGuard --> Controllers
+    HTTPGateway --> Helmet --> RateLimit --> JWTMiddleware --> RBACGuard
+    RBACGuard --> AuthController
+    RBACGuard --> EquipController
+    RBACGuard --> BookingController
+    RBACGuard --> RazorpayController
+    RBACGuard --> AdminController
+    RBACGuard --> ChatController
+    HTTPGateway --> MulterMemory
 
-    Controllers <--> MongoAtlas
-    Controllers <--> CloudinaryCDN
-    Controllers <--> RazorpayGateway
-    Controllers <--> GroqCloud
-    Controllers <--> GoogleAuth
+    MulterMemory --> CloudinaryCDN
+    EquipController --> MongoAtlas
+    BookingController --> MongoAtlas
+    AdminController --> MongoAtlas
+    RazorpayController --> RazorpayGateway
+    ChatController --> GroqCloud
+    AuthController --> GoogleAuth
 ```
 
 ---
@@ -192,11 +192,11 @@ The WebSocket engine is initialized in `src/config/socket.js` and attached to th
 
 | Event Name | Direction | Payload | Description |
 | :--- | :--- | :--- | :--- |
-| `connection` | Client $\rightarrow$ Server | Token / Handshake | Authenticates socket connection |
-| `join_room` | Client $\rightarrow$ Server | `{ userId }` | Joins user-specific room `user_<id>` |
-| `BOOKING_STATUS_CHANGED` | Server $\rightarrow$ Client | `{ bookingId, newStatus }` | Broadcast to customer and owner |
-| `NEW_NOTIFICATION` | Server $\rightarrow$ Client | `{ title, message, type }` | Delivers real-time push notification |
-| `USER_BANNED` | Server $\rightarrow$ Client | `{ userId, reason }` | Forces client logout and terminates socket |
+| `connection` | Client → Server | Token / Handshake | Authenticates socket connection |
+| `join_room` | Client → Server | `{ userId }` | Joins user-specific room `user_<id>` |
+| `BOOKING_STATUS_CHANGED` | Server → Client | `{ bookingId, newStatus }` | Broadcast to customer and owner |
+| `NEW_NOTIFICATION` | Server → Client | `{ title, message, type }` | Delivers real-time push notification |
+| `USER_BANNED` | Server → Client | `{ userId, reason }` | Forces client logout and terminates socket |
 
 ---
 
@@ -207,9 +207,9 @@ The WebSocket engine is initialized in `src/config/socket.js` and attached to th
 3. **Sliding Rate Limiter:** Protects against denial-of-service and brute-force authentication attacks.
 4. **JWT Authentication Guard (`auth.middleware.js`):** Validates Bearer tokens, inspects database user records, and immediately halts requests if `user.isBanned === true`.
 5. **Role-Based Access Control (`rbac.middleware.js`):** Enforces strict privilege trees:
-   - `ADMIN` $\rightarrow$ System-wide operations, KYC verification, ban management.
-   - `OWNER` $\rightarrow$ Fleet listings, booking responses, earnings inspection.
-   - `CUSTOMER` $\rightarrow$ Catalog browsing, booking creation, rental management.
+   - `ADMIN` → System-wide operations, KYC verification, ban management.
+   - `OWNER` → Fleet listings, booking responses, earnings inspection.
+   - `CUSTOMER` → Catalog browsing, booking creation, rental management.
 6. **Unhandled Route Protection:** `app.use('/api', (req, res) => res.status(404)...)` prevents dangling client connections on undefined endpoints.
 
 ---

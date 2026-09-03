@@ -71,10 +71,10 @@ flowchart TD
         end
     end
 
-    Router --> PublicScope
-    Router --> CustomerScope
-    Router --> OwnerScope
-    Router --> AdminScope
+    Router --> Landing
+    Router --> CustLayout
+    Router --> OwnerLayout
+    Router --> AdminLayout
 ```
 
 ---
