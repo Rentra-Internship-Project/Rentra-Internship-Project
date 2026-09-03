@@ -8,8 +8,10 @@ import {
   FiTruck,
   FiUserCheck,
 } from 'react-icons/fi';
+import { FaWhatsapp } from 'react-icons/fa';
 import { useCustomer } from '../../context/CustomerContext';
 import Button from '../../components/common/Button';
+import QuoteShareModal from '../../components/common/QuoteShareModal';
 
 const BookingSummary = () => {
   const { id } = useParams();
@@ -33,6 +35,7 @@ const BookingSummary = () => {
   const [notes, setNotes] = useState('Gate passcode 4821. Operator certification attached.');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   const handleStartDateChange = (newStart) => {
     setErrorMsg('');
@@ -145,17 +148,29 @@ const BookingSummary = () => {
   return (
     <div className="space-y-6">
       {/* Header Bar */}
-      <div className="flex items-center gap-3">
-        <button
-          onClick={() => navigate(`/customer/equipment/${equipment.id}`)}
-          className="p-2.5 rounded-[12px] bg-white border border-[#E2E8F0] text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC] transition-colors cursor-pointer"
-        >
-          <FiArrowLeft className="text-lg" />
-        </button>
-        <div>
-          <h1 className="text-xl sm:text-2xl font-extrabold text-[#0F172A]">Rental Booking Summary</h1>
-          <p className="text-xs text-[#64748B] mt-0.5">Review rental breakdown and proceed to security deposit payment.</p>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate(`/customer/equipment/${equipment.id}`)}
+            className="p-2.5 rounded-[12px] bg-white border border-[#E2E8F0] text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC] transition-colors cursor-pointer"
+          >
+            <FiArrowLeft className="text-lg" />
+          </button>
+          <div>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-[#0F172A]">Rental Booking Summary</h1>
+            <p className="text-xs text-[#64748B] mt-0.5">Review rental breakdown and proceed to security deposit payment.</p>
+          </div>
         </div>
+
+        <button
+          type="button"
+          onClick={() => setIsShareModalOpen(true)}
+          title="Share formal quote via WhatsApp"
+          className="p-2.5 rounded-[12px] border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 transition-all cursor-pointer flex items-center gap-1.5 text-xs font-bold shadow-xs active:scale-[0.98] shrink-0"
+        >
+          <FaWhatsapp className="text-base text-emerald-600" />
+          <span className="hidden sm:inline">WhatsApp Quote</span>
+        </button>
       </div>
 
       {/* Main Form & Financial Grid */}
@@ -315,9 +330,44 @@ const BookingSummary = () => {
             >
               {isSubmitting ? 'Submitting...' : 'Submit Booking Request'}
             </Button>
+
+            <button
+              type="button"
+              onClick={() => setIsShareModalOpen(true)}
+              className="w-full mt-2.5 py-3 px-4 rounded-[14px] bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs active:scale-[0.98]"
+            >
+              <FaWhatsapp className="text-base text-[#25D366]" />
+              <span>Share Formal Quote via WhatsApp</span>
+            </button>
           </div>
         </div>
       </form>
+
+      {/* WhatsApp Quote Share Modal */}
+      <QuoteShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        equipment={equipment}
+        quoteData={{
+          startDate,
+          endDate,
+          durationDays,
+          siteAddress,
+          includeOperator,
+          operatorDailyRate: operatorCostPerDay,
+          baseDailyRate,
+          baseRentalCost,
+          operatorTotalCost,
+          isBundle,
+          bundleName,
+          discountPercent,
+          bundleDiscountAmount,
+          platformFee,
+          gst,
+          totalValue,
+          deposit,
+        }}
+      />
     </div>
   );
 };

@@ -13,8 +13,10 @@ import {
   FiMail,
   FiArrowRight,
 } from 'react-icons/fi';
+import { FaWhatsapp } from 'react-icons/fa';
 import { useCustomer } from '../../context/CustomerContext';
 import Button from '../../components/common/Button';
+import QuoteShareModal from '../../components/common/QuoteShareModal';
 import { equipmentService } from '../../services/api';
 
 const EquipmentDetails = () => {
@@ -28,6 +30,7 @@ const EquipmentDetails = () => {
 
   // Unique Features State & Logistics Calculations
   const [includeOperator, setIncludeOperator] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   const operatorDailyRate = equipment.operatorDailyRate || 150;
   const effectiveDailyRate = equipment.pricePerDay + (includeOperator ? operatorDailyRate : 0);
@@ -73,6 +76,15 @@ const EquipmentDetails = () => {
           >
             <FiHeart className={`text-base ${isWishlisted ? 'fill-current' : ''}`} />
             <span>{isWishlisted ? 'Saved in Wishlist' : 'Add to Wishlist'}</span>
+          </button>
+
+          <button
+            onClick={() => setIsShareModalOpen(true)}
+            title="Share formal quote via WhatsApp"
+            className="p-2.5 rounded-[12px] border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 transition-all cursor-pointer flex items-center gap-1.5 text-xs font-bold shadow-xs active:scale-[0.98]"
+          >
+            <FaWhatsapp className="text-base text-emerald-600" />
+            <span className="hidden sm:inline">WhatsApp Quote</span>
           </button>
 
           <Button
@@ -272,6 +284,15 @@ const EquipmentDetails = () => {
                 >
                   Proceed to Booking Summary
                 </Button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsShareModalOpen(true)}
+                  className="w-full mt-2.5 py-3 px-4 rounded-[14px] bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs active:scale-[0.98]"
+                >
+                  <FaWhatsapp className="text-base text-[#25D366]" />
+                  <span>Share Contractor Quote via WhatsApp</span>
+                </button>
               </div>
             </div>
           </div>
@@ -314,6 +335,21 @@ const EquipmentDetails = () => {
           </div>
         </div>
       </div>
+
+      {/* WhatsApp Quote Share Modal */}
+      <QuoteShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        equipment={equipment}
+        quoteData={{
+          durationDays: 1,
+          includeOperator,
+          operatorDailyRate,
+          baseDailyRate: equipment.pricePerDay,
+          totalValue: effectiveDailyRate,
+          deposit: Math.round(effectiveDailyRate * 0.20),
+        }}
+      />
     </div>
   );
 };
