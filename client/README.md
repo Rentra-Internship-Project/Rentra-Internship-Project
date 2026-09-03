@@ -14,6 +14,7 @@
 - [Real-Time WebSocket Engine](#real-time-websocket-engine)
 - [Groq AI Assistant Floating Widget](#groq-ai-assistant-floating-widget)
 - [Digital Handover & E-Signature Pad](#digital-handover--e-signature-pad)
+- [One-Click WhatsApp Contractor Quote Share](#one-click-whatsapp-contractor-quote-share)
 - [Directory & Component Layout](#directory--component-layout)
 - [Route Configuration & Access Control](#route-configuration--access-control)
 - [Key UX & Polish Features](#key-ux--polish-features)
@@ -158,6 +159,17 @@ Located in `src/components/common/DigitalInspectionModal.jsx` and `src/component
 
 ---
 
+## 📲 One-Click WhatsApp Contractor Quote Share
+
+Located in `src/components/common/QuoteShareModal.jsx` and integrated into `EquipmentDetails.jsx` and `BookingSummary.jsx`:
+- **Commercial Need Solved:** On real construction sites, site engineers require rapid budget approval from prime contractors or client finance managers before placing binding equipment reservations.
+- **Auto-Formatted Markdown Quotation:** Generates clean, executive-formatted quotes utilizing WhatsApp syntax (`*bold*`, section dividers, emojis, duration, operator status, GST 18%, and 20% escrow deposit hold).
+- **Direct WhatsApp API Integration:** Automatically dispatches encoded quotes via `https://api.whatsapp.com/send` or `https://wa.me/` for instant sharing on mobile devices and WhatsApp Web.
+- **Optional Direct Recipient Input:** Site engineers can type a specific phone number directly, or leave it blank to select from existing WhatsApp contacts, contractor groups, or client chats.
+- **Instant Clipboard Copy:** Includes animated `FiCopy` / `FiCheck` controls for pasting quotations into email, Slack, or SMS.
+
+---
+
 ## Directory & Component Layout
 
 ```text
@@ -182,6 +194,7 @@ client/src/
 │   │   ├── Loader.jsx            # High-performance CSS loading spinner
 │   │   ├── Modal.jsx             # Flexible backdrop modal shell
 │   │   ├── NotificationToast.jsx # Real-time Socket.IO notification banner
+│   │   ├── QuoteShareModal.jsx   # One-click WhatsApp contractor quote share modal
 │   │   ├── ScrollToTop.jsx       # Viewport reset on route navigation
 │   │   ├── SearchBar.jsx         # Debounced query & category filter input
 │   │   └── SignaturePad.jsx      # HTML5 Canvas digital signature pad
