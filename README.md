@@ -186,6 +186,12 @@ flowchart TB
 - **Global 404 Fallback:** Polished error routing with direct return navigation.
 - **No-Referrer Profile Policy:** Fixes Google OAuth profile picture 403 Forbidden errors.
 
+### 7. One-Click WhatsApp Contractor Quote Share
+- **On-Site Field Procurement:** Generates auto-formatted, official markdown quotations directly from `EquipmentDetails.jsx` and `BookingSummary.jsx`.
+- **Direct WhatsApp API Dispatch:** Automatically structures equipment specs, daily rates, certified operator inclusion, 18% GST tax, and 20% advance escrow deposit into a single dispatchable message via `https://api.whatsapp.com/send`.
+- **Optional Direct Recipient Input:** Enter any contractor/client WhatsApp number directly or leave blank to choose from contacts and group chats.
+- **Instant Clipboard Fallback:** Includes one-click clipboard copying (`navigator.clipboard.writeText`) with animated visual confirmation for email, Slack, or SMS transmission.
+
 ---
 
 ## 🛠️ Technology Stack Breakdown
@@ -218,7 +224,7 @@ Rentra/
 │   │   ├── assets/             # Brand graphics & SVGs
 │   │   ├── components/
 │   │   │   ├── admin/          # Admin DataTables, StatsCards, Activity Feeds
-│   │   │   ├── common/         # Button, Modal, FloatingChatbot, SignaturePad, Toast
+│   │   │   ├── common/         # Button, Modal, QuoteShareModal, FloatingChatbot, SignaturePad, Toast
 │   │   │   ├── customer/       # EquipmentCards, BookingCards, CustomerNavbar
 │   │   │   └── owner/          # BusinessCards, EarningsCards, OwnerSidebar
 │   │   ├── context/            # Scoped Contexts (Auth, Socket, Customer, Owner, Admin)
@@ -231,10 +237,11 @@ Rentra/
 │   │   ├── routes/             # AppRoutes, ProtectedRoute, role-specific routers
 │   │   └── services/           # Centralized Axios API service (src/services/api.js)
 │   ├── package.json
+│   ├── vercel.json             # Vercel SPA client rewrite routing configuration
 │   └── vite.config.js
 ├── server/                     # Node.js + Express REST API & WebSocket Server
 │   ├── src/
-│   │   ├── config/             # MongoDB connection, Passport OAuth, Socket.IO
+│   │   ├── config/             # MongoDB connection, In-memory cache, Passport OAuth, Socket.IO
 │   │   ├── controllers/        # Auth, Equipment, Booking, Razorpay, Admin, Chat
 │   │   ├── middleware/         # JWT Auth, RBAC Guard, Rate Limiter, Error Handler
 │   │   ├── models/             # User, Business, Equipment, Booking, Category, Notification
@@ -243,9 +250,8 @@ Rentra/
 │   ├── index.js                # Server entry point & HTTP/WebSocket bootstrapper
 │   ├── package.json
 │   └── .env.example
+├── render.yaml                 # Render Blueprint specification for automated backend deployment
 ├── images/                     # Platform architecture diagrams, execution flows & UI showcase
-├── flow.md                     # Detailed technical execution & state flow guide
-├── FEATURE_IMPLEMENTATION_GUIDE.md # Technical implementation and verification manual
 └── README.md                   # Primary platform documentation
 ```
 
@@ -327,10 +333,19 @@ Now open [http://localhost:5173](http://localhost:5173) in your browser to explo
 ## 🚀 Cloud Production Deployment (Vercel + Render)
 
 Rentra is pre-configured for seamless zero-downtime deployment:
-- **Frontend (Client)**: Hosted on [Vercel](https://vercel.com/) (Global Edge CDN with SPA routing rewrites via `client/vercel.json`).
-- **Backend (Server)**: Hosted on [Render](https://render.com/) (Node.js Web Service with reverse proxy trust and Socket.IO real-time engine).
 
-📖 **Read the step-by-step production deployment guide**: [DEPLOYMENT.md](deployment.md)
+### 1. Backend on Render (`render.yaml`)
+- Uses Render's declarative **Blueprint** specification (`render.yaml`).
+- Automatically configures the service with `server` as the root directory, executes `npm install` and `npm start`.
+- Configured with `app.set('trust proxy', 1)` in Express to correctly identify HTTPS behind Render reverse proxies.
+- Health Check verification endpoint: `https://<service-name>.onrender.com/`.
+
+### 2. Frontend on Vercel
+- Hosted on [Vercel](https://vercel.com/) with the root directory set to `client`.
+- Single-page application deep routes and refreshes (e.g. `/customer/browse-equipment`, `/dashboard`) are routed cleanly to `index.html` via `client/vercel.json`.
+- Environment Variables required:
+  - `VITE_API_BASE_URL`: `https://<your-render-backend>.onrender.com/api`
+  - `VITE_SOCKET_URL`: `https://<your-render-backend>.onrender.com`
 
 ---
 
