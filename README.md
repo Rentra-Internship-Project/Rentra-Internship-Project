@@ -356,7 +356,6 @@ The Rentra platform was designed, engineered, and delivered collaboratively by:
 - **Purvesh Jadhav (Full-Stack Developer & System Architect):** Architected the core system structure, Mongoose entity relationships, and MVC REST API. Engineered the Razorpay escrow deposit lifecycle, role-based state machine, multi-portal React Context hierarchy, and Groq AI Chatbot integration.
 - **Aryan Barbate (Backend & Real-Time Engineer):** Engineered the **Socket.IO bidirectional event engine**, instant ban active-session termination, Multer-to-Cloudinary media pipelines, query optimizations with compound indexing, and input sanitization guards.
 - **Pruthviraj Bhosale (Frontend Engineer — Customer Portal):** Engineered the Customer Portal UI, catalog search with real-time filters, equipment details view, checkout deposit flows, dynamic PDF invoice generation, and wishlist management.
-- **Aryan Kulkarni (Frontend Engineer — Owner Portal):** Engineered the Equipment Owner Portal UI, business KYB registration forms, equipment listing management, earnings dashboard, and inspection modal integration.
 - **Ayush Bhor (Frontend Engineer — Admin Portal):** Engineered the Admin Control Center UI, high-level operational dashboards, user management with ban triggers, business verification workflows, category taxonomy management, and escrow monitoring.
 
 ---
