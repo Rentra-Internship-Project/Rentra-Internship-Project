@@ -362,5 +362,5 @@ The Rentra platform was designed, engineered, and delivered collaboratively by:
 
 <div align="center">
   <img src="images/22_linkcode_organization_logo.jpeg" alt="LinkCode Logo" width="120" style="border-radius: 8px; margin-bottom: 8px;" />
-  <p><b>Developed as part of the LinkCode Technologies Internship Program — 2026</b></p>
+  <p><b>Developed as part of the LinkCode Technologies Pvt. Ltd. Internship Program — 2026</b></p>
 </div>
