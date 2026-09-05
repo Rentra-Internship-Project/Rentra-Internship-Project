@@ -1,6 +1,7 @@
 const Booking = require('../models/booking.model');
 const Equipment = require('../models/equipment.model');
 const Notification = require('../models/notification.model');
+const User = require('../models/user.model');
 const { issueRefund } = require('./razorpay.controller');
 
 // Helper: create and emit a notification
@@ -251,7 +252,16 @@ exports.updateBookingStatus = async (req, res) => {
         });
       } else {
         console.error(`Failed to auto-refund booking ${booking._id}: ${refundResult.error}`);
-        // Optional: Could send an admin alert here that manual refund is required
+        // Alert all Admins that manual refund is required
+        const admins = await User.find({ role: 'ADMIN' });
+        for (const admin of admins) {
+          await createNotification(req.app.get('io'), admin._id.toString(), {
+            title: 'URGENT: Refund Failed',
+            message: `Auto-refund failed for Booking #${booking._id}. Customer is owed ₹${booking.deposit}. Manual intervention required. Error: ${refundResult.error}`,
+            type: 'General',
+            bookingId: booking._id,
+          });
+        }
       }
     }
 
