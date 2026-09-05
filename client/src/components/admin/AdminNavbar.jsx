@@ -4,6 +4,7 @@ import { FiMenu, FiBell, FiSearch, FiShield, FiCheckCircle } from 'react-icons/f
 import { notificationService } from '../../services/api';
 import { useAdminContext } from '../../context/AdminContext';
 import { useAuth } from '../../context/AuthContext';
+import { mockCategories } from '../../data/adminMockData';
 
 const pageTitles = {
   '/admin/dashboard': 'Platform Overview',
@@ -60,32 +61,32 @@ const AdminNavbar = ({ setMobileOpen }) => {
     const results = [];
 
     (users || []).forEach((u) => {
-      if (u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)) {
+      if ((u.name || '').toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q)) {
         results.push({ id: u.id, title: u.name, subtitle: `User • ${u.role}`, type: 'User', link: '/admin/users' });
       }
     });
 
     (businesses || []).forEach((b) => {
-      if (b.businessName.toLowerCase().includes(q) || b.ownerName.toLowerCase().includes(q)) {
+      if ((b.businessName || '').toLowerCase().includes(q) || (b.ownerName || '').toLowerCase().includes(q)) {
         results.push({ id: b.id, title: b.businessName, subtitle: `Business • ${b.businessType}`, type: 'Business', link: '/admin/businesses' });
       }
     });
 
     (equipmentList || []).forEach((eq) => {
-      if (eq.name.toLowerCase().includes(q) || eq.category.toLowerCase().includes(q)) {
-        results.push({ id: eq.id, title: eq.name, subtitle: `Equipment • ${eq.category}`, type: 'Equipment', link: '/admin/equipment' });
+      if ((eq.name || '').toLowerCase().includes(q) || (eq.category || '').toLowerCase().includes(q)) {
+        results.push({ id: eq.id || eq._id, title: eq.name, subtitle: `Equipment • ${eq.category}`, type: 'Equipment', link: '/admin/equipment' });
       }
     });
 
-    mockCategories.forEach((cat) => {
-      if (cat.name.toLowerCase().includes(q) || cat.description.toLowerCase().includes(q)) {
+    (mockCategories || []).forEach((cat) => {
+      if ((cat.name || '').toLowerCase().includes(q) || (cat.description || '').toLowerCase().includes(q)) {
         results.push({ id: cat.id, title: cat.name, subtitle: `Category`, type: 'Category', link: '/admin/categories' });
       }
     });
 
     (bookings || []).forEach((bk) => {
-      if (bk.id.toLowerCase().includes(q) || bk.customer.toLowerCase().includes(q)) {
-        results.push({ id: bk.id, title: bk.id, subtitle: `Booking • ${bk.customer}`, type: 'Booking', link: '/admin/bookings' });
+      if ((bk.id || bk._id || '').toLowerCase().includes(q) || (bk.customer || '').toLowerCase().includes(q)) {
+        results.push({ id: bk.id || bk._id, title: bk.id || bk._id, subtitle: `Booking • ${bk.customer}`, type: 'Booking', link: '/admin/bookings' });
       }
     });
 

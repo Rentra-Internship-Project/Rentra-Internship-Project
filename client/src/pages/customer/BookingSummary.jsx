@@ -160,6 +160,7 @@ const BookingSummary = () => {
       equipmentId: equipment.id || equipment._id,
       startDate,
       endDate,
+      includeOperator: Boolean(includeOperator),
       siteAddress,
       notes,
     });

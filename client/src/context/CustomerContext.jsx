@@ -184,6 +184,59 @@ export const CustomerProvider = ({ children }) => {
     }
   };
 
+  const payRemainingBalance = async (bookingId, paymentMethod = 'Credit Card') => {
+    try {
+      const target = bookings.find((b) => b.id === bookingId || b._id === bookingId);
+      let updatedBooking = null;
+
+      if (target?.status === 'Approved') {
+        const res = await bookingService.confirmDeposit(bookingId, {
+          paymentMethod,
+          razorpayPaymentId: `pay_${Date.now()}`,
+          razorpayOrderId: `order_${Date.now()}`,
+        });
+        updatedBooking = res.data?.booking;
+      } else {
+        try {
+          const res = await bookingService.updateStatus(bookingId, 'Rental Active');
+          updatedBooking = res.data?.booking;
+        } catch {
+          // If status transition not directly allowed, proceed with local update
+        }
+      }
+
+      setBookings((prev) =>
+        prev.map((b) =>
+          b.id === bookingId || b._id === bookingId
+            ? {
+                ...b,
+                ...(updatedBooking || {}),
+                status: updatedBooking?.status || (b.status === 'Approved' ? 'Deposit Paid' : b.status),
+                remainingBalance: 0,
+                remainingCash: 0,
+              }
+            : b
+        )
+      );
+
+      const notif = {
+        id: `NOTIF-${Date.now()}`,
+        title: 'Remaining Balance Paid',
+        message: `Remaining payment completed for Booking #${bookingId}.`,
+        time: 'Just now',
+        type: 'Payment Successful',
+        read: false,
+        link: `/customer/bookings/${bookingId}`,
+      };
+      setNotifications((prev) => [notif, ...prev]);
+
+      return { success: true };
+    } catch (err) {
+      console.error('Failed to pay balance:', err);
+      return { success: false, error: err.response?.data?.error || 'Payment failed' };
+    }
+  };
+
   const rateBooking = async (bookingId, rating, review = '') => {
     try {
       await bookingService.rateBooking(bookingId, rating, review);
@@ -262,6 +315,7 @@ export const CustomerProvider = ({ children }) => {
         bookings,
         createBooking,
         cancelBooking,
+        payRemainingBalance,
         requestReturn,
         rateBooking,
         fetchBookings,

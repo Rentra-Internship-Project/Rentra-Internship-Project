@@ -44,30 +44,36 @@ const CustomerNavbar = ({ setMobileOpen }) => {
     const q = searchQuery.toLowerCase().trim();
     const results = [];
 
-    equipmentList.forEach((eq) => {
-      if (eq.name.toLowerCase().includes(q) || eq.category.toLowerCase().includes(q) || eq.location.toLowerCase().includes(q)) {
+    (equipmentList || []).forEach((eq) => {
+      if (!eq) return;
+      if (
+        (eq.name || '').toLowerCase().includes(q) ||
+        (eq.category || '').toLowerCase().includes(q) ||
+        (eq.location || eq.locationAddress || '').toLowerCase().includes(q)
+      ) {
         results.push({
-          id: eq.id,
+          id: eq.id || eq._id,
           title: eq.name,
-          subtitle: `Equipment • ${eq.category} • $${eq.pricePerDay}/day`,
+          subtitle: `Equipment • ${eq.category} • ₹${eq.pricePerDay}/day`,
           type: 'Equipment',
-          link: `/customer/wishlist`,
+          link: `/customer/equipment/${eq.id || eq._id}`,
         });
       }
     });
 
-    bookings.forEach((bk) => {
+    (bookings || []).forEach((bk) => {
+      if (!bk) return;
       if (
-        bk.id.toLowerCase().includes(q) ||
-        bk.equipmentName.toLowerCase().includes(q) ||
-        bk.ownerName.toLowerCase().includes(q)
+        (bk.id || bk._id || '').toLowerCase().includes(q) ||
+        (bk.equipmentName || '').toLowerCase().includes(q) ||
+        (bk.ownerName || '').toLowerCase().includes(q)
       ) {
         results.push({
-          id: bk.id,
-          title: bk.id,
+          id: bk.id || bk._id,
+          title: bk.id || bk._id,
           subtitle: `Booking • ${bk.equipmentName} • ${bk.status}`,
           type: 'Booking',
-          link: `/customer/bookings/${bk.id}`,
+          link: `/customer/bookings/${bk.id || bk._id}`,
         });
       }
     });

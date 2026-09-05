@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const equipmentController = require('../controllers/equipment.controller');
-const { authenticateToken } = require('../middleware/auth.middleware');
+const { authenticateToken, optionalAuth } = require('../middleware/auth.middleware');
 
 const requireOwner = (req, res, next) => {
   if (!req.user || req.user.role !== 'OWNER') {
@@ -17,8 +17,8 @@ router.get('/bundles', equipmentController.getBundles);
 // Owner: get own equipment (all statuses)
 router.get('/my', authenticateToken, requireOwner, equipmentController.getMyEquipment);
 
-// Public: get single equipment (with status check inside controller)
-router.get('/:id', equipmentController.getEquipmentById);
+// Public / Owner: get single equipment (with status check inside controller)
+router.get('/:id', optionalAuth, equipmentController.getEquipmentById);
 
 // Public: get reviews for equipment
 router.get('/:id/reviews', equipmentController.getEquipmentReviews);

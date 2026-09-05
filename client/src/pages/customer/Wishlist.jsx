@@ -50,10 +50,13 @@ const Wishlist = () => {
   // Filtered Items
   const filteredWishlist = useMemo(() => {
     return wishlistEquipment.filter((item) => {
+      if (!item) return false;
+      const q = (searchQuery || '').toLowerCase().trim();
       const matchesSearch =
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.location.toLowerCase().includes(searchQuery.toLowerCase());
+        !q ||
+        (item.name || '').toLowerCase().includes(q) ||
+        (item.category || '').toLowerCase().includes(q) ||
+        (item.location || item.locationAddress || '').toLowerCase().includes(q);
       const matchesCat = selectedCategory === 'All' || item.category === selectedCategory;
       return matchesSearch && matchesCat;
     });
@@ -122,8 +125,8 @@ const Wishlist = () => {
       <div className="panel-card p-4 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="w-full md:w-80">
           <SearchBar
-            value={searchQuery}
-            onChange={setSearchQuery}
+            searchTerm={searchQuery}
+            onSearchChange={setSearchQuery}
             placeholder="Search saved equipment..."
           />
         </div>

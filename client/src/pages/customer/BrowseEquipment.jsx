@@ -55,14 +55,20 @@ const BrowseEquipment = () => {
   // Filter & Sort Logic
   const filteredEquipment = useMemo(() => {
     let result = equipmentList.filter((item) => {
+      if (!item) return false;
+      const q = (searchQuery || '').toLowerCase().trim();
       const matchesSearch =
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.owner.name.toLowerCase().includes(searchQuery.toLowerCase());
+        !q ||
+        (item.name || '').toLowerCase().includes(q) ||
+        (item.category || '').toLowerCase().includes(q) ||
+        (item.location || item.locationAddress || '').toLowerCase().includes(q) ||
+        (item.owner?.name || item.ownerName || '').toLowerCase().includes(q);
 
       const matchesCat = selectedCategory === 'All' || item.category === selectedCategory;
-      const matchesLoc = selectedLocation === 'All' || item.location === selectedLocation;
+      const matchesLoc =
+        selectedLocation === 'All' ||
+        item.location === selectedLocation ||
+        item.locationAddress === selectedLocation;
       const matchesAvail =
         selectedAvailability === 'All' || item.availability === selectedAvailability;
 

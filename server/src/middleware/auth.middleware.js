@@ -30,4 +30,25 @@ function authenticateToken(req, res, next) {
   });
 }
 
-module.exports = { authenticateToken, JWT_SECRET };
+function optionalAuth(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) return next();
+
+  jwt.verify(token, JWT_SECRET, async (err, decoded) => {
+    if (err) return next();
+    
+    try {
+      const dbUser = await User.findById(decoded.id);
+      if (dbUser && dbUser.status !== 'Suspended') {
+        req.user = { id: dbUser._id.toString(), email: dbUser.email, role: dbUser.role };
+      }
+      next();
+    } catch (dbErr) {
+      next();
+    }
+  });
+}
+
+module.exports = { authenticateToken, optionalAuth, JWT_SECRET };

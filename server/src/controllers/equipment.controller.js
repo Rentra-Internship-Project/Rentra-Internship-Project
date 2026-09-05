@@ -69,10 +69,11 @@ exports.getEquipmentById = async (req, res) => {
 
     if (!unit) return res.status(404).json({ error: 'Equipment not found' });
 
-    // If not Approved, only the owner can view it
+    // If not Approved, only the owner (or admin) can view it
     if (unit.status !== 'Approved') {
       const requesterId = req.user?.id;
-      if (!requesterId || unit.ownerId._id.toString() !== requesterId) {
+      const ownerIdStr = unit.ownerId?._id ? unit.ownerId._id.toString() : unit.ownerId?.toString();
+      if (!requesterId || (ownerIdStr !== requesterId && req.user?.role !== 'ADMIN')) {
         return res.status(404).json({ error: 'Equipment not found' });
       }
     }

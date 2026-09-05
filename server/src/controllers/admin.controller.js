@@ -62,6 +62,7 @@ exports.getStats = async (req, res) => {
       totalCustomers,
       totalEquipment,
       pendingEquipment,
+      pendingEquipmentApprovals: pendingEquipment,
       approvedEquipment,
       totalBookings,
       activeRentals,

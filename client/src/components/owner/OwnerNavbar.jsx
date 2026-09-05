@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FiMenu, FiBell, FiSearch, FiPackage, FiCheckCircle, FiUser } from 'react-icons/fi';
-import { ownerEquipment, ownerBookings } from '../../data/ownerMockData';
 import { useAuth } from '../../context/AuthContext';
 import { useOwner } from '../../context/OwnerContext';
 
@@ -20,7 +19,14 @@ const OwnerNavbar = ({ setMobileOpen }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { notifications, unreadNotifCount, markNotificationRead, markAllNotificationsRead } = useOwner();
+  const {
+    equipmentList,
+    bookings,
+    notifications,
+    unreadNotifCount,
+    markNotificationRead,
+    markAllNotificationsRead,
+  } = useOwner();
   const currentTitle = pageTitles[location.pathname] || 'Owner Portal';
 
   const handleMarkAllAsRead = async () => {
@@ -66,24 +72,38 @@ const OwnerNavbar = ({ setMobileOpen }) => {
     const q = searchQuery.toLowerCase().trim();
     const results = [];
 
-    ownerEquipment.forEach((eq) => {
-      if (eq.name.toLowerCase().includes(q) || eq.category.toLowerCase().includes(q)) {
-        results.push({ id: eq.id, title: eq.name, subtitle: `Equipment • ${eq.category} • $${eq.pricePerDay}/day`, type: 'Equipment', link: '/owner/equipment' });
+    (equipmentList || []).forEach((eq) => {
+      if (!eq) return;
+      if ((eq.name || '').toLowerCase().includes(q) || (eq.category || '').toLowerCase().includes(q)) {
+        results.push({
+          id: eq.id || eq._id,
+          title: eq.name,
+          subtitle: `Equipment • ${eq.category} • ₹${eq.pricePerDay}/day`,
+          type: 'Equipment',
+          link: '/owner/equipment',
+        });
       }
     });
 
-    ownerBookings.forEach((bk) => {
+    (bookings || []).forEach((bk) => {
+      if (!bk) return;
       if (
-        bk.id.toLowerCase().includes(q) ||
-        bk.customerName.toLowerCase().includes(q) ||
-        bk.equipmentName.toLowerCase().includes(q)
+        (bk.id || bk._id || '').toLowerCase().includes(q) ||
+        (bk.customerName || bk.customer || '').toLowerCase().includes(q) ||
+        (bk.equipmentName || bk.equipment || '').toLowerCase().includes(q)
       ) {
-        results.push({ id: bk.id, title: bk.id, subtitle: `Booking • ${bk.customerName} • ${bk.status}`, type: 'Booking', link: '/owner/bookings' });
+        results.push({
+          id: bk.id || bk._id,
+          title: bk.id || bk._id,
+          subtitle: `Booking • ${bk.customerName || bk.customer} • ${bk.status}`,
+          type: 'Booking',
+          link: '/owner/bookings',
+        });
       }
     });
 
     return results.slice(0, 6);
-  }, [searchQuery]);
+  }, [searchQuery, equipmentList, bookings]);
 
   // Handle outside clicks
   useEffect(() => {

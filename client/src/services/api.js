@@ -109,6 +109,7 @@ export const bookingService = {
   updateStatus: (id, status, extra) => api.put(`/bookings/${id}/status`, { status, ...extra }),
   // Confirm deposit after Razorpay payment
   confirmDeposit: (id, paymentData) => api.post(`/bookings/${id}/deposit`, paymentData),
+  payRemainingBalance: (id, paymentData) => api.post(`/bookings/${id}/deposit`, paymentData),
   submitInspection: (id, data) => api.post(`/bookings/${id}/inspection`, data),
   downloadContractPdf: (id) => api.get(`/bookings/${id}/contract-pdf`, { responseType: 'blob' }),
   rateBooking: (id, rating, review) => api.post(`/bookings/${id}/rate`, { rating, review }),

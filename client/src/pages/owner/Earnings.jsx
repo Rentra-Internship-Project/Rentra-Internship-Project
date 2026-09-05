@@ -10,15 +10,17 @@ const Earnings = () => {
   const { bookings, ownerStats } = useOwner();
   const maxEarning = Math.max(...mockEarnings.monthlyData.map((m) => m.earnings));
 
-  const recentTransactions = bookings.filter(b => b.status === 'ACTIVE' || b.status === 'COMPLETED').map(b => ({
-    id: b.id,
-    bookingId: b.id,
-    customer: b.customerName,
-    equipment: b.equipmentName,
-    date: b.startDate,
-    amount: b.rentalCost,
-    status: b.status === 'COMPLETED' ? 'Paid' : 'Pending',
-  }));
+  const recentTransactions = bookings
+    .filter(b => ['Rental Active', 'Completed', 'ACTIVE', 'COMPLETED'].includes(b.status))
+    .map(b => ({
+      id: b.id || b._id,
+      bookingId: b.id || b._id,
+      customer: b.customerName || b.customer,
+      equipment: b.equipmentName || b.equipment,
+      date: b.startDate,
+      amount: b.rentalCost || b.totalValue || 0,
+      status: (b.status === 'Completed' || b.status === 'COMPLETED') ? 'Paid' : 'Pending',
+    }));
 
   return (
     <motion.div
@@ -54,7 +56,7 @@ const Earnings = () => {
         />
         <EarningsCard
           title="Completed Bookings"
-          value={bookings.filter(b => b.status === 'COMPLETED').length}
+          value={bookings.filter(b => b.status === 'Completed' || b.status === 'COMPLETED').length}
           subtitle="Revenue-generating rentals"
           icon={FiCalendar}
           accentBg="bg-purple-50"
@@ -62,7 +64,7 @@ const Earnings = () => {
         />
         <EarningsCard
           title="Pending Payments"
-          value={`₹${bookings.filter(b => b.status === 'ACTIVE').reduce((sum, b) => sum + b.remainingBalance, 0).toLocaleString()}`}
+          value={`₹${bookings.filter(b => b.status === 'Rental Active' || b.status === 'ACTIVE').reduce((sum, b) => sum + (b.remainingCash ?? b.remainingBalance ?? 0), 0).toLocaleString('en-IN')}`}
           subtitle="Awaiting settlement"
           icon={FiClock}
           accentBg="bg-amber-50"

@@ -101,16 +101,22 @@ exports.createBooking = async (req, res) => {
     const start = new Date(startDate);
     const end = new Date(endDate);
 
-    if (isNaN(start) || isNaN(end) || end <= start) {
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
       return res.status(400).json({ error: 'Invalid date range' });
     }
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const startDay = new Date(start);
-    startDay.setHours(0, 0, 0, 0);
+    // Normalize dates to midnight UTC
+    const startUtc = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate()));
+    const endUtc = new Date(Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate()));
 
-    if (startDay < today) {
+    if (endUtc < startUtc) {
+      return res.status(400).json({ error: 'Invalid date range' });
+    }
+
+    const now = new Date();
+    const todayUtc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+
+    if (startUtc < todayUtc) {
       return res.status(400).json({ error: 'Rental start date cannot be in the past' });
     }
 
@@ -119,7 +125,7 @@ exports.createBooking = async (req, res) => {
       equipmentId,
       status: { $in: ['Approved', 'Deposit Paid', 'Ready For Pickup', 'Rental Active'] },
       $or: [
-        { startDate: { $lt: end }, endDate: { $gt: start } },
+        { startDate: { $lte: endUtc }, endDate: { $gte: startUtc } },
       ],
     });
     if (conflicting) {
@@ -132,7 +138,7 @@ exports.createBooking = async (req, res) => {
       });
     }
 
-    const durationDays = Math.max(1, Math.ceil((end - start) / (1000 * 60 * 60 * 24)));
+    const durationDays = Math.max(1, Math.ceil((endUtc - startUtc) / (1000 * 60 * 60 * 24)));
 
     const baseRate = equip.pricePerDay;
     const operatorDailyRate = includeOperator ? (equip.operatorDailyRate || 1500) : 0;
@@ -156,8 +162,8 @@ exports.createBooking = async (req, res) => {
       equipmentName: equip.name,
       customerId: req.user.id,
       ownerId: equip.ownerId._id,
-      startDate,
-      endDate,
+      startDate: startUtc,
+      endDate: endUtc,
       durationDays,
       dailyRate: baseRate,
       includeOperator: includeOperator || false,

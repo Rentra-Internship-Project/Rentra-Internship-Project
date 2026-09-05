@@ -40,7 +40,7 @@ const Dashboard = () => {
             onClick={() => navigate('/admin/businesses')}
             className="px-4 py-2 bg-[#0F172A] text-white text-xs font-semibold rounded-[12px] hover:bg-slate-800 transition-all shadow-xs"
           >
-            Review Pending Tasks ({stats.pendingVerifications + stats.pendingEquipmentApprovals})
+            Review Pending Tasks ({(stats.pendingVerifications || 0) + (stats.pendingEquipmentApprovals ?? stats.pendingEquipment ?? 0)})
           </button>
         </div>
       </div>
@@ -117,7 +117,7 @@ const Dashboard = () => {
             <div>
               <h4 className="text-base font-bold text-[#0F172A]">Pending Equipment Approvals</h4>
               <p className="text-xs text-[#64748B] mt-0.5">
-                <span className="font-bold text-[#0F172A]">{stats.pendingEquipmentApprovals} machinery listings</span> submitted for platform review.
+                <span className="font-bold text-[#0F172A]">{stats.pendingEquipmentApprovals ?? stats.pendingEquipment ?? 0} machinery listings</span> submitted for platform review.
               </p>
             </div>
           </div>

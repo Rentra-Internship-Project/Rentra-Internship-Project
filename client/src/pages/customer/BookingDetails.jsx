@@ -95,7 +95,8 @@ const BookingDetails = () => {
     doc.setTextColor(204, 204, 255); // #CCCCFF
     doc.text('TAX INVOICE', 160, 20);
     doc.setFontSize(9);
-    doc.text(`Invoice #${booking.id.slice(-6).toUpperCase()}`, 160, 28);
+    const invoiceNum = (booking.id || booking._id || '').toString().slice(-6).toUpperCase();
+    doc.text(`Invoice #${invoiceNum}`, 160, 28);
     doc.text(`Date: ${new Date().toLocaleDateString()}`, 160, 34);
     
     // Billed To & Owner Info
@@ -180,22 +181,25 @@ const BookingDetails = () => {
     doc.setTextColor(100, 116, 139);
     doc.text('For any queries or support, please contact us at support@rentra.in', 105, finalY + 32, { align: 'center' });
 
-    doc.save(`Invoice_Rentra_${booking.id}.pdf`);
+    doc.save(`Invoice_Rentra_${booking.id || booking._id || 'details'}.pdf`);
 
     setTimeout(() => setInvoiceDownloaded(false), 3000);
   };
 
   const handleConfirmCancel = () => {
-    cancelBooking(booking.id);
+    cancelBooking(booking.id || booking._id);
     setIsCancelModalOpen(false);
   };
 
-  const handlePayRemaining = () => {
+  const handlePayRemaining = async () => {
     setIsPayingRemaining(true);
-    setTimeout(() => {
-      payRemainingBalance(booking.id, 'Credit Card (•••• 9821)');
+    try {
+      await payRemainingBalance(booking.id || booking._id, 'Credit Card (•••• 9821)');
+    } catch (err) {
+      console.error('Failed to pay remaining balance:', err);
+    } finally {
       setIsPayingRemaining(false);
-    }, 800);
+    }
   };
 
   const isAwaitingRemaining =
@@ -243,7 +247,7 @@ const BookingDetails = () => {
           </button>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl sm:text-2xl font-extrabold text-[#0F172A]">Booking #{booking.id}</h1>
+              <h1 className="text-xl sm:text-2xl font-extrabold text-[#0F172A]">Booking #{booking.id || booking._id}</h1>
               <span
                 className={`status-badge text-xs font-semibold ${
                   statusBadgeStyles[booking.status] || 'bg-slate-100 text-slate-700'
@@ -275,7 +279,7 @@ const BookingDetails = () => {
               icon={FiCheckCircle}
               onClick={async () => {
                 try {
-                  await bookingService.updateStatus(booking.id, 'Rental Active');
+                  await bookingService.updateStatus(booking.id || booking._id, 'Rental Active');
                   window.location.reload();
                 } catch (err) {
                   alert('Failed to mark received: ' + (err.response?.data?.error || err.message));
@@ -335,7 +339,7 @@ const BookingDetails = () => {
               icon={FiArrowRight}
               className="bg-[#22C55E] hover:bg-emerald-600 text-white shadow-md animate-pulse"
             >
-              Pay Remaining Balance (₹{(booking.remainingBalance || 11100).toLocaleString()})
+              Pay Remaining Balance (₹{(booking.remainingCash ?? booking.remainingBalance ?? 0).toLocaleString()})
             </Button>
           )}
 
