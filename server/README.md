@@ -109,7 +109,7 @@ flowchart TD
 - Encodes files into base64 Data URIs and uploads directly to Cloudinary (`rentra_equipment` folder), returning secure HTTPS CDN URLs.
 
 ### 6. Native In-Memory Sliding-Window Cache Store
-- Replaced external Redis infrastructure with a lightweight native JavaScript `Map` store in `src/config/redis.js`.
+- Lightweight native JavaScript `Map` store in `src/config/cache.js` (replaces complex external Redis infrastructure with zero dependencies).
 - Implements async `get`, `set`, and `del` methods with automatic timer TTL deletion.
 - Powers the IP-based API rate limiter (`rateLimiter.js`) with sub-millisecond memory performance at $0 infrastructure cost.
 
@@ -234,6 +234,9 @@ server/
 ├── src/
 │   ├── app.js                    # Express 5 application setup, middlewares, routes
 │   ├── config/
+│   │   ├── cache.js              # Native in-memory TTL cache store (Map-based)
+│   │   ├── cloudinary.js         # Cloudinary media storage pipeline
+│   │   ├── constants.js          # Platform constants and enum definitions
 │   │   ├── db.js                 # MongoDB Atlas connection & in-memory fallback
 │   │   ├── passport.js           # Passport Google OAuth 2.0 strategy
 │   │   └── socket.js             # Socket.IO event emitter and room manager

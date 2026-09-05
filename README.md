@@ -241,7 +241,7 @@ Rentra/
 │   └── vite.config.js
 ├── server/                     # Node.js + Express REST API & WebSocket Server
 │   ├── src/
-│   │   ├── config/             # MongoDB connection, In-memory cache, Passport OAuth, Socket.IO
+│   │   ├── config/             # MongoDB connection, In-memory cache (cache.js), Passport OAuth, Socket.IO
 │   │   ├── controllers/        # Auth, Equipment, Booking, Razorpay, Admin, Chat
 │   │   ├── middleware/         # JWT Auth, RBAC Guard, Rate Limiter, Error Handler
 │   │   ├── models/             # User, Business, Equipment, Booking, Category, Notification

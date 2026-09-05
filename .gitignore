@@ -141,9 +141,12 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
-
+strix_runs
 .codegraph
 .impeccable
 .claude
 cspell.json
 Rentra_Industrial_Training_Report.docx
+# Architecture diagram files (generated)
+architecture_diagram/
+viva.md

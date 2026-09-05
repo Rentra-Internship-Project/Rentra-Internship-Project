@@ -1,15 +1,16 @@
-// Simple In-Memory Cache Store (Beginner Friendly)
-// Replaced complex Redis implementation to keep the codebase simple for the college presentation.
+// Simple In-Memory Cache Store (Sliding-Window / TTL)
+// Native JavaScript Map-based cache store for rate limiting and temporary key-value storage.
+// Replaced external Redis infrastructure with a lightweight native store ($0 infrastructure cost).
 
 const memoryCache = new Map();
 
-const cacheWrapper = {
+const cache = {
   isReady: () => true,
   
   set: async (key, val, ttlSeconds) => {
     memoryCache.set(key, val);
     
-    // Optional: auto-delete after TTL
+    // Auto-delete after TTL expiration
     if (ttlSeconds) {
       setTimeout(() => {
         memoryCache.delete(key);
@@ -26,4 +27,5 @@ const cacheWrapper = {
   },
 };
 
-module.exports = cacheWrapper;
+module.exports = cache;
+module.exports.cacheWrapper = cache;
