@@ -34,6 +34,13 @@ exports.register = async (req, res) => {
       return res.status(400).json({ error: 'Name, email, and password are required' });
     }
 
+    // SECURITY PATCH: Prevent Privilege Escalation
+    // Hackers could send {"role": "ADMIN"} to gain full system access. We explicitly block this.
+    let safeRole = role || 'CUSTOMER';
+    if (!['CUSTOMER', 'OWNER'].includes(safeRole)) {
+      safeRole = 'CUSTOMER'; // Downgrade any malicious or invalid roles
+    }
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ error: 'User with this email already exists' });
@@ -45,7 +52,7 @@ exports.register = async (req, res) => {
       email,
       phone: phone || '',
       passwordHash,
-      role: role || 'CUSTOMER',
+      role: safeRole,
       // No fake company name — business comes from Business model
     });
 
@@ -58,7 +65,7 @@ exports.register = async (req, res) => {
     // Send Welcome Notification
     await createNotification(req.app ? req.app.get('io') : null, newUser._id, {
       title: 'Welcome to Rentra!',
-      message: `Hi ${name}, welcome to the platform. ${role === 'OWNER' ? 'Complete your business profile to get started.' : 'Explore and rent heavy equipment today!'}`,
+      message: `Hi ${name}, welcome to the platform. ${safeRole === 'OWNER' ? 'Complete your business profile to get started.' : 'Explore and rent heavy equipment today!'}`,
       type: 'Welcome',
     });
 
