@@ -208,7 +208,8 @@ const BrowseEquipment = () => {
                 key={equipment.id}
                 whileHover={{ y: -4 }}
                 transition={{ duration: 0.2 }}
-                className="panel-card overflow-hidden flex flex-col justify-between h-full group"
+                onClick={() => navigate(`/customer/equipment/${equipment.id}`)}
+                className="panel-card overflow-hidden flex flex-col justify-between h-full group cursor-pointer"
               >
                 <div>
                   {/* Card Image */}
@@ -239,7 +240,10 @@ const BrowseEquipment = () => {
 
                     {/* Wishlist Button */}
                     <button
-                      onClick={() => toggleWishlist(equipment.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleWishlist(equipment.id);
+                      }}
                       className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition-all cursor-pointer shadow-xs ${
                         isWishlisted
                           ? 'bg-[#EF4444] text-white'
@@ -287,14 +291,20 @@ const BrowseEquipment = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => navigate(`/customer/equipment/${equipment.id}`)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/customer/equipment/${equipment.id}`);
+                    }}
                   >
                     View Details
                   </Button>
                   <Button
                     variant="primary"
                     size="sm"
-                    onClick={() => navigate(`/customer/equipment/${equipment.id}`)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/customer/equipment/${equipment.id}`);
+                    }}
                     icon={FiArrowRight}
                   >
                     Book Now
