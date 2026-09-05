@@ -15,7 +15,8 @@ const EquipmentCard = ({ equipment, onBook, onViewDetails }) => {
     <motion.div
       whileHover={{ y: -4 }}
       transition={{ duration: 0.2 }}
-      className="panel-card overflow-hidden flex flex-col h-full group"
+      onClick={() => onViewDetails && onViewDetails(equipment)}
+      className="panel-card overflow-hidden flex flex-col h-full group cursor-pointer"
     >
       {/* Card Image Container */}
       <div className="relative h-48 sm:h-52 w-full overflow-hidden bg-slate-100">
@@ -103,14 +104,20 @@ const EquipmentCard = ({ equipment, onBook, onViewDetails }) => {
             <Button
               variant="outline"
               size="xs"
-              onClick={() => onViewDetails && onViewDetails(equipment)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onViewDetails && onViewDetails(equipment);
+              }}
             >
               Details
             </Button>
             <Button
               variant="primary"
               size="xs"
-              onClick={() => onBook && onBook(equipment)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onBook && onBook(equipment);
+              }}
               icon={FiArrowRight}
             >
               Book
