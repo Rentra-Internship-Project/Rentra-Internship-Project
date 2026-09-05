@@ -6,7 +6,10 @@ import Button from '../common/Button';
 
 const EquipmentCard = ({ equipment, onBook, onViewDetails }) => {
   const { isInWishlist, toggleWishlist } = useCustomer();
-  const isWishlisted = isInWishlist(equipment.id);
+  if (!equipment) return null;
+
+  const equipId = equipment.id || equipment._id;
+  const isWishlisted = equipId ? isInWishlist(equipId) : false;
 
   return (
     <motion.div
@@ -46,7 +49,7 @@ const EquipmentCard = ({ equipment, onBook, onViewDetails }) => {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              toggleWishlist(equipment.id);
+              toggleWishlist(equipId);
             }}
             className={`p-2 rounded-full backdrop-blur-md transition-all cursor-pointer shadow-sm flex-shrink-0 ${
               isWishlisted
@@ -83,7 +86,7 @@ const EquipmentCard = ({ equipment, onBook, onViewDetails }) => {
 
           {/* Owner Details snippet */}
           <p className="text-xs text-[#64748B] mb-4 line-clamp-2">
-            Provided by <span className="font-semibold text-[#0F172A]">{equipment.owner.name}</span>
+            Provided by <span className="font-semibold text-[#0F172A]">{equipment.owner?.name || 'Verified Owner'}</span>
           </p>
         </div>
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   FiArrowLeft,
@@ -12,6 +12,7 @@ import { FaWhatsapp } from 'react-icons/fa';
 import { useCustomer } from '../../context/CustomerContext';
 import Button from '../../components/common/Button';
 import QuoteShareModal from '../../components/common/QuoteShareModal';
+import { equipmentService } from '../../services/api';
 
 const BookingSummary = () => {
   const { id } = useParams();
@@ -19,7 +20,30 @@ const BookingSummary = () => {
   const location = useLocation();
   const { equipmentList, createBooking, isLoading } = useCustomer();
 
-  const equipment = equipmentList.find((e) => e.id === id) || equipmentList.find((e) => e._id === id);
+  const [equipment, setEquipment] = useState(() => {
+    return equipmentList.find((e) => e.id === id || e._id === id) || null;
+  });
+  const [fetchLoading, setFetchLoading] = useState(false);
+
+  useEffect(() => {
+    const found = equipmentList.find((e) => e.id === id || e._id === id);
+    if (found) {
+      setEquipment(found);
+      return;
+    }
+    if (!equipment) {
+      setFetchLoading(true);
+      equipmentService.getById(id)
+        .then((res) => {
+          const data = res.data?.equipment || res.data;
+          if (data && (data.id || data._id)) {
+            setEquipment(data);
+          }
+        })
+        .catch((err) => console.error('Failed to load equipment for booking summary:', err))
+        .finally(() => setFetchLoading(false));
+    }
+  }, [id, equipmentList]);
 
   const getTodayStr = () => new Date().toISOString().split('T')[0];
   const getTomorrowStr = (baseDateStr) => {
@@ -68,13 +92,16 @@ const BookingSummary = () => {
   if (!equipment) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        {isLoading ? (
-          <div className="w-10 h-10 border-4 border-[#CCCCFF] border-t-transparent rounded-full animate-spin"></div>
+        {(isLoading || fetchLoading) ? (
+          <div className="space-y-4">
+            <div className="w-10 h-10 border-4 border-[#CCCCFF] border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <p className="text-sm font-semibold text-[#64748B]">Loading equipment specifications...</p>
+          </div>
         ) : (
           <>
             <h2 className="text-xl font-bold text-[#0F172A] mb-2">Equipment Not Found</h2>
             <p className="text-[#64748B] mb-6">The equipment you are looking for does not exist or has been removed.</p>
-            <Button onClick={() => navigate('/customer/dashboard')}>Back to Dashboard</Button>
+            <Button onClick={() => navigate('/customer/browse-equipment')}>Back to Browse</Button>
           </>
         )}
       </div>

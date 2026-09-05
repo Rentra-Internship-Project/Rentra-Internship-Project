@@ -28,9 +28,9 @@ const statusBadgeStyles = {
 const BookingDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { bookings, cancelBooking, payRemainingBalance, rateBooking, profile } = useCustomer();
+  const { bookings, cancelBooking, payRemainingBalance, rateBooking, profile, isLoading } = useCustomer();
 
-  const booking = bookings.find((b) => b.id === id) || bookings[0];
+  const booking = bookings.find((b) => b.id === id || b._id === id);
 
   const invoiceRef = React.useRef(null);
 
@@ -54,6 +54,15 @@ const BookingDetails = () => {
     'Return Requested',
     'Completed'
   ];
+
+  if (isLoading && !booking) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
+        <div className="w-10 h-10 border-4 border-[#CCCCFF] border-t-transparent rounded-full animate-spin mx-auto"></div>
+        <p className="text-sm font-semibold text-[#64748B]">Loading booking details...</p>
+      </div>
+    );
+  }
 
   if (!booking) {
     return (

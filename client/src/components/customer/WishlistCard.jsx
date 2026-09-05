@@ -4,6 +4,9 @@ import { FiTrash2, FiMapPin, FiStar, FiCheckCircle, FiClock, FiArrowRight } from
 import Button from '../common/Button';
 
 const WishlistCard = ({ equipment, onRemove, onBook, onViewDetails }) => {
+  if (!equipment) return null;
+  const equipId = equipment.id || equipment._id;
+
   return (
     <motion.div
       whileHover={{ y: -3 }}
@@ -56,12 +59,12 @@ const WishlistCard = ({ equipment, onRemove, onBook, onViewDetails }) => {
           </h3>
 
           <p className="text-xs text-[#64748B] mb-4">
-            Provided by <span className="font-semibold text-[#0F172A]">{equipment.owner.name}</span>
+            Provided by <span className="font-semibold text-[#0F172A]">{equipment.owner?.name || 'Verified Owner'}</span>
           </p>
 
           <div className="p-3 bg-[#F8FAFC] rounded-[14px] border border-[#E2E8F0] mb-4 flex items-center justify-between">
             <span className="text-xs font-medium text-[#64748B]">Daily Rental Rate:</span>
-            <span className="text-base font-extrabold text-[#0F172A]">${equipment.pricePerDay} / day</span>
+            <span className="text-base font-extrabold text-[#0F172A]">₹{equipment.pricePerDay} / day</span>
           </div>
         </div>
       </div>
@@ -69,7 +72,7 @@ const WishlistCard = ({ equipment, onRemove, onBook, onViewDetails }) => {
       {/* Card Actions Footer */}
       <div className="px-5 pb-5 pt-0 flex items-center justify-between gap-2 border-t border-[#E2E8F0] pt-4">
         <button
-          onClick={() => onRemove(equipment.id)}
+          onClick={() => onRemove(equipId)}
           className="p-2.5 rounded-[12px] text-[#EF4444] hover:bg-red-50 transition-colors border border-red-200 cursor-pointer"
           title="Remove from Wishlist"
         >

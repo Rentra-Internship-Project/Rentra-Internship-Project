@@ -17,6 +17,7 @@ import { FaWhatsapp } from 'react-icons/fa';
 import { useCustomer } from '../../context/CustomerContext';
 import Button from '../../components/common/Button';
 import QuoteShareModal from '../../components/common/QuoteShareModal';
+import { FiAlertCircle } from 'react-icons/fi';
 import { equipmentService } from '../../services/api';
 
 const EquipmentDetails = () => {
@@ -24,35 +25,114 @@ const EquipmentDetails = () => {
   const navigate = useNavigate();
   const { equipmentList, isInWishlist, toggleWishlist } = useCustomer();
 
-  // Find equipment by ID or fallback
-  const equipment = equipmentList.find((e) => e.id === id) || equipmentList[0];
-  const isWishlisted = isInWishlist(equipment.id);
+  const [equipment, setEquipment] = useState(() => {
+    return equipmentList.find((e) => e.id === id || e._id === id) || null;
+  });
+  const [loading, setLoading] = useState(!equipment);
+  const [error, setError] = useState(null);
+
+  // Sync equipment from context or fetch from API directly on refresh/deep-link
+  useEffect(() => {
+    let isMounted = true;
+    const found = equipmentList.find((e) => e.id === id || e._id === id);
+    if (found) {
+      setEquipment(found);
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
+    setLoading(true);
+    equipmentService.getById(id)
+      .then((res) => {
+        if (!isMounted) return;
+        const data = res.data?.equipment || res.data;
+        if (data && (data.id || data._id)) {
+          setEquipment(data);
+          setError(null);
+        } else {
+          setError('Equipment not found or unavailable.');
+        }
+      })
+      .catch((err) => {
+        if (!isMounted) return;
+        console.error('Failed to load equipment:', err);
+        setError(err.response?.data?.error || 'Equipment not found or unavailable.');
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [id, equipmentList]);
 
   // Unique Features State & Logistics Calculations
   const [includeOperator, setIncludeOperator] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
-  const operatorDailyRate = equipment.operatorDailyRate || 150;
-  const effectiveDailyRate = equipment.pricePerDay + (includeOperator ? operatorDailyRate : 0);
+  const equipId = equipment?.id || equipment?._id;
+  const isWishlisted = equipId ? isInWishlist(equipId) : false;
+  const operatorDailyRate = equipment?.operatorDailyRate || 1500;
+  const effectiveDailyRate = (equipment?.pricePerDay || 0) + (includeOperator ? operatorDailyRate : 0);
 
   // Gallery active image state
-  const galleryImages = equipment.gallery && equipment.gallery.length > 0
+  const galleryImages = equipment?.gallery && equipment.gallery.length > 0
     ? equipment.gallery
-    : [equipment.image];
-  const [activeImage, setActiveImage] = useState(galleryImages[0]);
+    : (equipment?.image ? [equipment.image] : []);
+  const [activeImage, setActiveImage] = useState('');
+
+  useEffect(() => {
+    if (galleryImages.length > 0) {
+      setActiveImage(galleryImages[0]);
+    }
+  }, [equipment]);
 
   // Fetch real reviews from backend
   const [reviews, setReviews] = useState([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
 
   useEffect(() => {
-    if (!equipment?.id) return;
+    if (!equipId) return;
     setReviewsLoading(true);
-    equipmentService.getEquipmentReviews(equipment.id)
+    equipmentService.getEquipmentReviews(equipId)
       .then((res) => setReviews(res.data?.reviews || []))
       .catch(() => setReviews([]))
       .finally(() => setReviewsLoading(false));
-  }, [equipment?.id]);
+  }, [equipId]);
+
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-4">
+        <div className="w-12 h-12 border-4 border-[#CCCCFF] border-t-[#0F172A] rounded-full animate-spin"></div>
+        <p className="text-sm font-semibold text-[#64748B]">Loading equipment specifications...</p>
+      </div>
+    );
+  }
+
+  if (error || !equipment) {
+    return (
+      <div className="min-h-[50vh] flex flex-col items-center justify-center p-8 text-center max-w-md mx-auto space-y-4">
+        <div className="w-16 h-16 rounded-full bg-red-50 text-red-600 flex items-center justify-center">
+          <FiAlertCircle className="text-3xl" />
+        </div>
+        <h2 className="text-2xl font-extrabold text-[#0F172A]">Equipment Not Found</h2>
+        <p className="text-sm text-[#64748B]">
+          {error || 'The requested equipment listing could not be found or is currently unavailable.'}
+        </p>
+        <Button variant="primary" onClick={() => navigate('/customer/browse-equipment')}>
+          Back to Browse Equipment
+        </Button>
+      </div>
+    );
+  }
+
+  const owner = equipment.owner || {};
+  const ownerAvatar = owner.avatar || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=150';
+  const ownerName = owner.name || 'Verified Machinery Owner';
+  const ownerPhone = owner.phone || 'Contact via Rentra';
+  const ownerEmail = owner.email || 'support@rentra.com';
 
   return (
     <div className="space-y-6">
@@ -67,7 +147,7 @@ const EquipmentDetails = () => {
 
         <div className="flex items-center gap-3">
           <button
-            onClick={() => toggleWishlist(equipment.id)}
+            onClick={() => toggleWishlist(equipId)}
             className={`p-2.5 rounded-[12px] border transition-all cursor-pointer flex items-center gap-2 text-xs font-bold ${
               isWishlisted
                 ? 'bg-[#EF4444] text-white border-[#EF4444]'
@@ -90,7 +170,7 @@ const EquipmentDetails = () => {
           <Button
             variant="primary"
             size="md"
-            onClick={() => navigate(`/customer/booking-summary/${equipment.id}`, {
+            onClick={() => navigate(`/customer/booking-summary/${equipId}`, {
               state: { includeOperator, operatorDailyRate }
             })}
             icon={FiArrowRight}
@@ -276,7 +356,7 @@ const EquipmentDetails = () => {
                 <Button
                   variant="custom"
                   size="lg"
-                  onClick={() => navigate(`/customer/booking-summary/${equipment.id}`, {
+                  onClick={() => navigate(`/customer/booking-summary/${equipId}`, {
                     state: { includeOperator, operatorDailyRate }
                   })}
                   className="w-full bg-[#0F172A] hover:bg-black text-white shadow-lg shadow-[#0F172A]/25 hover:shadow-[#0F172A]/40 transform hover:-translate-y-0.5 transition-all text-sm py-4"
@@ -305,26 +385,26 @@ const EquipmentDetails = () => {
 
             <div className="flex items-center gap-3">
               <img
-                src={equipment.owner.avatar}
-                alt={equipment.owner.ownerName}
+                src={ownerAvatar}
+                alt={ownerName}
                 className="w-12 h-12 rounded-full object-cover ring-2 ring-[#CCCCFF]"
               />
               <div>
                 <h4 className="text-sm font-bold text-[#0F172A] flex items-center gap-1">
-                  {equipment.owner.name} <FiShield className="text-[#3B82F6] text-xs" />
+                  {ownerName} <FiShield className="text-[#3B82F6] text-xs" />
                 </h4>
-                <p className="text-[11px] text-[#64748B]">Owner: {equipment.owner.ownerName}</p>
+                <p className="text-[11px] text-[#64748B]">Owner: {ownerName}</p>
               </div>
             </div>
 
             <div className="space-y-2 text-xs pt-2">
               <div className="flex items-center gap-2.5 text-[#64748B]">
                 <FiPhone className="text-[#22C55E]" />
-                <span className="font-medium text-[#0F172A]">{equipment.owner.phone}</span>
+                <span className="font-medium text-[#0F172A]">{ownerPhone}</span>
               </div>
               <div className="flex items-center gap-2.5 text-[#64748B]">
                 <FiMail className="text-[#3B82F6]" />
-                <span className="font-medium text-[#0F172A] truncate">{equipment.owner.email}</span>
+                <span className="font-medium text-[#0F172A] truncate">{ownerEmail}</span>
               </div>
             </div>
 

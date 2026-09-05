@@ -136,7 +136,7 @@ export const CustomerProvider = ({ children }) => {
     return wishlistIds.includes(id);
   };
 
-  const wishlistEquipment = equipmentList.filter((item) => isInWishlist(item.id));
+  const wishlistEquipment = equipmentList.filter((item) => item && isInWishlist(item.id || item._id));
 
   // ─── Booking Actions ────────────────────────────────────────────────────────
   // Create a booking immediately (no more fake prepareBookingSummary)

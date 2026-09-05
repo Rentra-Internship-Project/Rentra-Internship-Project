@@ -12,23 +12,25 @@ const EditEquipment = () => {
   const { id } = useParams();
   const { equipmentList, refreshData } = useOwner();
 
-  // Find equipment by ID or use first as fallback
-  const equipmentData = equipmentList.find((eq) => eq.id === id) || equipmentList[0] || {};
+  const [equipmentData, setEquipmentData] = useState(() => {
+    return equipmentList.find((eq) => eq.id === id || eq._id === id) || null;
+  });
+  const [fetching, setFetching] = useState(!equipmentData);
+  const [fetchError, setFetchError] = useState(null);
 
   const [formData, setFormData] = useState({
-    name: equipmentData.name,
-    category: equipmentData.category,
-    description: equipmentData.description,
-    location: equipmentData.location,
-    pricePerDay: equipmentData.pricePerDay?.toString(),
-    availability: equipmentData.availability,
-    operatorAvailable: equipmentData.operatorAvailable ?? true,
-    operatorDailyRate: (equipmentData.operatorDailyRate || 150).toString(),
+    name: '',
+    category: '',
+    description: '',
+    location: '',
+    pricePerDay: '',
+    availability: 'Available',
+    operatorAvailable: true,
+    operatorDailyRate: '1500',
   });
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
@@ -36,6 +38,59 @@ const EditEquipment = () => {
       .then((res) => setCategories((res.data || []).map((c) => c.name)))
       .catch((err) => console.error('Failed to load categories', err));
   }, []);
+
+  // Sync equipment from context or fetch from API
+  useEffect(() => {
+    let isMounted = true;
+    const found = equipmentList.find((eq) => eq.id === id || eq._id === id);
+    if (found) {
+      setEquipmentData(found);
+      setFetching(false);
+      setFetchError(null);
+      return;
+    }
+
+    setFetching(true);
+    equipmentService.getById(id)
+      .then((res) => {
+        if (!isMounted) return;
+        const data = res.data?.equipment || res.data;
+        if (data && (data.id || data._id)) {
+          setEquipmentData(data);
+          setFetchError(null);
+        } else {
+          setFetchError('Equipment not found.');
+        }
+      })
+      .catch((err) => {
+        if (!isMounted) return;
+        console.error('Failed to load equipment for editing:', err);
+        setFetchError(err.response?.data?.error || 'Failed to load equipment details.');
+      })
+      .finally(() => {
+        if (isMounted) setFetching(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [id, equipmentList]);
+
+  // Populate form fields once equipmentData is available
+  useEffect(() => {
+    if (equipmentData) {
+      setFormData({
+        name: equipmentData.name || '',
+        category: equipmentData.category || '',
+        description: equipmentData.description || '',
+        location: equipmentData.location || equipmentData.locationAddress || '',
+        pricePerDay: (equipmentData.pricePerDay || '').toString(),
+        availability: equipmentData.availability || 'Available',
+        operatorAvailable: equipmentData.operatorAvailable ?? true,
+        operatorDailyRate: (equipmentData.operatorDailyRate || 1500).toString(),
+      });
+    }
+  }, [equipmentData]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -66,6 +121,29 @@ const EditEquipment = () => {
       setLoading(false);
     }
   };
+
+  if (fetching) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-4">
+        <div className="w-12 h-12 border-4 border-[#CCCCFF] border-t-[#0F172A] rounded-full animate-spin"></div>
+        <p className="text-sm font-semibold text-[#64748B]">Loading equipment data...</p>
+      </div>
+    );
+  }
+
+  if (fetchError || !equipmentData) {
+    return (
+      <div className="min-h-[50vh] flex flex-col items-center justify-center p-8 text-center max-w-md mx-auto space-y-4">
+        <h2 className="text-2xl font-extrabold text-[#0F172A]">Equipment Not Found</h2>
+        <p className="text-sm text-[#64748B]">
+          {fetchError || 'The requested equipment listing could not be found.'}
+        </p>
+        <Button variant="primary" onClick={() => navigate('/owner/equipment')}>
+          Back to Equipment List
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -256,13 +334,13 @@ const EditEquipment = () => {
 
             {formData.operatorAvailable && (
               <div className="pt-2 border-t border-emerald-200/60 flex items-center justify-between gap-4">
-                <label className="text-xs font-semibold text-[#0F172A]">Driver Daily Surcharge ($/day):</label>
+                <label className="text-xs font-semibold text-[#0F172A]">Driver Daily Surcharge (₹/day):</label>
                 <input
                   type="number"
                   name="operatorDailyRate"
                   value={formData.operatorDailyRate}
                   onChange={handleChange}
-                  placeholder="150"
+                  placeholder="1500"
                   className="w-32 px-3 py-1.5 border border-[#E2E8F0] rounded-[10px] text-xs font-bold text-[#0F172A] bg-white"
                 />
               </div>
