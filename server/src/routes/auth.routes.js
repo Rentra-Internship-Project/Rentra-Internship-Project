@@ -14,6 +14,9 @@ router.put('/me/password', authenticateToken, authController.updatePassword);
 router.post('/wishlist', authenticateToken, authController.toggleWishlist);
 router.get('/wishlist', authenticateToken, authController.getWishlist);
 
+router.post('/forgot-password', authController.forgotPassword);
+router.post('/reset-password', authController.resetPassword);
+
 // Google OAuth routes
 // Capture the role from query params (e.g. /api/auth/google?role=owner) and pass it as state
 router.get('/google', (req, res, next) => {

@@ -213,3 +213,78 @@ exports.updatePassword = async (req, res) => {
     res.status(500).json({ error: 'Failed to update password', details: err.message });
   }
 };
+
+const crypto = require('crypto');
+
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email is required' });
+
+    const user = await User.findOne({ email: email.trim().toLowerCase() });
+    if (!user) {
+      return res.status(404).json({ error: 'No account found with that email' });
+    }
+
+    if (user.authProvider === 'google') {
+      return res.status(400).json({ error: 'This account uses Google Login. Please sign in with Google.' });
+    }
+
+    // Generate token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenHash = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+    // Save hashed token and expiry (1 hour)
+    user.resetPasswordToken = resetTokenHash;
+    user.resetPasswordExpires = Date.now() + 3600000;
+    await user.save();
+
+    // Since there's no live email service (like Nodemailer) configured in this project,
+    // we return the token in the response so the frontend can mock the email flow or developer can test it.
+    // In production, you would send an email with a link like: `https://rentra.in/reset-password/${resetToken}`
+    const mockResetUrl = `${process.env.CLIENT_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
+
+    res.json({ 
+      message: 'Password reset link generated. Check your email.',
+      _dev_note: 'Because email is not configured, here is the token link for testing:',
+      resetLink: mockResetUrl,
+      resetToken
+    });
+
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to process forgot password request', details: err.message });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    if (!token || !newPassword) {
+      return res.status(400).json({ error: 'Token and new password are required' });
+    }
+
+    // Hash the token from the request to compare with the one in DB
+    const resetTokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+    const user = await User.findOne({
+      resetPasswordToken: resetTokenHash,
+      resetPasswordExpires: { $gt: Date.now() } // Ensure it hasn't expired
+    });
+
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid or expired password reset token' });
+    }
+
+    // Hash new password and clear reset fields
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    user.passwordHash = passwordHash;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    res.json({ message: 'Password has been successfully reset. You can now log in.' });
+
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to reset password', details: err.message });
+  }
+};
