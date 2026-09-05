@@ -3,8 +3,10 @@ import { motion } from 'framer-motion';
 import { FiMail, FiLock, FiEye, FiEyeOff, FiPackage, FiArrowRight } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 
 const Login = () => {
+  useDocumentTitle('Sign In | Rentra Marketplace', 'Log in to your Rentra account to manage equipment rentals, listings, escrow deposits, and bookings.');
   const { login } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');

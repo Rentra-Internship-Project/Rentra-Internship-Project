@@ -1,8 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FiArrowLeft, FiMail, FiPhone, FiMapPin } from 'react-icons/fi';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 
 const Contact = () => {
+  useDocumentTitle('Contact Us | Operations & Support', 'Get in touch with the Rentra customer support and operations team for marketplace questions, escrow disputes, and equipment onboarding.');
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto bg-white rounded-[24px] shadow-sm border border-[#E2E8F0] p-8 sm:p-12">

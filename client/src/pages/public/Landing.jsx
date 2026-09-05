@@ -3,15 +3,18 @@ import { Link } from 'react-router-dom';
 import { FiArrowRight, FiShield, FiTrendingUp, FiCheckCircle, FiClock, FiSettings, FiMapPin, FiTruck, FiBriefcase, FiTool, FiChevronDown, FiUserCheck, FiSearch, FiFileText } from 'react-icons/fi';
 import { FaRupeeSign } from 'react-icons/fa';
 import FloatingChatbot from '../../components/common/FloatingChatbot';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 
 const Landing = () => {
+  useDocumentTitle('Heavy Equipment & Machinery Rental Marketplace', 'Rentra connects contractors, businesses, and equipment owners for secure, high-value industrial machinery rentals with escrow deposit security and verified listings.');
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] font-sans text-[#0F172A] selection:bg-[#CCCCFF] selection:text-[#0F172A] flex flex-col">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-[#E2E8F0] shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
           <div className="flex items-center">
-            <span className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0F172A]">Rentra.</span>
+            <span className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0F172A]">.Rentra</span>
           </div>
 
           <div className="hidden lg:flex items-center gap-8 text-sm font-semibold text-[#64748B]">
@@ -317,7 +320,7 @@ const Landing = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 sm:gap-8 mb-12 sm:mb-16">
             <div className="col-span-1 sm:col-span-2">
-              <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-4 sm:mb-6 block">Rentra.</span>
+              <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-4 sm:mb-6 block">.Rentra</span>
               <p className="text-[#94A3B8] text-xs sm:text-sm max-w-sm leading-relaxed">
                 The modern B2B and B2C marketplace for heavy equipment rentals. Built for reliability, impenetrable security, and infinite scale.
               </p>

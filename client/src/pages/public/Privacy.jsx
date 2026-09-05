@@ -1,8 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FiArrowLeft } from 'react-icons/fi';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 
 const Privacy = () => {
+  useDocumentTitle('Privacy Policy', 'Understand how Rentra collects, protects, and handles user data, KYB verification documents, and payment details.');
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto bg-white rounded-[24px] shadow-sm border border-[#E2E8F0] p-8 sm:p-12">

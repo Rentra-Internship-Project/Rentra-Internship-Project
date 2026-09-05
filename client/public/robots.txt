@@ -1,0 +1,19 @@
+# Robots.txt for Rentra Equipment Marketplace
+# Production Domain: https://rentra-internship-project.vercel.app
+
+User-agent: *
+Allow: /
+Allow: /login
+Allow: /register
+Allow: /terms
+Allow: /privacy
+Allow: /contact
+
+# Disallow authenticated customer, owner, and admin dashboards
+Disallow: /customer/
+Disallow: /owner/
+Disallow: /admin/
+Disallow: /oauth-callback
+
+# XML Sitemap
+Sitemap: https://rentra-internship-project.vercel.app/sitemap.xml

@@ -3,8 +3,10 @@ import { motion } from 'framer-motion';
 import { FiArrowRight, FiEye, FiEyeOff, FiLock, FiMail, FiPackage, FiPhone, FiUser } from 'react-icons/fi';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 
 const Register = () => {
+  useDocumentTitle('Create Account | Rentra Marketplace', 'Join Rentra as an equipment renter or machinery owner. Access escrow-protected industrial leasing and verified listings.');
   const navigate = useNavigate();
   const { register } = useAuth();
 
