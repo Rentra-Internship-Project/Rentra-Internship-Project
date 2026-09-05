@@ -10,7 +10,7 @@ export const customerProfile = {
   zip: '78701',
   country: 'United States',
   avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300',
-  cover: 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&q=80&w=1200',
+  cover: 'https://i.pinimg.com/1200x/23/0f/87/230f876b35c23faffb3f34b2ac4b6c50.jpg',
   memberSince: 'March 2024',
   companyName: 'Apex Infrastructures LLC',
   businessType: 'Civil Construction',
