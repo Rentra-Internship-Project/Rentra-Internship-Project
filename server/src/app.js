@@ -89,7 +89,22 @@ app.use('/api/chat', chatRoutes);
 
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
-const upload = multer({ storage: multer.memoryStorage() });
+
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit to prevent memory spikes
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      // Reject file with a 400 Bad Request error
+      const err = new Error('Invalid file type. Only JPEG, PNG, and WebP images are allowed.');
+      err.status = 400;
+      cb(err);
+    }
+  }
+});
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
