@@ -101,7 +101,7 @@ const Bookings = () => {
 
       {/* Bookings Table */}
       {filteredBookings.length > 0 ? (
-        <div className="bg-white border border-[#E2E8F0] rounded-[20px] shadow-xs overflow-hidden">
+        <div className="bg-white border border-[#E2E8F0] rounded-[20px] shadow-xs overflow-x-auto overflow-y-hidden">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[800px]">
               <thead>
@@ -128,7 +128,7 @@ const Bookings = () => {
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-full overflow-hidden ring-1 ring-[#E2E8F0] shrink-0">
+                        <div className="w-8 h-8 rounded-full overflow-x-auto overflow-y-hidden ring-1 ring-[#E2E8F0] shrink-0">
                           {bk.customerAvatar ? (
                             <img src={bk.customerAvatar} alt={bk.customerName} className="w-full h-full object-cover" />
                           ) : (
@@ -235,7 +235,7 @@ const Bookings = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="relative bg-white border border-[#E2E8F0] rounded-[20px] shadow-2xl p-6 w-full max-w-md z-10"
+            className="relative bg-white border border-[#E2E8F0] rounded-[20px] shadow-2xl p-4 md:p-6 w-full max-w-md z-10"
           >
             <div className="flex items-center justify-between pb-4 border-b border-[#E2E8F0] mb-4">
               <h3 className="text-base font-bold text-[#0F172A]">Booking Details</h3>

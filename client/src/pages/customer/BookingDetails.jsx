@@ -346,11 +346,11 @@ const BookingDetails = () => {
         </div>
       </div>
 
-      <div className="panel-card p-6">
+      <div className="panel-card p-4 md:p-6">
         <h3 className="text-xs font-bold uppercase tracking-wider text-[#94A3B8] mb-6">
           Rental Workflow Timeline
         </h3>
-        <div className="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div className="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:p-6">
           {computedTimeline.map((step, idx) => (
             <div key={idx} className={`flex-1 flex items-center md:flex-col md:items-center text-left md:text-center relative z-10 w-full md:w-auto ${isCancelled && idx > 0 ? 'opacity-30' : ''}`}>
               <div
@@ -375,9 +375,9 @@ const BookingDetails = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:p-6">
         <div className="lg:col-span-2 space-y-6">
-          <div className="panel-card p-6 space-y-4">
+          <div className="panel-card p-4 md:p-6 space-y-4">
             <h3 className="text-sm font-extrabold text-[#0F172A] border-b border-[#E2E8F0] pb-3">
               Equipment Details
             </h3>
@@ -412,7 +412,7 @@ const BookingDetails = () => {
             </div>
           </div>
 
-          <div className="panel-card p-6 space-y-4">
+          <div className="panel-card p-4 md:p-6 space-y-4">
             <h3 className="text-sm font-extrabold text-[#0F172A] border-b border-[#E2E8F0] pb-3">
               Booking Information
             </h3>
@@ -448,7 +448,7 @@ const BookingDetails = () => {
         </div>
 
         <div className="space-y-6">
-          <div className="panel-card p-6 space-y-4">
+          <div className="panel-card p-4 md:p-6 space-y-4">
             <h3 className="text-sm font-extrabold text-[#0F172A] border-b border-[#E2E8F0] pb-3">
               Asset Owner Information
             </h3>
@@ -485,7 +485,7 @@ const BookingDetails = () => {
             </div>
           </div>
 
-          <div className="panel-card p-6 space-y-3">
+          <div className="panel-card p-4 md:p-6 space-y-3">
             <h3 className="text-sm font-extrabold text-[#0F172A] border-b border-[#E2E8F0] pb-3">
               Advance Payment Status
             </h3>
@@ -515,7 +515,7 @@ const BookingDetails = () => {
             )}
           </div>
 
-          <div className="panel-card p-6 space-y-4">
+          <div className="panel-card p-4 md:p-6 space-y-4">
             <h3 className="text-sm font-extrabold text-[#0F172A] border-b border-[#E2E8F0] pb-3">
               Payment Summary
             </h3>
@@ -653,7 +653,7 @@ const RatingModal = ({ isOpen, onClose, onSubmit }) => {
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-[24px] p-6 max-w-sm w-full shadow-2xl relative"
+        className="bg-white rounded-[24px] p-4 md:p-6 max-w-sm w-full shadow-2xl relative"
       >
         <button onClick={handleClose} className="absolute top-4 right-4 text-[#94A3B8] hover:text-[#0F172A]">
           <FiX className="text-xl" />

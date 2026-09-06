@@ -103,7 +103,7 @@ const Register = () => {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.45 }}
-          className="flex-1 p-6 sm:p-8 lg:p-10"
+          className="flex-1 p-6 sm:p-6 sm:p-8 lg:p-10"
         >
           <div className="mx-auto max-w-md">
             <div className="mb-8 text-center lg:text-left">

@@ -27,7 +27,7 @@ const Dashboard = () => {
       className="space-y-8"
     >
       {/* Welcome Banner */}
-      <div className="bg-gradient-to-r from-[#CCCCFF]/40 via-white to-white border border-[#E2E8F0] rounded-[20px] p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-gradient-to-r from-[#CCCCFF]/40 via-white to-white border border-[#E2E8F0] rounded-[20px] p-4 md:p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <span className="text-xs font-bold uppercase tracking-wider text-[#64748B]">Platform Operations</span>
           <h1 className="text-2xl md:text-3xl font-extrabold text-[#0F172A] mt-1">
@@ -88,7 +88,7 @@ const Dashboard = () => {
       {/* 2. Pending Actions Banner */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* Pending Business Verification Alert */}
-        <div className="bg-white border border-[#E2E8F0] rounded-[20px] p-6 shadow-xs flex items-center justify-between gap-4">
+        <div className="bg-white border border-[#E2E8F0] rounded-[20px] p-4 md:p-6 shadow-xs flex items-center justify-between gap-4">
           <div className="flex items-start gap-4">
             <div className="p-3.5 rounded-[16px] bg-amber-50 text-[#F59E0B] shrink-0">
               <FiAlertCircle className="text-2xl" />
@@ -109,7 +109,7 @@ const Dashboard = () => {
         </div>
 
         {/* Pending Equipment Approvals Alert */}
-        <div className="bg-white border border-[#E2E8F0] rounded-[20px] p-6 shadow-xs flex items-center justify-between gap-4">
+        <div className="bg-white border border-[#E2E8F0] rounded-[20px] p-4 md:p-6 shadow-xs flex items-center justify-between gap-4">
           <div className="flex items-start gap-4">
             <div className="p-3.5 rounded-[16px] bg-blue-50 text-[#3B82F6] shrink-0">
               <FiAlertCircle className="text-2xl" />

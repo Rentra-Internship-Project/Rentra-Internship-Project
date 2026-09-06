@@ -129,7 +129,7 @@ const Bookings = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="panel-card p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="panel-card p-4 md:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl sm:text-2xl font-extrabold text-[#0F172A]">My Rental Bookings</h1>
           <p className="text-xs sm:text-sm text-[#64748B] mt-0.5">

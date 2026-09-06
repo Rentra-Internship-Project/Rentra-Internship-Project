@@ -12,7 +12,7 @@ const Landing = () => {
     <div className="min-h-screen bg-[#F8FAFC] font-sans text-[#0F172A] selection:bg-[#CCCCFF] selection:text-[#0F172A] flex flex-col">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-[#E2E8F0] shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 h-14 sm:h-20 flex items-center justify-between">
           <div className="flex items-center">
             <span className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0F172A]">.Rentra</span>
           </div>
@@ -47,13 +47,13 @@ const Landing = () => {
             <div className="absolute bottom-[-10%] right-[-20%] h-[400px] w-[400px] sm:h-[900px] sm:w-[900px] rounded-full bg-[#0F172A]/5 blur-[80px] sm:blur-[150px]" />
           </div>
 
-          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-32 flex flex-col items-center text-center">
+          <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-32 flex flex-col items-center text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white/70 border border-white backdrop-blur-md shadow-sm text-[10px] sm:text-sm font-semibold text-[#0F172A] mb-6 sm:mb-8">
               <span className="flex h-2 w-2 rounded-full bg-[#5D5DEB] animate-pulse"></span>
               The premier B2B and B2C marketplace for heavy equipment
             </div>
             
-            <h1 className="text-3xl sm:text-5xl lg:text-7xl font-extrabold text-[#0F172A] tracking-tight leading-[1.15] max-w-5xl">
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-[#0F172A] tracking-tight leading-[1.15] max-w-5xl">
               Equip your projects. <br className="hidden sm:block" /> Monetize your fleet.
             </h1>
             
@@ -81,7 +81,7 @@ const Landing = () => {
 
         {/* Social Proof / Statistics */}
         <section className="bg-white border-b border-[#E2E8F0] overflow-hidden">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
+          <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-10 sm:py-16">
             <p className="text-center text-[10px] sm:text-sm font-bold uppercase tracking-widest text-[#94A3B8] mb-8 sm:mb-12">Trusted by industry leaders nationwide</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-[#E2E8F0]">
               <div className="pt-4 md:pt-0">
@@ -106,7 +106,7 @@ const Landing = () => {
 
         {/* What is Rentra? (Educational Section) */}
         <section id="about" className="py-16 sm:py-28 bg-[#F8FAFC]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
             <div className="text-center max-w-4xl mx-auto mb-12 sm:mb-16">
               <h2 className="text-2xl sm:text-4xl font-extrabold text-[#0F172A] mb-4">What is Rentra?</h2>
               <p className="text-sm sm:text-lg text-[#64748B] leading-relaxed">
@@ -144,7 +144,7 @@ const Landing = () => {
 
         {/* How it Works */}
         <section id="how-it-works" className="py-16 sm:py-28 bg-white border-y border-[#E2E8F0]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
             <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
               <h2 className="text-2xl sm:text-4xl font-extrabold text-[#0F172A]">How Rentra Works</h2>
               <p className="mt-4 text-sm sm:text-lg text-[#64748B]">A seamless, four-step operational flow designed to protect both parties and streamline operations.</p>
@@ -177,7 +177,7 @@ const Landing = () => {
 
         {/* Industries Served */}
         <section id="industries" className="py-16 sm:py-28 bg-[#F8FAFC]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
             <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
               <h2 className="text-2xl sm:text-4xl font-extrabold text-[#0F172A]">Built for every sector</h2>
               <p className="mt-4 text-sm sm:text-lg text-[#64748B]">Our vast network supplies machinery to a diverse range of critical industries, ensuring you have the right tool for any job.</p>
@@ -204,7 +204,7 @@ const Landing = () => {
 
         {/* Solutions Grid */}
         <section id="solutions" className="py-16 sm:py-28 bg-white border-y border-[#E2E8F0]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
             <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
               <h2 className="text-2xl sm:text-4xl font-extrabold text-[#0F172A]">A dual-sided ecosystem designed for growth</h2>
               <p className="mt-4 text-sm sm:text-lg text-[#64748B]">Whether you're sourcing equipment to hit project deadlines or optimizing your fleet's utilization rate, Rentra provides the necessary infrastructure.</p>
@@ -268,7 +268,7 @@ const Landing = () => {
 
         {/* FAQ Section */}
         <section id="faq" className="py-16 sm:py-28 bg-[#F8FAFC]">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto px-5 sm:px-6 lg:px-8">
             <div className="text-center mb-12 sm:mb-16">
               <h2 className="text-2xl sm:text-4xl font-extrabold text-[#0F172A]">Frequently Asked Questions</h2>
               <p className="mt-4 text-sm sm:text-lg text-[#64748B]">Everything you need to know about the product and billing.</p>
@@ -292,8 +292,8 @@ const Landing = () => {
 
         {/* CTA Section */}
         <section className="bg-gradient-to-br from-[#CCCCFF] via-[#E6E6FF] to-[#F8FAFC] py-20 sm:py-32 border-t border-[#E2E8F0]">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl sm:text-5xl font-extrabold text-[#0F172A] mb-4 sm:mb-6 tracking-tight">Ready to modernize your operations?</h2>
+          <div className="max-w-4xl mx-auto px-5 sm:px-6 lg:px-8 text-center">
+            <h2 className="text-4xl sm:text-5xl font-extrabold text-[#0F172A] mb-4 sm:mb-6 tracking-tight">Ready to modernize your operations?</h2>
             <p className="text-sm sm:text-xl text-[#475569] mb-8 sm:mb-10 max-w-2xl mx-auto px-4">
               Join thousands of businesses already scaling their infrastructure and increasing their revenue on Rentra.
             </p>
@@ -317,7 +317,7 @@ const Landing = () => {
 
       {/* Footer */}
       <footer className="bg-[#0F172A] py-12 sm:py-24 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 sm:gap-8 mb-12 sm:mb-16">
             <div className="col-span-1 sm:col-span-2">
               <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-4 sm:mb-6 block">.Rentra</span>
