@@ -101,7 +101,7 @@ const Bookings = () => {
 
       {/* Bookings Table */}
       {filteredBookings.length > 0 ? (
-        <div className="bg-white border border-[#E2E8F0] rounded-[20px] shadow-xs overflow-hidden">
+        <div className="bg-white border border-[#E2E8F0] rounded-[20px] shadow-xs overflow-x-auto overflow-y-hidden">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[800px]">
               <thead>
@@ -128,7 +128,7 @@ const Bookings = () => {
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-full overflow-hidden ring-1 ring-[#E2E8F0] shrink-0">
+                        <div className="w-8 h-8 rounded-full overflow-x-auto overflow-y-hidden ring-1 ring-[#E2E8F0] shrink-0">
                           {bk.customerAvatar ? (
                             <img src={bk.customerAvatar} alt={bk.customerName} className="w-full h-full object-cover" />
                           ) : (
