@@ -48,46 +48,22 @@ const Dashboard = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="panel-card p-6 sm:p-8 bg-gradient-to-r from-slate-900 via-slate-800 to-[#0F172A] text-white relative overflow-hidden"
+        className="bg-gradient-to-r from-[#CCCCFF]/40 via-white to-white border border-[#E2E8F0] rounded-[20px] p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
       >
-        <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-gradient-to-l from-[#CCCCFF]/20 to-transparent pointer-events-none" />
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="px-3 py-1 bg-[#CCCCFF] text-[#0F172A] text-xs font-bold rounded-full">
-                {isFirstLogin ? 'Welcome' : 'Welcome back'}
-              </span>
-              <span className="text-xs text-slate-300">
-                {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' })}
-              </span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              {isFirstLogin ? `Welcome, ${customerName}! 👋` : `Hello, ${customerName}! 👋`}
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl">
-              Manage your active heavy equipment rentals, track bookings in real-time, and discover available machinery from verified asset owners.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3 shrink-0 pt-2 md:pt-0">
-            <Button
-              variant="primary"
-              size="md"
-              onClick={() => navigate('/customer/browse-equipment')}
-              icon={FiTruck}
-            >
-              Browse Equipment
-            </Button>
-            <Button
-              variant="outline"
-              size="md"
-              onClick={() => navigate('/customer/bookings')}
-              className="bg-white/10 hover:bg-white/20 text-white border-white/20"
-              icon={FiCalendar}
-            >
-              My Bookings
-            </Button>
-          </div>
+        <div>
+          <span className="text-xs font-bold uppercase tracking-wider text-[#64748B]">Customer Portal</span>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-[#0F172A] mt-1">
+            {isFirstLogin ? `Welcome, ${customerName} 👋` : `Welcome back, ${customerName} 👋`}
+          </h1>
+          <p className="text-xs md:text-sm text-[#64748B] mt-1">Manage your active heavy equipment rentals, track bookings in real-time, and discover available machinery from verified asset owners.</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate('/customer/browse-equipment')}
+            className="px-4 py-2 bg-[#0F172A] text-white text-xs font-semibold rounded-[12px] hover:bg-slate-800 transition-all shadow-xs flex items-center gap-2"
+          >
+            <FiTruck className="text-sm" /> Browse Equipment
+          </button>
         </div>
       </motion.div>
 
