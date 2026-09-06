@@ -73,10 +73,10 @@ const UserDetails = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:p-6">
         {/* Left Column: Personal Info */}
         <div className="lg:col-span-1 space-y-6">
-          <div className="bg-white border border-[#E2E8F0] rounded-[20px] p-6 shadow-xs relative overflow-hidden">
+          <div className="bg-white border border-[#E2E8F0] rounded-[20px] p-4 md:p-6 shadow-xs relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#3B82F6] to-[#60A5FA]"></div>
             <div className="flex flex-col items-center text-center">
               <div className="w-24 h-24 rounded-full bg-[#E0E7FF] text-[#3B82F6] flex items-center justify-center text-3xl font-bold mb-4 shadow-inner">
@@ -138,7 +138,7 @@ const UserDetails = () => {
           )}
 
           {isOwner && !business && (
-            <div className="bg-amber-50 border border-amber-200 rounded-[20px] p-6 shadow-xs">
+            <div className="bg-amber-50 border border-amber-200 rounded-[20px] p-4 md:p-6 shadow-xs">
               <div className="flex gap-3">
                 <FiAlertCircle className="text-amber-500 text-xl shrink-0 mt-0.5" />
                 <div>
@@ -166,7 +166,7 @@ const UserDetails = () => {
                     {business.status}
                   </span>
                 </div>
-                <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 gap-4 md:p-6">
                   <div>
                     <p className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider mb-1">Business Name</p>
                     <p className="text-[#0F172A] font-semibold">{business.businessName}</p>
@@ -175,7 +175,7 @@ const UserDetails = () => {
                     <p className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider mb-1">Category</p>
                     <p className="text-[#0F172A] font-semibold">{business.businessType || 'General Equipment'}</p>
                   </div>
-                  <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
+                  <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 md:p-6 mt-2">
                     <div>
                       <p className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider mb-1">Registration Number</p>
                       <p className="text-[#0F172A] font-mono font-semibold">{business.registrationNumber || 'N/A'}</p>
@@ -204,7 +204,7 @@ const UserDetails = () => {
                   <FiFileText className="text-[#8B5CF6]" />
                   <h2 className="text-base font-bold text-[#0F172A]">Legal Documents</h2>
                 </div>
-                <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-[12px] flex items-center justify-between">
                     <div>
                       <p className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider">Aadhar Number</p>
@@ -232,7 +232,7 @@ const UserDetails = () => {
                   <FiCreditCard className="text-[#10B981]" />
                   <h2 className="text-base font-bold text-[#0F172A]">Bank Details</h2>
                 </div>
-                <div className="p-6">
+                <div className="p-4 md:p-6">
                   {business.bankAccountNumber || business.upiId ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6">
                       <div>
