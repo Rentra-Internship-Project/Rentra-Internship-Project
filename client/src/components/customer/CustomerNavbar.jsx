@@ -132,7 +132,7 @@ const CustomerNavbar = ({ setMobileOpen }) => {
   };
 
   return (
-    <header className="sticky top-0 z-20 bg-white/90 backdrop-blur-md border-b border-[#E2E8F0] px-4 md:px-8 py-3.5 flex items-center justify-between transition-all">
+    <header className="sticky top-0 z-20 bg-white/90 backdrop-blur-md border-b border-[#E2E8F0] px-4 sm:px-6 md:px-8 py-3.5 flex items-center justify-between transition-all">
       <div className="flex items-center gap-3">
         {/* Mobile Toggle Button */}
         <button
@@ -280,8 +280,11 @@ const CustomerNavbar = ({ setMobileOpen }) => {
           )}
         </div>
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> feat/mobile-ui-fixes
         {/* Customer Avatar & Profile */}
         <div
           onClick={() => navigate('/customer/profile')}
@@ -295,7 +298,11 @@ const CustomerNavbar = ({ setMobileOpen }) => {
               e.currentTarget.onerror = null;
               e.currentTarget.src = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300";
             }}
+<<<<<<< HEAD
             className="w-9 h-9 shrink-0 rounded-full object-cover ring-2 ring-[#CCCCFF] group-hover:ring-[#B8B8FF] transition-all"
+=======
+            className="w-9 h-9 shrink-0 aspect-square rounded-full object-cover ring-2 ring-[#CCCCFF] group-hover:ring-[#B8B8FF] transition-all"
+>>>>>>> feat/mobile-ui-fixes
           />
           <div className="hidden xl:block text-left">
             <p className="text-xs font-bold text-[#0F172A] leading-none group-hover:text-[#3B82F6] transition-colors">{profile.name}</p>

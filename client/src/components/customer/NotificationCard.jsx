@@ -39,12 +39,12 @@ const NotificationCard = ({ notification, onMarkRead, onDelete }) => {
     <motion.div
       whileHover={{ y: -2 }}
       transition={{ duration: 0.2 }}
-      className={`panel-card p-5 flex items-start gap-4 transition-all ${
+      className={`panel-card p-4 sm:p-5 flex items-start gap-4 transition-all ${
         !notification.read ? 'border-l-4 border-l-[#CCCCFF] bg-white' : 'opacity-85 bg-[#F8FAFC]/50'
       }`}
     >
       {/* Icon Badge */}
-      <div className={`w-11 h-11 rounded-[14px] flex items-center justify-center shrink-0 ${config.color}`}>
+      <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-[14px] flex items-center justify-center shrink-0 ${config.color}`}>
         <Icon className="text-xl" />
       </div>
 

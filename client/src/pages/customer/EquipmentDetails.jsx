@@ -145,11 +145,20 @@ const EquipmentDetails = () => {
           <FiArrowLeft className="text-base" />
         </button>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button
             onClick={() => toggleWishlist(equipId)}
+<<<<<<< HEAD
             className={`p-2.5 rounded-[12px] border transition-all cursor-pointer flex items-center gap-2 ${isWishlisted ? 'bg-[#EF4444] text-white border-[#EF4444]' : 'bg-white text-slate-700 border-[#E2E8F0] hover:bg-[#F8FAFC]'} `}
             aria-label="Toggle Wishlist"
+=======
+            className={`p-2.5 rounded-[12px] border transition-all cursor-pointer flex items-center justify-center ${
+              isWishlisted
+                ? 'bg-[#EF4444] text-white border-[#EF4444]'
+                : 'bg-white text-slate-700 border-[#E2E8F0] hover:bg-[#F8FAFC]'
+            }`}
+            title={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
+>>>>>>> feat/mobile-ui-fixes
           >
             <FiHeart className={`text-base ${isWishlisted ? 'fill-current' : ''}`} />
           </button>
@@ -166,7 +175,7 @@ const EquipmentDetails = () => {
       </div>
 
       {/* Main Grid: Gallery & Quick Pricing (Left 2 cols) / Owner & Booking Action (Right 1 col) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:p-6">
         {/* Left Column: Images & Specs */}
         <div className="lg:col-span-2 space-y-6">
           {/* Gallery Main Container */}
@@ -213,7 +222,7 @@ const EquipmentDetails = () => {
           </div>
 
           {/* Description & Overview */}
-          <div className="panel-card p-6 space-y-4">
+          <div className="panel-card p-4 sm:p-6 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E2E8F0] pb-4">
               <div>
                 <h1 className="text-xl sm:text-2xl font-extrabold text-[#0F172A]">{equipment.name}</h1>
@@ -238,7 +247,7 @@ const EquipmentDetails = () => {
 
 
           {/* Customer Reviews Section */}
-          <div className="panel-card p-6 space-y-4">
+          <div className="panel-card p-4 sm:p-6 space-y-4">
             <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3">
               <div className="flex items-center gap-2">
                 <h3 className="text-sm font-extrabold text-[#0F172A]">Verified Customer Reviews</h3>
@@ -288,7 +297,7 @@ const EquipmentDetails = () => {
         <div className="space-y-6">
           {/* Booking Action Box */}
           <div className="bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-[#E2E8F0] overflow-hidden">
-            <div className="bg-gradient-to-r from-[#0F172A] to-slate-800 p-6 text-white">
+            <div className="bg-gradient-to-r from-[#0F172A] to-slate-800 p-4 sm:p-6 text-white">
               <h3 className="text-lg font-extrabold flex items-center gap-2">
                 <FiCheckCircle className="text-emerald-400" />
                 Rental Rate Summary
@@ -296,7 +305,7 @@ const EquipmentDetails = () => {
               <p className="text-slate-300 text-xs mt-1">Review your daily pricing structure</p>
             </div>
 
-            <div className="p-6 space-y-4 bg-slate-50">
+            <div className="p-4 sm:p-6 space-y-4 bg-slate-50">
               <div className="flex justify-between items-center pb-4 border-b border-slate-200">
                 <span className="text-sm font-medium text-slate-500">Base Daily Rate</span>
                 <span className="text-lg font-extrabold text-[#0F172A]">₹{equipment.pricePerDay.toLocaleString()} <span className="text-xs text-slate-500 font-normal">/ day</span></span>
@@ -363,7 +372,7 @@ const EquipmentDetails = () => {
           </div>
 
           {/* Owner Information Card */}
-          <div className="panel-card p-6 space-y-4">
+          <div className="panel-card p-4 sm:p-6 space-y-4">
             <h3 className="text-xs font-bold uppercase tracking-wider text-[#94A3B8] border-b border-[#E2E8F0] pb-3">
               Equipment Owner Information
             </h3>

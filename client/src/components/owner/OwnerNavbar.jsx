@@ -262,8 +262,11 @@ const OwnerNavbar = ({ setMobileOpen }) => {
           )}
         </div>
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> feat/mobile-ui-fixes
         {/* Owner Avatar */}
         <div 
           onClick={() => navigate('/owner/profile')}
@@ -279,7 +282,7 @@ const OwnerNavbar = ({ setMobileOpen }) => {
                   e.currentTarget.onerror = null;
                   e.currentTarget.src = "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&q=80&w=300";
                 }}
-                className="w-full h-full object-cover"
+                className="w-full h-full shrink-0 aspect-square object-cover"
               />
             ) : (
               <FiUser className="text-[#0F172A]" />

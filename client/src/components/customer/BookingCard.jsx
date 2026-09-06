@@ -28,14 +28,14 @@ const BookingCard = ({ booking, onPayDeposit, onCancel, onRequestReturn, onMarkR
     <motion.div
       whileHover={{ y: -3 }}
       transition={{ duration: 0.2 }}
-      className="panel-card p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group"
+      className="panel-card p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group"
     >
       {/* Left side Equipment & ID */}
       <div className="flex items-center gap-4 min-w-0">
         <img
           src={booking.image}
           alt={booking.equipmentName}
-          className="w-16 h-16 sm:w-20 sm:h-20 rounded-[18px] object-cover shrink-0 border border-[#E2E8F0]"
+          className="w-14 h-14 sm:w-20 sm:h-20 sm:w-20 sm:h-20 rounded-[18px] object-cover shrink-0 border border-[#E2E8F0]"
         />
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap mb-1">

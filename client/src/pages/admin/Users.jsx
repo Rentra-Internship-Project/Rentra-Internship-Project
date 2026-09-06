@@ -219,7 +219,7 @@ const Users = () => {
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="relative bg-white border border-[#E2E8F0] rounded-[20px] shadow-2xl p-4 md:p-6 w-full max-w-lg z-10"
+              className="relative bg-white border border-[#E2E8F0] rounded-[20px] shadow-2xl p-4 md:p-4 sm:p-6 w-full max-w-lg z-10"
             >
               <button
                 onClick={() => setSelectedUser(null)}

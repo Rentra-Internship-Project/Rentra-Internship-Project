@@ -300,7 +300,7 @@ const AdminNavbar = ({ setMobileOpen }) => {
               e.currentTarget.onerror = null;
               e.currentTarget.src = "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=150";
             }}
-            className="w-9 h-9 rounded-full object-cover ring-2 ring-[#CCCCFF]"
+            className="w-9 h-9 shrink-0 aspect-square rounded-full object-cover ring-2 ring-[#CCCCFF]"
           />
           <div className="hidden xl:block text-left">
             <p className="text-xs font-bold text-[#0F172A] leading-none">{user?.name || "System Admin"}</p>
