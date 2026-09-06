@@ -280,6 +280,8 @@ const CustomerNavbar = ({ setMobileOpen }) => {
           )}
         </div>
 
+
+
         {/* Customer Avatar & Profile */}
         <div
           onClick={() => navigate('/customer/profile')}
@@ -293,7 +295,7 @@ const CustomerNavbar = ({ setMobileOpen }) => {
               e.currentTarget.onerror = null;
               e.currentTarget.src = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300";
             }}
-            className="w-9 h-9 shrink-0 aspect-square rounded-full object-cover ring-2 ring-[#CCCCFF] group-hover:ring-[#B8B8FF] transition-all"
+            className="w-9 h-9 shrink-0 rounded-full object-cover ring-2 ring-[#CCCCFF] group-hover:ring-[#B8B8FF] transition-all"
           />
           <div className="hidden xl:block text-left">
             <p className="text-xs font-bold text-[#0F172A] leading-none group-hover:text-[#3B82F6] transition-colors">{profile.name}</p>
