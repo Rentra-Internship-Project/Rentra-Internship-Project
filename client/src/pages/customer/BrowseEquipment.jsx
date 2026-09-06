@@ -88,18 +88,16 @@ const BrowseEquipment = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header Banner */}
-      <div className="panel-card p-6 bg-gradient-to-r from-[#0F172A] via-slate-900 to-slate-800 text-white relative overflow-hidden">
-        <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-gradient-to-l from-[#CCCCFF]/20 to-transparent pointer-events-none" />
+      <div className="bg-gradient-to-r from-[#CCCCFF]/40 via-white to-white border border-[#E2E8F0] rounded-[20px] p-6 shadow-xs relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <span className="px-3 py-1 bg-[#CCCCFF] text-[#0F172A] text-xs font-bold rounded-full mb-2 inline-block">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#64748B] mb-1 inline-block">
               Rent Verified Equipment
             </span>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight">
               Browse Equipment Marketplace
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl">
+            <p className="text-xs sm:text-sm text-[#64748B] mt-1 max-w-xl">
               Discover heavy excavators, bulldozers, cranes, concrete boom pumps, and industrial generators available for immediate job site dispatch.
             </p>
           </div>
@@ -107,13 +105,13 @@ const BrowseEquipment = () => {
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 shrink-0">
             <button
               onClick={() => setIsFleetModalOpen(true)}
-              className="px-4 py-2 bg-[#CCCCFF] hover:bg-[#B8B8FF] text-[#0F172A] rounded-[14px] text-xs font-extrabold transition-all flex items-center gap-2 shadow-md cursor-pointer"
+              className="px-4 py-2 bg-[#0F172A] hover:bg-slate-800 text-white rounded-[12px] text-xs font-semibold transition-all flex items-center gap-2 shadow-xs cursor-pointer"
             >
               <span>🏗️ Project Fleet Packages</span>
-              <span className="bg-emerald-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">Save 10-12%</span>
+              <span className="bg-[#CCCCFF] text-[#0F172A] text-[10px] px-2 py-0.5 rounded-full font-bold">Save 10-12%</span>
             </button>
 
-            <span className="px-4 py-2 bg-white/10 border border-white/20 rounded-[14px] text-xs font-semibold text-white">
+            <span className="px-4 py-2 bg-[#F8FAFC] border border-[#E2E8F0] rounded-[12px] text-xs font-semibold text-[#0F172A]">
               {filteredEquipment.length} Machinery Units Available
             </span>
           </div>
