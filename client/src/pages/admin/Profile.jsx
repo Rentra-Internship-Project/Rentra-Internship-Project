@@ -119,7 +119,7 @@ const Profile = () => {
         {/* Left Column: Personal Info & Security */}
         <div className="lg:col-span-2 space-y-8">
           {/* 2. Personal Information Form */}
-          <div className="bg-white border border-[#E2E8F0] rounded-[20px] p-6 shadow-xs">
+          <div className="bg-white border border-[#E2E8F0] rounded-[20px] p-4 md:p-6 shadow-xs">
             <div className="flex items-center gap-3 pb-4 border-b border-[#E2E8F0] mb-5">
               <div className="p-2.5 bg-[#CCCCFF]/40 text-[#0F172A] rounded-[12px]">
                 <FiUser className="text-xl" />
@@ -190,7 +190,7 @@ const Profile = () => {
           </div>
 
           {/* 3. Security Settings Form */}
-          <div className="bg-white border border-[#E2E8F0] rounded-[20px] p-6 shadow-xs">
+          <div className="bg-white border border-[#E2E8F0] rounded-[20px] p-4 md:p-6 shadow-xs">
             <div className="flex items-center gap-3 pb-4 border-b border-[#E2E8F0] mb-5">
               <div className="p-2.5 bg-amber-50 text-[#F59E0B] rounded-[12px]">
                 <FiLock className="text-xl" />
@@ -259,7 +259,7 @@ const Profile = () => {
 
         {/* Right Column: 4. Recent Admin Activity Log */}
         <div className="space-y-6">
-          <div className="bg-white border border-[#E2E8F0] rounded-[20px] p-6 shadow-xs">
+          <div className="bg-white border border-[#E2E8F0] rounded-[20px] p-4 md:p-6 shadow-xs">
             <div className="flex items-center gap-3 pb-4 border-b border-[#E2E8F0] mb-4">
               <div className="p-2.5 bg-blue-50 text-[#3B82F6] rounded-[12px]">
                 <FiActivity className="text-xl" />
