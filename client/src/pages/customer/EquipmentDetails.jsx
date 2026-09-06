@@ -140,20 +140,16 @@ const EquipmentDetails = () => {
       <div className="flex items-center justify-between gap-4">
         <button
           onClick={() => navigate('/customer/browse-equipment')}
-          className="p-2.5 rounded-[12px] bg-white border border-[#E2E8F0] text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC] transition-colors cursor-pointer flex items-center gap-2 text-xs font-bold"
+          className="p-2.5 rounded-[12px] bg-white border border-[#E2E8F0] text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC] transition-colors cursor-pointer flex items-center gap-2"
         >
-          <FiArrowLeft className="text-base" /> Back to Browse
+          <FiArrowLeft className="text-base" />
         </button>
 
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-3">
           <button
             onClick={() => toggleWishlist(equipId)}
-            className={`p-2.5 rounded-[12px] border transition-all cursor-pointer flex items-center justify-center ${
-              isWishlisted
-                ? 'bg-[#EF4444] text-white border-[#EF4444]'
-                : 'bg-white text-slate-700 border-[#E2E8F0] hover:bg-[#F8FAFC]'
-            }`}
-            title={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
+            className={`p-2.5 rounded-[12px] border transition-all cursor-pointer flex items-center gap-2 ${isWishlisted ? 'bg-[#EF4444] text-white border-[#EF4444]' : 'bg-white text-slate-700 border-[#E2E8F0] hover:bg-[#F8FAFC]'} `}
+            aria-label="Toggle Wishlist"
           >
             <FiHeart className={`text-base ${isWishlisted ? 'fill-current' : ''}`} />
           </button>

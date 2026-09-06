@@ -207,7 +207,7 @@ const OwnerNavbar = ({ setMobileOpen }) => {
 
           {/* Notification Dropdown */}
           {isNotifOpen && (
-            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white border border-[#E2E8F0] rounded-[16px] shadow-xl p-3 z-50">
+        <div className="absolute right-0 top-full mt-2 w-64 sm:w-80 max-w-[80vw] bg-white border border-[#E2E8F0] rounded-[16px] shadow-xl p-3 z-50 max-h-[calc(100vh-6rem)] overflow-y-auto">
               <div className="flex items-center justify-between pb-2.5 border-b border-[#E2E8F0]">
                 <div className="flex items-center gap-2">
                   <h3 className="text-xs font-bold text-[#0F172A] uppercase tracking-wider">Notifications</h3>
@@ -262,12 +262,14 @@ const OwnerNavbar = ({ setMobileOpen }) => {
           )}
         </div>
 
+
+
         {/* Owner Avatar */}
         <div 
           onClick={() => navigate('/owner/profile')}
           className="flex items-center gap-3 pl-2 border-l border-[#E2E8F0] cursor-pointer hover:opacity-80 transition-opacity"
         >
-          <div className="w-9 h-9 shrink-0 aspect-square rounded-full overflow-hidden ring-2 ring-[#CCCCFF] bg-[#CCCCFF] flex items-center justify-center">
+          <div className="w-9 h-9 rounded-full overflow-hidden ring-2 ring-[#CCCCFF] bg-[#CCCCFF] flex items-center justify-center">
             {user?.avatar ? (
               <img
                 src={user.avatar}
@@ -277,7 +279,7 @@ const OwnerNavbar = ({ setMobileOpen }) => {
                   e.currentTarget.onerror = null;
                   e.currentTarget.src = "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&q=80&w=300";
                 }}
-                className="w-full h-full object-cover shrink-0 aspect-square"
+                className="w-full h-full object-cover"
               />
             ) : (
               <FiUser className="text-[#0F172A]" />

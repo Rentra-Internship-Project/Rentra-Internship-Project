@@ -222,7 +222,7 @@ const CustomerNavbar = ({ setMobileOpen }) => {
 
           {/* Dropdown Panel */}
           {isNotifOpen && (
-            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white border border-[#E2E8F0] rounded-[16px] shadow-xl p-3 z-50">
+        <div className="absolute right-0 top-full mt-2 w-64 sm:w-80 max-w-[80vw] bg-white border border-[#E2E8F0] rounded-[16px] shadow-xl p-3 z-50 max-h-[calc(100vh-6rem)] overflow-y-auto">
               <div className="flex items-center justify-between pb-2.5 border-b border-[#E2E8F0]">
                 <div className="flex items-center gap-2">
                   <h3 className="text-xs font-bold text-[#0F172A] uppercase tracking-wider">Notifications</h3>

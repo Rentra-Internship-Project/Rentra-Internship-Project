@@ -226,7 +226,7 @@ const AdminNavbar = ({ setMobileOpen }) => {
 
           {/* Notifications Dropdown Panel */}
           {isNotifOpen && (
-            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white border border-[#E2E8F0] rounded-[16px] shadow-xl p-3 z-50">
+        <div className="absolute right-0 top-full mt-2 w-64 sm:w-80 max-w-[80vw] bg-white border border-[#E2E8F0] rounded-[16px] shadow-xl p-3 z-50 max-h-[calc(100vh-6rem)] overflow-y-auto">
               <div className="flex items-center justify-between pb-2.5 border-b border-[#E2E8F0]">
                 <div className="flex items-center gap-2">
                   <h3 className="text-xs font-bold text-[#0F172A] uppercase tracking-wider">Notifications</h3>
@@ -300,7 +300,7 @@ const AdminNavbar = ({ setMobileOpen }) => {
               e.currentTarget.onerror = null;
               e.currentTarget.src = "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=150";
             }}
-            className="w-9 h-9 shrink-0 aspect-square rounded-full object-cover ring-2 ring-[#CCCCFF]"
+            className="w-9 h-9 rounded-full object-cover ring-2 ring-[#CCCCFF]"
           />
           <div className="hidden xl:block text-left">
             <p className="text-xs font-bold text-[#0F172A] leading-none">{user?.name || "System Admin"}</p>

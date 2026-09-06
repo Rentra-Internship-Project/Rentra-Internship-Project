@@ -92,32 +92,14 @@ const BrowseEquipment = () => {
       <div className="bg-gradient-to-r from-[#CCCCFF]/40 via-white to-white border border-[#E2E8F0] rounded-[20px] p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <span className="px-3 py-1 bg-[#CCCCFF] text-[#0F172A] text-xs font-bold rounded-full mb-2 inline-block">
-              Rent Verified Equipment
-            </span>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              Browse Equipment Marketplace
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] mt-1">
+              Browse Equipment
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl">
-              Discover heavy excavators, bulldozers, cranes, concrete boom pumps, and industrial generators available for immediate job site dispatch.
-            </p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 shrink-0">
-            <button
-              onClick={() => setIsFleetModalOpen(true)}
-              className="px-4 py-2 bg-[#CCCCFF] hover:bg-[#B8B8FF] text-[#0F172A] rounded-[14px] text-xs font-extrabold transition-all flex items-center gap-2 shadow-md cursor-pointer"
-            >
-              <span>🏗️ Project Fleet Packages</span>
-              <span className="bg-emerald-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">Save 10-12%</span>
-            </button>
-
-            <span className="px-4 py-2 bg-white/10 border border-white/20 rounded-[14px] text-xs font-semibold text-white">
-              {filteredEquipment.length} Machinery Units Available
-            </span>
           </div>
         </div>
-      </div>
+
+        </div>
+
 
       {/* Filter Control Bar */}
       <div className="panel-card p-5 space-y-4">
