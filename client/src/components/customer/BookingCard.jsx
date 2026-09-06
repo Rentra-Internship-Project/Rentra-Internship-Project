@@ -35,7 +35,7 @@ const BookingCard = ({ booking, onPayDeposit, onCancel, onRequestReturn, onMarkR
         <img
           src={booking.image}
           alt={booking.equipmentName}
-          className="w-16 h-16 sm:w-20 sm:h-20 rounded-[18px] object-cover shrink-0 border border-[#E2E8F0]"
+          className="w-14 h-14 sm:w-20 sm:h-20 sm:w-20 sm:h-20 rounded-[18px] object-cover shrink-0 border border-[#E2E8F0]"
         />
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap mb-1">
