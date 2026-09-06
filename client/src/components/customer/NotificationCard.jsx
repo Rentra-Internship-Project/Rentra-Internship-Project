@@ -39,7 +39,7 @@ const NotificationCard = ({ notification, onMarkRead, onDelete }) => {
     <motion.div
       whileHover={{ y: -2 }}
       transition={{ duration: 0.2 }}
-      className={`panel-card p-5 flex items-start gap-4 transition-all ${
+      className={`panel-card p-4 sm:p-5 flex items-start gap-4 transition-all ${
         !notification.read ? 'border-l-4 border-l-[#CCCCFF] bg-white' : 'opacity-85 bg-[#F8FAFC]/50'
       }`}
     >
