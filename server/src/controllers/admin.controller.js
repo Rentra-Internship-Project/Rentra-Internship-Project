@@ -114,11 +114,14 @@ exports.verifyBusiness = async (req, res) => {
       ? `Your business "${biz.businessName}" has been approved. You can now list equipment.`
       : `Your business "${biz.businessName}" was rejected. Reason: ${rejectionReason || 'See admin for details'}`;
 
-    await createNotification(io, biz.ownerId.toString(), {
-      title: notifTitle,
-      message: notifMsg,
-      type: notifType,
-    });
+    const ownerIdStr = biz.ownerId?._id ? biz.ownerId._id.toString() : biz.ownerId?.toString();
+    if (ownerIdStr) {
+      await createNotification(io, ownerIdStr, {
+        title: notifTitle,
+        message: notifMsg,
+        type: notifType,
+      });
+    }
 
     res.json({ business: biz, message: `Business ${status}` });
   } catch (err) {
@@ -174,8 +177,9 @@ exports.approveEquipment = async (req, res) => {
 
     const io = req.app.get('io');
     
-    if (equipment.ownerId && equipment.ownerId._id) {
-      await createNotification(io, equipment.ownerId._id.toString(), {
+    const ownerIdStr = equipment.ownerId?._id ? equipment.ownerId._id.toString() : equipment.ownerId?.toString();
+    if (ownerIdStr) {
+      await createNotification(io, ownerIdStr, {
         title: 'Equipment Listing Approved!',
         message: `Your equipment "${equipment.name}" has been approved and is now live on the marketplace.`,
         type: 'EquipmentApproved',
@@ -208,8 +212,9 @@ exports.rejectEquipment = async (req, res) => {
     if (!equipment) return res.status(404).json({ error: 'Equipment not found' });
 
     const io = req.app.get('io');
-    if (equipment.ownerId && equipment.ownerId._id) {
-      await createNotification(io, equipment.ownerId._id.toString(), {
+    const ownerIdStr = equipment.ownerId?._id ? equipment.ownerId._id.toString() : equipment.ownerId?.toString();
+    if (ownerIdStr) {
+      await createNotification(io, ownerIdStr, {
         title: 'Equipment Listing Rejected',
         message: `Your equipment "${equipment.name}" was rejected. Reason: ${rejectionReason || 'Does not meet platform requirements'}`,
         type: 'EquipmentRejected',

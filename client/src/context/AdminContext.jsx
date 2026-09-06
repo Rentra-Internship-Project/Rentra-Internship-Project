@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { adminService, equipmentService } from '../services/api';
+import { useSocket } from './SocketContext';
 
 const AdminContext = createContext(null);
 
@@ -11,9 +12,9 @@ export const AdminProvider = ({ children }) => {
   const [bookings, setBookings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchAdminData = useCallback(async () => {
+  const fetchAdminData = useCallback(async (silent = false) => {
     try {
-      setIsLoading(true);
+      if (!silent) setIsLoading(true);
       const [statsRes, bizRes, usersRes, eqRes, bkRes] = await Promise.all([
         adminService.getStats(),
         adminService.getBusinesses(),
@@ -88,13 +89,40 @@ export const AdminProvider = ({ children }) => {
     } catch (err) {
       console.error('Failed to fetch admin data:', err);
     } finally {
-      setIsLoading(false);
+      if (!silent) setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
     fetchAdminData();
   }, [fetchAdminData]);
+
+  // Real-time: Refresh admin records and stats on Socket.IO notification
+  const { socket } = useSocket();
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNotification = () => {
+      fetchAdminData(true);
+    };
+
+    socket.on('notification', handleNotification);
+
+    // Safety net: Auto-sync when admin focuses or returns to the tab
+    const handleSyncOnFocus = () => {
+      if (document.visibilityState === 'visible') {
+        fetchAdminData(true);
+      }
+    };
+    window.addEventListener('focus', handleSyncOnFocus);
+    document.addEventListener('visibilitychange', handleSyncOnFocus);
+
+    return () => {
+      socket.off('notification', handleNotification);
+      window.removeEventListener('focus', handleSyncOnFocus);
+      document.removeEventListener('visibilitychange', handleSyncOnFocus);
+    };
+  }, [socket, fetchAdminData]);
 
   return (
     <AdminContext.Provider

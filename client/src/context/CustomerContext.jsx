@@ -99,17 +99,37 @@ export const CustomerProvider = ({ children }) => {
     loadAll();
   }, [fetchEquipment, fetchBookings, fetchNotifications]);
 
-  // Real-time: refresh bookings on Socket.IO notification
+  // Real-time: refresh bookings & equipment on Socket.IO notification
   const { socket } = useSocket();
   useEffect(() => {
     if (!socket || !user) return;
     const handleNotification = (notifData) => {
       setNotifications((prev) => [notifData, ...prev]);
-      fetchBookings();
+      const type = notifData?.type || '';
+      if (type.startsWith('Equipment')) {
+        fetchEquipment();
+      } else {
+        fetchBookings();
+      }
     };
     socket.on('notification', handleNotification);
-    return () => socket.off('notification', handleNotification);
-  }, [socket, user, fetchBookings]);
+
+    // Safety net: Re-sync when tab or window becomes visible
+    const handleSyncOnFocus = () => {
+      if (document.visibilityState === 'visible') {
+        fetchBookings();
+        fetchEquipment();
+      }
+    };
+    window.addEventListener('focus', handleSyncOnFocus);
+    document.addEventListener('visibilitychange', handleSyncOnFocus);
+
+    return () => {
+      socket.off('notification', handleNotification);
+      window.removeEventListener('focus', handleSyncOnFocus);
+      document.removeEventListener('visibilitychange', handleSyncOnFocus);
+    };
+  }, [socket, user, fetchBookings, fetchEquipment]);
 
   // ─── Wishlist ───────────────────────────────────────────────────────────────
   const toggleWishlist = async (equipmentId) => {

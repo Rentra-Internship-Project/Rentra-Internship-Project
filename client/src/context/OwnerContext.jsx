@@ -16,25 +16,25 @@ export const OwnerProvider = ({ children }) => {
   const [businessLoading, setBusinessLoading] = useState(true);
 
   // Fetch owner's business status from DB — NOT from user.company
-  const fetchBusiness = useCallback(async () => {
+  const fetchBusiness = useCallback(async (silent = false) => {
     if (!user || user.role !== 'OWNER') return;
     try {
-      setBusinessLoading(true);
+      if (!silent) setBusinessLoading(true);
       const res = await businessService.getMyBusiness();
       setBusiness(res.data.business || null);
     } catch (err) {
       console.error('Failed to fetch business:', err);
       setBusiness(null);
     } finally {
-      setBusinessLoading(false);
+      if (!silent) setBusinessLoading(false);
     }
   }, [user]);
 
   // Fetch owner's own equipment (all statuses) and bookings
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (silent = false) => {
     if (!user || user.role !== 'OWNER') return;
     try {
-      setIsLoading(true);
+      if (!silent) setIsLoading(true);
       const [eqRes, bkRes, notifRes] = await Promise.all([
         equipmentService.getMyEquipment(),
         bookingService.getOwnerBookings(),
@@ -64,7 +64,7 @@ export const OwnerProvider = ({ children }) => {
     } catch (err) {
       console.error('Failed to fetch owner data:', err);
     } finally {
-      setIsLoading(false);
+      if (!silent) setIsLoading(false);
     }
   }, [user]);
 
@@ -73,40 +73,60 @@ export const OwnerProvider = ({ children }) => {
     fetchData();
   }, [fetchBusiness, fetchData]);
 
-  // Real-time: refresh bookings on Socket.IO notification
+  // Real-time: multi-module live updates on Socket.IO notification without refresh
   const { socket } = useSocket();
   useEffect(() => {
     if (!socket || !user) return;
 
     const handleNotification = async (notifData) => {
-      // Add live notification to list
+      // 1. Add live notification to toast and notification center
       setNotifications((prev) => [notifData, ...prev]);
-      // Refresh booking list
-      try {
-        const bkRes = await bookingService.getOwnerBookings();
-        const mappedBookings = (bkRes.data || []).map((b) => ({
-          ...b,
-          id: b._id || b.id,
-          amount: b.totalValue || 0,
-          startDate: new Date(b.startDate).toLocaleDateString('en-IN'),
-          endDate: new Date(b.endDate).toLocaleDateString('en-IN'),
-          image: b.equipmentId?.image || 'https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&q=80&w=800',
-          category: b.equipmentId?.category || 'Heavy Machinery',
-          equipmentName: b.equipmentName || b.equipmentId?.name || 'Unknown Equipment',
-          customerName: b.customerId?.name || 'Unknown Customer',
-          customerEmail: b.customerId?.email || '',
-          customerPhone: b.customerId?.phone || '',
-          customerAvatar: b.customerId?.avatar || null,
-        }));
-        setBookings(mappedBookings);
-      } catch (err) {
-        console.error('Failed to refresh owner bookings:', err);
+
+      const type = notifData?.type || '';
+
+      // 2. Direct reactive UI updates without page refresh
+      if (type.startsWith('Business')) {
+        await fetchBusiness(true);
+      } else if (type.startsWith('Equipment')) {
+        await fetchData(true);
+      } else if (type.startsWith('Booking') || type.startsWith('Deposit') || type.startsWith('Rental')) {
+        await Promise.all([fetchData(true), fetchBusiness(true)]);
+      } else {
+        // Fallback for general notifications, payouts, refunds, etc.
+        await Promise.all([fetchData(true), fetchBusiness(true)]);
       }
     };
 
     socket.on('notification', handleNotification);
-    return () => socket.off('notification', handleNotification);
-  }, [socket, user]);
+
+    // Safety Net: Auto-sync when window or tab regains focus or visibility
+    const handleSyncOnFocus = () => {
+      if (document.visibilityState === 'visible') {
+        fetchBusiness(true);
+        fetchData(true);
+      }
+    };
+
+    window.addEventListener('focus', handleSyncOnFocus);
+    document.addEventListener('visibilitychange', handleSyncOnFocus);
+
+    return () => {
+      socket.off('notification', handleNotification);
+      window.removeEventListener('focus', handleSyncOnFocus);
+      document.removeEventListener('visibilitychange', handleSyncOnFocus);
+    };
+  }, [socket, user, fetchBusiness, fetchData]);
+
+  // Smart Polling Fallback: Check every 15s ONLY while business is pending approval
+  useEffect(() => {
+    if (!business || business.status !== 'Pending') return;
+
+    const interval = setInterval(() => {
+      fetchBusiness(true);
+    }, 15000);
+
+    return () => clearInterval(interval);
+  }, [business?.status, fetchBusiness]);
 
   // Derived stats from real data
   const ownerStats = {
