@@ -241,7 +241,7 @@ const Equipment = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="relative bg-white border border-[#E2E8F0] rounded-[20px] shadow-2xl p-6 w-full max-w-md z-10"
+              className="relative bg-white border border-[#E2E8F0] rounded-[20px] shadow-2xl p-4 sm:p-6 w-full max-w-md z-10"
             >
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2.5 bg-red-50 rounded-[12px]">
@@ -291,7 +291,7 @@ const Equipment = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="relative bg-white border border-[#E2E8F0] rounded-[20px] shadow-2xl p-6 w-full max-w-md z-10"
+              className="relative bg-white border border-[#E2E8F0] rounded-[20px] shadow-2xl p-4 sm:p-6 w-full max-w-md z-10"
             >
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2.5 bg-emerald-50 rounded-[12px]">
@@ -352,7 +352,7 @@ const Equipment = () => {
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="relative bg-white border border-[#E2E8F0] rounded-[20px] shadow-2xl p-6 w-full max-w-lg z-10 overflow-x-auto overflow-y-hidden"
+              className="relative bg-white border border-[#E2E8F0] rounded-[20px] shadow-2xl p-4 sm:p-6 w-full max-w-lg z-10 overflow-x-auto overflow-y-hidden"
             >
               <button
                 onClick={() => setSelectedEqp(null)}
@@ -426,7 +426,7 @@ const Equipment = () => {
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="relative bg-white border border-[#E2E8F0] rounded-[20px] shadow-2xl p-6 w-full max-w-md z-10"
+              className="relative bg-white border border-[#E2E8F0] rounded-[20px] shadow-2xl p-4 sm:p-6 w-full max-w-md z-10"
             >
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-3 bg-red-100 text-[#EF4444] rounded-full">
