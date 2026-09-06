@@ -6,7 +6,7 @@ import { useSocket } from './SocketContext';
 const CustomerContext = createContext();
 
 export const CustomerProvider = ({ children }) => {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
 
   const [profile, setProfile] = useState(null);
   const [equipmentList, setEquipmentList] = useState([]);
@@ -275,6 +275,7 @@ export const CustomerProvider = ({ children }) => {
       const res = await authService.updateProfile(updatedData);
       const updatedUser = res.data.user;
       setProfile((prev) => ({ ...prev, ...updatedData, ...updatedUser }));
+      if (setUser) setUser(updatedUser);
       return { success: true };
     } catch (err) {
       return { success: false, error: err.response?.data?.error || 'Update failed' };

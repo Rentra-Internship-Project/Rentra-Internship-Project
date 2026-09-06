@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -30,7 +30,8 @@ const CustomerSidebar = ({ mobileOpen, setMobileOpen }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { unreadNotifCount } = useCustomer();
-  const { logout } = useAuth();
+  const { user, logout, switchRole } = useAuth();
+  const [switchingRole, setSwitchingRole] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -93,34 +94,68 @@ const CustomerSidebar = ({ mobileOpen, setMobileOpen }) => {
           );
         })}
 
-        {/* SPECIAL SIDEBAR PROMOTIONAL CARD */}
+        {/* Switch / Become Owner Section */}
         <div className="pt-4 mt-4 border-t border-[#E2E8F0]">
-          <motion.div
-            whileHover={{ y: -3, transition: { duration: 0.2 } }}
-            className="p-4 rounded-[20px] bg-gradient-to-br from-[#CCCCFF]/30 via-white to-[#B8B8FF]/20 border border-[#CCCCFF]/50 shadow-sm relative overflow-hidden group"
-          >
-            <div className="absolute -right-3 -top-3 w-16 h-16 bg-[#CCCCFF]/20 rounded-full blur-lg group-hover:bg-[#CCCCFF]/40 transition-all" />
-            <div className="flex items-center gap-2 mb-2">
-              <span className="p-1.5 bg-[#0F172A] text-white rounded-[8px] text-xs">
-                <FiBriefcase />
-              </span>
-              <h4 className="text-xs font-bold text-[#0F172A]">Want To Become An Owner?</h4>
-            </div>
-            <p className="text-[11px] text-[#64748B] leading-relaxed mb-3">
-              Start earning by renting out your equipment and business assets on Rentra. Manage bookings, track earnings, and grow your business with our Owner Dashboard.
-            </p>
-            <button
-              onClick={() => {
-                logout();
-                navigate('/register?role=owner');
-                setMobileOpen?.(false);
-              }}
-              className="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-[#0F172A] hover:bg-slate-800 text-white rounded-[10px] text-xs font-semibold transition-all duration-200 cursor-pointer shadow-xs"
+          {user?.role === 'OWNER' ? (
+            <motion.div
+              whileHover={{ y: -2, transition: { duration: 0.2 } }}
+              className="p-4 rounded-[18px] bg-gradient-to-br from-[#5D5DEB]/15 via-white to-[#CCCCFF]/20 border border-[#5D5DEB]/30 shadow-xs"
             >
-              <span>Become Owner</span>
-              <FiArrowRight className="text-xs group-hover:translate-x-0.5 transition-transform" />
-            </button>
-          </motion.div>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="p-1.5 bg-[#5D5DEB] text-white rounded-[8px] text-xs">
+                  <FiTruck />
+                </span>
+                <h4 className="text-xs font-bold text-[#0F172A]">Owner Portal</h4>
+              </div>
+              <p className="text-[11px] text-[#64748B] leading-relaxed mb-3">
+                Switch to your fleet dashboard to manage equipment, bookings, and rental earnings.
+              </p>
+              <button
+                onClick={() => {
+                  setMobileOpen?.(false);
+                  navigate('/owner/dashboard');
+                }}
+                className="w-full flex items-center justify-center gap-2 px-3 py-2.5 bg-[#5D5DEB] hover:bg-[#4E4ED8] text-white rounded-[10px] text-xs font-semibold transition-all duration-200 cursor-pointer shadow-xs"
+              >
+                <FiTruck className="text-xs" />
+                <span>Switch to Owner Portal</span>
+                <FiArrowRight className="text-xs" />
+              </button>
+            </motion.div>
+          ) : (
+            <motion.div
+              whileHover={{ y: -2, transition: { duration: 0.2 } }}
+              className="p-4 rounded-[18px] bg-gradient-to-br from-[#CCCCFF]/30 via-white to-[#B8B8FF]/20 border border-[#CCCCFF]/50 shadow-xs relative overflow-hidden group"
+            >
+              <div className="absolute -right-3 -top-3 w-16 h-16 bg-[#CCCCFF]/20 rounded-full blur-lg group-hover:bg-[#CCCCFF]/40 transition-all" />
+              <div className="flex items-center gap-2 mb-2">
+                <span className="p-1.5 bg-[#0F172A] text-white rounded-[8px] text-xs">
+                  <FiBriefcase />
+                </span>
+                <h4 className="text-xs font-bold text-[#0F172A]">Become An Equipment Owner</h4>
+              </div>
+              <p className="text-[11px] text-[#64748B] leading-relaxed mb-3">
+                Start earning by listing your heavy machinery and commercial equipment on Rentra.
+              </p>
+              <button
+                onClick={async () => {
+                  setSwitchingRole(true);
+                  const res = await switchRole('OWNER');
+                  setSwitchingRole(false);
+                  setMobileOpen?.(false);
+                  if (res.success) {
+                    navigate('/owner/dashboard');
+                  }
+                }}
+                disabled={switchingRole}
+                className="w-full flex items-center justify-center gap-1.5 px-3 py-2.5 bg-[#0F172A] hover:bg-slate-800 text-white rounded-[10px] text-xs font-semibold transition-all duration-200 cursor-pointer shadow-xs disabled:opacity-50"
+              >
+                <FiTruck className="text-xs" />
+                <span>{switchingRole ? 'Switching to Owner...' : 'Change to Owner'}</span>
+                <FiArrowRight className="text-xs group-hover:translate-x-0.5 transition-transform" />
+              </button>
+            </motion.div>
+          )}
         </div>
       </div>
 

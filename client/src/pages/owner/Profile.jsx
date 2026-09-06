@@ -16,7 +16,8 @@ import StatsCard from '../../components/owner/StatsCard';
 import Button from '../../components/common/Button';
 import { useAuth } from '../../context/AuthContext';
 import { useOwner } from '../../context/OwnerContext';
-import { authService } from '../../services/api';
+import { authService, mediaService } from '../../services/api';
+import { DEFAULT_COVER_IMAGE } from '../../constants/assets';
 
 const Profile = () => {
   const { user, setUser } = useAuth();
@@ -33,7 +34,7 @@ const Profile = () => {
     state: business?.state || user?.state || 'State',
     joinedDate: user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-IN') : 'Recently',
     avatar: user?.avatar,
-    cover: user?.cover,
+    cover: user?.cover || DEFAULT_COVER_IMAGE,
     stats: {
       totalEquipment: ownerStats?.totalEquipment || 0,
       activeBookings: ownerStats?.activeBookings || 0,
@@ -46,14 +47,28 @@ const Profile = () => {
   // Personal Info Form
   const [name, setName] = useState(profile.name);
   const [phone, setPhone] = useState(profile.phone);
+  const [avatar, setAvatar] = useState(profile.avatar || '');
+  const [cover, setCover] = useState(profile.cover || '');
 
   // Sync state when user loads
   useEffect(() => {
     if (user) {
       setName(user.name || '');
       setPhone(user.phone || '');
+      setAvatar(user.avatar || '');
+      setCover(user.cover || DEFAULT_COVER_IMAGE);
     }
   }, [user]);
+
+  const handleUpdateCover = async (newCover) => {
+    setCover(newCover);
+    try {
+      const res = await authService.updateProfile({ cover: newCover });
+      if (setUser) setUser(res.data.user);
+    } catch (err) {
+      console.error('Failed to update cover:', err);
+    }
+  };
 
   // Password Form
   const [currentPassword, setCurrentPassword] = useState('');
@@ -67,7 +82,7 @@ const Profile = () => {
   const handleUpdateInfo = async (e) => {
     e.preventDefault();
     try {
-      const res = await authService.updateProfile({ name, phone });
+      const res = await authService.updateProfile({ name, phone, avatar, cover });
       if (setUser) setUser(res.data.user);
       setInfoMessage('Personal information updated successfully!');
     } catch (err) {
@@ -106,7 +121,7 @@ const Profile = () => {
       className="space-y-8"
     >
       {/* 1. Profile Header */}
-      <ProfileCard profile={profile} />
+      <ProfileCard profile={profile} onUpdateCover={handleUpdateCover} />
 
       {/* 2. Account Statistics */}
       <div>
@@ -199,6 +214,90 @@ const Profile = () => {
                   onChange={(e) => setPhone(e.target.value)}
                   className="w-full px-3.5 py-2.5 border border-[#E2E8F0] rounded-[12px] text-xs text-[#0F172A] focus:outline-none focus:border-[#CCCCFF] focus:ring-2 focus:ring-[#CCCCFF]/30"
                 />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-bold text-[#0F172A]">Profile Avatar</label>
+                    <label className="text-[11px] font-semibold text-[#3B82F6] hover:underline cursor-pointer">
+                      Upload File
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/jpg"
+                        className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          try {
+                            const fd = new FormData();
+                            fd.append('file', file);
+                            fd.append('filename', file.name);
+                            const res = await mediaService.uploadPhoto(fd);
+                            if (res.data?.url) {
+                              setAvatar(res.data.url);
+                            }
+                          } catch (err) {
+                            alert('Failed to upload avatar.');
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                  <input
+                    type="url"
+                    value={avatar}
+                    onChange={(e) => setAvatar(e.target.value)}
+                    className="w-full px-3.5 py-2.5 border border-[#E2E8F0] rounded-[12px] text-xs text-[#0F172A] focus:outline-none focus:border-[#CCCCFF] focus:ring-2 focus:ring-[#CCCCFF]/30"
+                    placeholder="https://images.unsplash.com/..."
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-bold text-[#0F172A]">Cover Banner</label>
+                    <div className="flex items-center gap-2">
+                      <label className="text-[11px] font-semibold text-[#3B82F6] hover:underline cursor-pointer">
+                        Upload File
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp,image/jpg"
+                          className="hidden"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            try {
+                              const fd = new FormData();
+                              fd.append('file', file);
+                              fd.append('filename', file.name);
+                              const res = await mediaService.uploadPhoto(fd);
+                              if (res.data?.url) {
+                                setCover(res.data.url);
+                              }
+                            } catch (err) {
+                              alert('Failed to upload cover banner.');
+                            }
+                          }}
+                        />
+                      </label>
+                      <span className="text-[#E2E8F0]">|</span>
+                      <button
+                        type="button"
+                        onClick={() => setCover(DEFAULT_COVER_IMAGE)}
+                        className="text-[11px] font-semibold text-[#64748B] hover:text-[#0F172A] cursor-pointer"
+                      >
+                        Reset Default
+                      </button>
+                    </div>
+                  </div>
+                  <input
+                    type="url"
+                    value={cover}
+                    onChange={(e) => setCover(e.target.value)}
+                    className="w-full px-3.5 py-2.5 border border-[#E2E8F0] rounded-[12px] text-xs text-[#0F172A] focus:outline-none focus:border-[#CCCCFF] focus:ring-2 focus:ring-[#CCCCFF]/30"
+                    placeholder="https://images.unsplash.com/..."
+                  />
+                </div>
               </div>
 
               <div className="flex justify-end pt-2">

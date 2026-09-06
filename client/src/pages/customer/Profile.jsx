@@ -5,7 +5,8 @@ import { FaRupeeSign } from 'react-icons/fa';
 import { useCustomer } from '../../context/CustomerContext';
 import ProfileCard from '../../components/customer/ProfileCard';
 import Button from '../../components/common/Button';
-import { authService } from '../../services/api';
+import { authService, mediaService } from '../../services/api';
+import { DEFAULT_COVER_IMAGE } from '../../constants/assets';
 
 const Profile = () => {
   const { profile, updateProfile, bookings, wishlistEquipment } = useCustomer();
@@ -110,7 +111,13 @@ const Profile = () => {
   return (
     <div className="space-y-6">
       {/* Profile Overview Card Banner */}
-      <ProfileCard profile={profile} />
+      <ProfileCard
+        profile={profile}
+        onUpdateCover={async (newCover) => {
+          await updateProfile({ cover: newCover });
+          setFormData((prev) => ({ ...prev, cover: newCover }));
+        }}
+      />
 
       {/* Navigation Tabs */}
       <div className="flex items-center gap-2 border-b border-[#E2E8F0] pb-2 overflow-x-auto">
@@ -194,7 +201,32 @@ const Profile = () => {
 
               <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="form-label">Profile Avatar URL</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="form-label !mb-0">Profile Avatar</label>
+                    <label className="text-[11px] font-semibold text-[#3B82F6] hover:underline cursor-pointer">
+                      Upload File
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/jpg"
+                        className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          try {
+                            const fd = new FormData();
+                            fd.append('file', file);
+                            fd.append('filename', file.name);
+                            const res = await mediaService.uploadPhoto(fd);
+                            if (res.data?.url) {
+                              setFormData((prev) => ({ ...prev, avatar: res.data.url }));
+                            }
+                          } catch (err) {
+                            alert('Failed to upload avatar.');
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
                   <input
                     type="url"
                     value={formData.avatar}
@@ -204,7 +236,42 @@ const Profile = () => {
                   />
                 </div>
                 <div>
-                  <label className="form-label">Cover Banner URL</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="form-label !mb-0">Cover Banner</label>
+                    <div className="flex items-center gap-2">
+                      <label className="text-[11px] font-semibold text-[#3B82F6] hover:underline cursor-pointer">
+                        Upload File
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp,image/jpg"
+                          className="hidden"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            try {
+                              const fd = new FormData();
+                              fd.append('file', file);
+                              fd.append('filename', file.name);
+                              const res = await mediaService.uploadPhoto(fd);
+                              if (res.data?.url) {
+                                setFormData((prev) => ({ ...prev, cover: res.data.url }));
+                              }
+                            } catch (err) {
+                              alert('Failed to upload cover banner.');
+                            }
+                          }}
+                        />
+                      </label>
+                      <span className="text-[#E2E8F0]">|</span>
+                      <button
+                        type="button"
+                        onClick={() => setFormData((prev) => ({ ...prev, cover: DEFAULT_COVER_IMAGE }))}
+                        className="text-[11px] font-semibold text-[#64748B] hover:text-[#0F172A] cursor-pointer"
+                      >
+                        Reset Default
+                      </button>
+                    </div>
+                  </div>
                   <input
                     type="url"
                     value={formData.cover}

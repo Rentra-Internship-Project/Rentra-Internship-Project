@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiGrid, FiBriefcase, FiCheckSquare, FiTruck, FiPlusCircle, FiCalendar, FiUser, FiLogOut, FiX, FiPackage } from 'react-icons/fi';
+import { FiGrid, FiBriefcase, FiCheckSquare, FiTruck, FiPlusCircle, FiCalendar, FiUser, FiLogOut, FiX, FiPackage, FiArrowRight } from 'react-icons/fi';
 import { FaRupeeSign } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 
@@ -68,6 +68,35 @@ const OwnerSidebar = ({ mobileOpen, setMobileOpen }) => {
             </NavLink>
           );
         })}
+
+        {/* Switch to Customer Portal Section */}
+        <div className="pt-4 mt-4 border-t border-[#E2E8F0]">
+          <motion.div
+            whileHover={{ y: -2, transition: { duration: 0.2 } }}
+            className="p-4 rounded-[18px] bg-gradient-to-br from-[#3B82F6]/15 via-white to-[#CCCCFF]/20 border border-[#3B82F6]/30 shadow-xs"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <span className="p-1.5 bg-[#3B82F6] text-white rounded-[8px] text-xs">
+                <FiUser />
+              </span>
+              <h4 className="text-xs font-bold text-[#0F172A]">Customer Portal</h4>
+            </div>
+            <p className="text-[11px] text-[#64748B] leading-relaxed mb-3">
+              Browse machinery catalog, rent equipment, and view your customer bookings.
+            </p>
+            <button
+              onClick={() => {
+                setMobileOpen?.(false);
+                navigate('/customer/dashboard');
+              }}
+              className="w-full flex items-center justify-center gap-2 px-3 py-2.5 bg-[#3B82F6] hover:bg-blue-600 text-white rounded-[10px] text-xs font-semibold transition-all duration-200 cursor-pointer shadow-xs"
+            >
+              <FiUser className="text-xs" />
+              <span>Switch to Customer</span>
+              <FiArrowRight className="text-xs" />
+            </button>
+          </motion.div>
+        </div>
       </div>
 
       {/* Sidebar Footer / Logout */}

@@ -1,44 +1,52 @@
 import React from 'react';
-import { FiMail, FiPhone, FiCalendar, FiShield, FiCheckSquare } from 'react-icons/fi';
+import { FiMail, FiPhone, FiCalendar, FiShield } from 'react-icons/fi';
+import ProfileCoverBanner from '../common/ProfileCoverBanner';
 
-const ProfileCard = ({ profile }) => {
+const ProfileCard = ({ profile, onUpdateCover }) => {
   return (
-    <div className="bg-white border border-[#E2E8F0] rounded-[20px] p-6 shadow-xs">
-      <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
-        <img
-          src={profile.avatar || "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=150"}
-          alt={profile.name}
-          referrerPolicy="no-referrer"
-          onError={(e) => {
-            e.currentTarget.onerror = null;
-            e.currentTarget.src = "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=150";
-          }}
-          className="w-24 h-24 rounded-full object-cover ring-4 ring-[#CCCCFF] shadow-sm"
-        />
-        <div className="text-center sm:text-left flex-1">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div>
-              <h2 className="text-xl font-bold text-[#0F172A]">{profile.name}</h2>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 mt-1 rounded-full text-xs font-semibold bg-[#CCCCFF]/40 text-[#0F172A]">
-                <FiShield className="text-xs" /> {profile.role}
+    <div className="bg-white border border-[#E2E8F0] rounded-[20px] overflow-hidden shadow-xs">
+      <ProfileCoverBanner
+        cover={profile.cover}
+        onUpdateCover={onUpdateCover}
+        className="rounded-t-[20px]"
+      />
+      <div className="p-6 relative">
+        <div className="flex flex-col sm:flex-row items-center sm:items-end gap-5 -mt-16 mb-4">
+          <img
+            src={profile.avatar || "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=150"}
+            alt={profile.name}
+            referrerPolicy="no-referrer"
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=150";
+            }}
+            className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover ring-4 ring-white shadow-md bg-white shrink-0"
+          />
+          <div className="text-center sm:text-left flex-1 min-w-0">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h2 className="text-xl font-bold text-[#0F172A]">{profile.name}</h2>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 mt-1 rounded-full text-xs font-semibold bg-[#CCCCFF]/40 text-[#0F172A]">
+                  <FiShield className="text-xs" /> {profile.role}
+                </span>
+              </div>
+              <span className="text-xs font-medium text-[#64748B] flex items-center justify-center sm:justify-start gap-1">
+                <FiCalendar /> Joined {profile.joinedDate}
               </span>
             </div>
-            <span className="text-xs font-medium text-[#64748B] flex items-center justify-center sm:justify-start gap-1">
-              <FiCalendar /> Joined {profile.joinedDate}
-            </span>
           </div>
+        </div>
 
-          <p className="mt-3 text-xs text-[#64748B] leading-relaxed max-w-xl">{profile.bio}</p>
+        <p className="mt-3 text-xs text-[#64748B] leading-relaxed max-w-xl">{profile.bio}</p>
 
-          <div className="mt-4 pt-4 border-t border-[#E2E8F0] flex flex-wrap items-center justify-center sm:justify-start gap-6 text-xs text-[#0F172A]">
-            <div className="flex items-center gap-2">
-              <FiMail className="text-[#64748B]" />
-              <span>{profile.email}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <FiPhone className="text-[#64748B]" />
-              <span>{profile.phone}</span>
-            </div>
+        <div className="mt-4 pt-4 border-t border-[#E2E8F0] flex flex-wrap items-center justify-center sm:justify-start gap-6 text-xs text-[#0F172A]">
+          <div className="flex items-center gap-2">
+            <FiMail className="text-[#64748B]" />
+            <span>{profile.email}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <FiPhone className="text-[#64748B]" />
+            <span>{profile.phone}</span>
           </div>
         </div>
       </div>

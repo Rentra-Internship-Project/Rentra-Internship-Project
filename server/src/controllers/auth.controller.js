@@ -191,6 +191,39 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
+exports.switchRole = async (req, res) => {
+  try {
+    const { role } = req.body;
+    if (!['CUSTOMER', 'OWNER'].includes(role)) {
+      return res.status(400).json({ error: 'Role must be either CUSTOMER or OWNER' });
+    }
+
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    if (user.role === 'ADMIN') {
+      return res.status(403).json({ error: 'ADMIN role cannot be changed' });
+    }
+
+    user.role = role;
+    await user.save();
+
+    const token = jwt.sign(
+      { id: user._id, email: user.email, role: user.role },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      user,
+      token,
+      message: `Successfully switched role to ${role}`,
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to switch role', details: err.message });
+  }
+};
+
 exports.updatePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;

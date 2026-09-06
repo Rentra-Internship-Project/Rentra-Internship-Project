@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FiMenu, FiBell, FiSearch, FiCheckCircle, FiUser, FiTruck } from 'react-icons/fi';
 import { useCustomer } from '../../context/CustomerContext';
+import { useAuth } from '../../context/AuthContext';
 
 const pageTitles = {
   '/customer/dashboard': 'Customer Dashboard',
@@ -23,6 +24,17 @@ const CustomerNavbar = ({ setMobileOpen }) => {
     markNotificationRead,
     markAllNotificationsRead,
   } = useCustomer();
+  const { user, switchRole } = useAuth();
+  const [switchingRole, setSwitchingRole] = useState(false);
+
+  const handleBecomeOwner = async () => {
+    setSwitchingRole(true);
+    const res = await switchRole('OWNER');
+    setSwitchingRole(false);
+    if (res.success) {
+      navigate('/owner/dashboard');
+    }
+  };
 
   const currentTitle = pageTitles[location.pathname] || (location.pathname.startsWith('/customer/bookings/') ? 'Booking Details' : 'Customer Portal');
 
@@ -268,13 +280,25 @@ const CustomerNavbar = ({ setMobileOpen }) => {
           )}
         </div>
 
-        {/* Switch Portal Button (Only for Owners) */}
-        {profile?.role === 'OWNER' && (
+        {/* Switch / Change Portal Button (Visible on Mobile & Desktop) */}
+        {(user?.role === 'OWNER' || profile?.role === 'OWNER') ? (
           <button
             onClick={() => navigate('/owner/dashboard')}
-            className="hidden md:flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-[#5D5DEB] bg-[#5D5DEB]/10 rounded-full hover:bg-[#5D5DEB]/20 transition border border-[#5D5DEB]/20"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-[#5D5DEB] bg-[#5D5DEB]/10 rounded-full hover:bg-[#5D5DEB]/20 transition border border-[#5D5DEB]/20 cursor-pointer shrink-0 shadow-2xs"
+            title="Switch to Owner Portal"
           >
-            <FiTruck /> Switch to Owner
+            <FiTruck className="text-sm shrink-0" />
+            <span className="text-[11px] sm:text-xs"><span className="hidden sm:inline">Switch to </span>Owner</span>
+          </button>
+        ) : (
+          <button
+            onClick={handleBecomeOwner}
+            disabled={switchingRole}
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 rounded-full hover:bg-emerald-100 transition border border-emerald-200 cursor-pointer shrink-0 shadow-2xs disabled:opacity-50"
+            title="Change to Owner Mode"
+          >
+            <FiTruck className="text-sm shrink-0" />
+            <span className="text-[11px] sm:text-xs">{switchingRole ? 'Switching...' : <><span className="hidden sm:inline">Change to </span>Owner</>}</span>
           </button>
         )}
 

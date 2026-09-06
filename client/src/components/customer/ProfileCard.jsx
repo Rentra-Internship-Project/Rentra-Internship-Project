@@ -1,19 +1,17 @@
 import React from 'react';
 import { FiUser, FiMail, FiPhone, FiMapPin, FiBriefcase, FiCalendar, FiShield, FiEdit2 } from 'react-icons/fi';
 import Button from '../common/Button';
+import ProfileCoverBanner from '../common/ProfileCoverBanner';
 
-const ProfileCard = ({ profile, onEdit }) => {
+const ProfileCard = ({ profile, onEdit, onUpdateCover }) => {
   return (
     <div className="panel-card overflow-hidden">
       {/* Cover Header Banner */}
-      <div className="h-36 sm:h-44 w-full relative bg-slate-200">
-        <img
-          src={profile.cover}
-          alt="Cover"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-      </div>
+      <ProfileCoverBanner
+        cover={profile.cover}
+        onUpdateCover={onUpdateCover}
+        className="rounded-t-[20px]"
+      />
 
       {/* Profile Details Container */}
       <div className="px-6 pb-6 relative">

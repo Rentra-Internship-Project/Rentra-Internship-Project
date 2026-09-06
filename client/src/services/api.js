@@ -46,6 +46,7 @@ export const authService = {
   getProfile: () => api.get('/auth/me'),
   updateProfile: (profileData) => api.put('/auth/me', profileData),
   updatePassword: (data) => api.put('/auth/me/password', data),
+  switchRole: (role) => api.put('/auth/switch-role', { role }),
   toggleWishlist: (equipmentId) => api.post('/auth/wishlist', { equipmentId }),
   getWishlist: () => api.get('/auth/wishlist'),
 };

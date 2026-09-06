@@ -73,7 +73,10 @@ const Profile = () => {
       className="space-y-8"
     >
       {/* 1. Profile Header */}
-      <ProfileCard profile={profile} />
+      <ProfileCard
+        profile={profile}
+        onUpdateCover={(newCover) => setProfile((prev) => ({ ...prev, cover: newCover }))}
+      />
 
       {/* 5. Admin Statistics Metrics */}
       <div>

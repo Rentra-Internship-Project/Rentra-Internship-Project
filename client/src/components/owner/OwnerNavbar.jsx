@@ -262,12 +262,14 @@ const OwnerNavbar = ({ setMobileOpen }) => {
           )}
         </div>
 
-        {/* Switch Portal Button */}
+        {/* Switch Portal Button (Visible on Mobile & Desktop) */}
         <button
           onClick={() => navigate('/customer/dashboard')}
-          className="hidden md:flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-[#3B82F6] bg-[#3B82F6]/10 rounded-full hover:bg-[#3B82F6]/20 transition border border-[#3B82F6]/20"
+          className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-[#3B82F6] bg-[#3B82F6]/10 rounded-full hover:bg-[#3B82F6]/20 transition border border-[#3B82F6]/20 cursor-pointer shrink-0 shadow-2xs"
+          title="Switch to Customer Portal"
         >
-          <FiUser /> Switch to Customer
+          <FiUser className="text-sm shrink-0" />
+          <span className="text-[11px] sm:text-xs"><span className="hidden sm:inline">Switch to </span>Customer</span>
         </button>
 
         {/* Owner Avatar */}

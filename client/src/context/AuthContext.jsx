@@ -88,6 +88,23 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const switchRole = async (targetRole) => {
+    try {
+      const response = await authService.switchRole(targetRole);
+      const { user: updatedUser, token } = response.data;
+      if (token) {
+        localStorage.setItem('rentra_token', token);
+      }
+      setUser(updatedUser);
+      return { success: true, user: updatedUser };
+    } catch (err) {
+      return {
+        success: false,
+        message: err.response?.data?.error || 'Failed to switch role',
+      };
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('rentra_token');
     sessionStorage.removeItem('rentra_is_first_login');
@@ -97,7 +114,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, setUser, loading, isAuthenticated: Boolean(user), isFirstLogin, login, loginWithToken, register, logout }}
+      value={{ user, setUser, loading, isAuthenticated: Boolean(user), isFirstLogin, login, loginWithToken, register, switchRole, logout }}
     >
       {children}
     </AuthContext.Provider>

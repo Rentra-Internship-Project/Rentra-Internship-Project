@@ -11,6 +11,7 @@ router.post('/login', authController.login);
 router.get('/me', authenticateToken, authController.getProfile);
 router.put('/me', authenticateToken, authController.updateProfile);
 router.put('/me/password', authenticateToken, authController.updatePassword);
+router.put('/switch-role', authenticateToken, authController.switchRole);
 router.post('/wishlist', authenticateToken, authController.toggleWishlist);
 router.get('/wishlist', authenticateToken, authController.getWishlist);
 
