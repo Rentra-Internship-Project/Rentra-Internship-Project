@@ -53,7 +53,7 @@ const Landing = () => {
               The premier B2B and B2C marketplace for heavy equipment
             </div>
             
-            <h1 className="text-3xl sm:text-5xl lg:text-7xl font-extrabold text-[#0F172A] tracking-tight leading-[1.15] max-w-5xl">
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-[#0F172A] tracking-tight leading-[1.15] max-w-5xl">
               Equip your projects. <br className="hidden sm:block" /> Monetize your fleet.
             </h1>
             
@@ -293,7 +293,7 @@ const Landing = () => {
         {/* CTA Section */}
         <section className="bg-gradient-to-br from-[#CCCCFF] via-[#E6E6FF] to-[#F8FAFC] py-20 sm:py-32 border-t border-[#E2E8F0]">
           <div className="max-w-4xl mx-auto px-5 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl sm:text-5xl font-extrabold text-[#0F172A] mb-4 sm:mb-6 tracking-tight">Ready to modernize your operations?</h2>
+            <h2 className="text-4xl sm:text-5xl font-extrabold text-[#0F172A] mb-4 sm:mb-6 tracking-tight">Ready to modernize your operations?</h2>
             <p className="text-sm sm:text-xl text-[#475569] mb-8 sm:mb-10 max-w-2xl mx-auto px-4">
               Join thousands of businesses already scaling their infrastructure and increasing their revenue on Rentra.
             </p>
