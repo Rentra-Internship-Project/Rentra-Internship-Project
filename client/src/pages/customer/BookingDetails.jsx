@@ -42,7 +42,7 @@ const BookingDetails = () => {
   const [ratingSuccess, setRatingSuccess] = useState(false);
   const [isInspected, setIsInspected] = useState(false);
   const [invoiceDownloaded, setInvoiceDownloaded] = useState(false);
-  const [isPayingRemaining, setIsPayingRemaining] = useState(false);
+
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
   const canRate = ['Completed', 'Return Requested'].includes(booking?.status) && !booking?.rating;
@@ -193,16 +193,7 @@ const BookingDetails = () => {
     setIsCancelModalOpen(false);
   };
 
-  const handlePayRemaining = async () => {
-    setIsPayingRemaining(true);
-    try {
-      await payRemainingBalance(booking.id || booking._id, 'Credit Card (•••• 9821)');
-    } catch (err) {
-      console.error('Failed to pay remaining balance:', err);
-    } finally {
-      setIsPayingRemaining(false);
-    }
-  };
+
 
   const isAwaitingRemaining =
     booking.status === 'Approved' || booking.status === 'Awaiting Remaining Payment';
@@ -332,16 +323,15 @@ const BookingDetails = () => {
             </div>
           )}
 
-          {isAwaitingRemaining && (
+          {booking?.status === 'Approved' && (
             <Button
               variant="primary"
               size="sm"
-              loading={isPayingRemaining}
-              onClick={handlePayRemaining}
+              onClick={() => setIsPaymentModalOpen(true)}
               icon={FiArrowRight}
               className="bg-[#22C55E] hover:bg-emerald-600 text-white shadow-md animate-pulse"
             >
-              Pay Remaining Balance (₹{(booking.remainingCash ?? booking.remainingBalance ?? 0).toLocaleString()})
+              Pay Security Deposit (₹{(booking.deposit ?? 0).toLocaleString()})
             </Button>
           )}
 

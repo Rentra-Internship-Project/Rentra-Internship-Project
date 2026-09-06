@@ -353,43 +353,7 @@ exports.updateBookingStatus = async (req, res) => {
   }
 };
 
-// Confirm deposit payment (called after Razorpay verification)
-exports.confirmDeposit = async (req, res) => {
-  try {
-    const { razorpayOrderId, razorpayPaymentId } = req.body;
-    const booking = await Booking.findById(req.params.id);
-    if (!booking) return res.status(404).json({ error: 'Booking not found' });
 
-    // Only customer can confirm their own booking deposit
-    if (booking.customerId.toString() !== req.user.id) {
-      return res.status(403).json({ error: 'Not authorized' });
-    }
-
-    if (booking.status !== 'Approved') {
-      return res.status(400).json({ error: 'Booking must be Approved before deposit payment' });
-    }
-
-    booking.status = 'Deposit Paid';
-    booking.depositStatus = 'Paid';
-    booking.amountPaidOnline = booking.deposit;
-    booking.razorpayOrderId = razorpayOrderId || '';
-    booking.razorpayPaymentId = razorpayPaymentId || '';
-
-    await booking.save();
-
-    const io = req.app.get('io');
-    await createNotification(io, booking.ownerId.toString(), {
-      title: 'Deposit Received',
-      message: `Security deposit of ₹${booking.deposit.toLocaleString()} received for "${booking.equipmentName}".`,
-      type: 'DepositPaid',
-      bookingId: booking._id,
-    });
-
-    res.json({ booking, message: 'Deposit confirmed successfully' });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to confirm deposit', details: err.message });
-  }
-};
 
 // Record inspection on return
 exports.recordInspection = async (req, res) => {

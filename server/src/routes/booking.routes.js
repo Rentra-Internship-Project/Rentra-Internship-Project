@@ -30,8 +30,7 @@ router.post('/', authenticateToken, requireCustomer, bookingController.createBoo
 // Both: update booking status (controller validates role-based transitions)
 router.put('/:id/status', authenticateToken, bookingController.updateBookingStatus);
 
-// Customer: confirm deposit after Razorpay payment
-router.post('/:id/deposit', authenticateToken, requireCustomer, bookingController.confirmDeposit);
+
 
 // Owner: record inspection on return
 router.post('/:id/inspection', authenticateToken, bookingController.recordInspection);
