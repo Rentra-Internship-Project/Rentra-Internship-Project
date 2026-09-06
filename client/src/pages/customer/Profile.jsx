@@ -161,7 +161,7 @@ const Profile = () => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.2 }}
-          className="panel-card p-6 space-y-6"
+          className="panel-card p-4 md:p-6 space-y-6"
         >
           <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-4">
             <div>
@@ -359,7 +359,7 @@ const Profile = () => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.2 }}
-          className="panel-card p-6 space-y-6"
+          className="panel-card p-4 md:p-6 space-y-6"
         >
           <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-4">
             <div>
@@ -534,7 +534,7 @@ const Profile = () => {
           </div>
 
           {/* Activity Log List */}
-          <div className="panel-card p-6 space-y-4">
+          <div className="panel-card p-4 md:p-6 space-y-4">
             <h3 className="text-base font-extrabold text-[#0F172A] border-b border-[#E2E8F0] pb-3">
               Recent Account Activity
             </h3>
