@@ -235,7 +235,7 @@ const Bookings = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="relative bg-white border border-[#E2E8F0] rounded-[20px] shadow-2xl p-6 w-full max-w-md z-10"
+            className="relative bg-white border border-[#E2E8F0] rounded-[20px] shadow-2xl p-4 md:p-6 w-full max-w-md z-10"
           >
             <div className="flex items-center justify-between pb-4 border-b border-[#E2E8F0] mb-4">
               <h3 className="text-base font-bold text-[#0F172A]">Booking Details</h3>
