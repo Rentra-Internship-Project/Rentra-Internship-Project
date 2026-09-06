@@ -15,6 +15,7 @@ const categoryRoutes = require('./routes/category.routes');
 const notificationRoutes = require('./routes/notification.routes');
 const chatRoutes = require('./routes/chat.routes');
 const { authenticateToken } = require('./middleware/auth.middleware');
+const { pingHandler } = require('./routes/ping.routes');
 
 const app = express();
 
@@ -50,6 +51,12 @@ app.use(cors({
   }, 
   credentials: true 
 }));
+
+// Dedicated Ping / Keep-Alive Endpoints (Best Practice for Render 24/7 uptime & health monitors)
+// Placed before express.json, session, and rateLimiter to minimize CPU/memory overhead and prevent throttling
+app.get(['/ping', '/api/ping'], pingHandler);
+app.head(['/ping', '/api/ping'], pingHandler);
+
 app.use(express.json({ limit: '10mb' }));
 app.use(
   session({

@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "node tests/test_full_suite.js",
-    "test:diag": "node tests/test_diagnostics.js"
+    "test": "node tests/test_ping.js",
+    "test:ping": "node tests/test_ping.js"
   },
   "keywords": [],
   "author": "",

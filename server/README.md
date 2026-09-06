@@ -388,7 +388,23 @@ The Rentra backend includes a declarative [Render Blueprint](https://render.com/
 2. Select **New +** -> **Blueprint**.
 3. Render automatically provisions the web service using `server/` as the root directory, installs dependencies, and runs `npm start`.
 4. The server is configured with `app.set('trust proxy', 1)` to correctly terminate HTTPS behind Render's load balancers.
-5. See [DEPLOYMENT.md](../deployment.md) for full deployment instructions and free-tier keep-alive configurations.
+5. Render's `healthCheckPath` is configured to `/ping`.
+
+### Dedicated `/ping` Keep-Alive Endpoint (Render 24/7 Uptime)
+
+Render free instances spin down after 15 minutes of inactivity. Rentra implements an optimized, production-grade `/ping` (and `/api/ping`) endpoint following cloud architecture best practices:
+
+- **Ultra-Lightweight & Non-Blocking**: Responds in microseconds without touching MongoDB, sessions, or disk.
+- **Cache-Busting Headers**: Sends `Cache-Control: no-cache, no-store, must-revalidate` and `Pragma: no-cache` so edge proxies and CDNs never serve stale 200 responses.
+- **Rate Limiter Bypass**: Mounted before session parsing and rate limiting to prevent false-positive 429 throttling on uptime probes.
+- **HEAD & GET Support**: Fully compatible with lightweight HTTP HEAD probes from services like UptimeRobot.
+
+#### Keeping Render Active:
+- **Option 1 (Automated Self-Ping)**: Render automatically injects `RENDER_EXTERNAL_URL` into Web Services. Rentra's built-in keep-alive worker (`server/src/utils/keepAlive.js`) will automatically ping `/ping` every 14 minutes.
+- **Option 2 (External Monitor - Recommended for Zero-Cold-Start)**:
+  1. Create a free account at [UptimeRobot](https://uptimerobot.com/) or [cron-job.org](https://cron-job.org/).
+  2. Add a new HTTP(s) monitor pointing to: `https://your-service.onrender.com/ping`.
+  3. Set monitoring interval to **10 minutes** or **14 minutes**.
 
 ---
 

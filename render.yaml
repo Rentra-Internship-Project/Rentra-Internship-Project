@@ -7,7 +7,7 @@ services:
     rootDir: server
     buildCommand: npm install
     startCommand: npm start
-    healthCheckPath: /
+    healthCheckPath: /ping
     envVars:
       - key: NODE_ENV
         value: production
