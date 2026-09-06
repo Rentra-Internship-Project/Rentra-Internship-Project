@@ -265,22 +265,18 @@ const BookingDetails = () => {
             </Button>
           )}
 
+          {/* Show Pickup PIN — only when Ready For Pickup */}
           {booking.status === 'Ready For Pickup' && (
-            <Button
-              variant="primary"
-              size="sm"
-              icon={FiCheckCircle}
-              onClick={async () => {
-                try {
-                  await bookingService.updateStatus(booking.id || booking._id, 'Rental Active');
-                  window.location.reload();
-                } catch (err) {
-                  alert('Failed to mark received: ' + (err.response?.data?.error || err.message));
-                }
-              }}
-            >
-              Equipment Received
-            </Button>
+            <div className="bg-slate-100 text-slate-800 px-4 py-2 rounded-lg text-sm font-bold border border-slate-200 shadow-sm flex items-center gap-2">
+              Pickup PIN: <span className="text-xl tracking-widest text-indigo-600">{booking.pickupPin || 'N/A'}</span>
+            </div>
+          )}
+
+          {/* Show Return PIN — only when Active or Return Requested */}
+          {(booking.status === 'Rental Active' || booking.status === 'Return Requested') && (
+            <div className="bg-slate-100 text-slate-800 px-4 py-2 rounded-lg text-sm font-bold border border-slate-200 shadow-sm flex items-center gap-2">
+              Return PIN: <span className="text-xl tracking-widest text-emerald-600">{booking.returnPin || 'N/A'}</span>
+            </div>
           )}
 
           {booking.status === 'Rental Active' && (

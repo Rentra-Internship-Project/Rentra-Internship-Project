@@ -265,6 +265,12 @@ exports.updateBookingStatus = async (req, res) => {
       }
     }
 
+    if (status === 'Approved' && !booking.pickupPin) {
+      // Generate 4-digit PINs (1000 to 9999)
+      booking.pickupPin = Math.floor(1000 + Math.random() * 9000).toString();
+      booking.returnPin = Math.floor(1000 + Math.random() * 9000).toString();
+    }
+
     booking.status = status;
 
     if (status === 'Rejected' && rejectionReason) {
@@ -350,6 +356,56 @@ exports.updateBookingStatus = async (req, res) => {
     res.json({ booking, message: `Booking status updated to "${status}"` });
   } catch (err) {
     res.status(500).json({ error: 'Failed to update booking status', details: err.message });
+  }
+};
+
+// Verify pickup PIN and start rental
+exports.verifyPickup = async (req, res) => {
+  try {
+    const { pin } = req.body;
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) return res.status(404).json({ error: 'Booking not found' });
+
+    if (booking.ownerId.toString() !== req.user.id) {
+      return res.status(403).json({ error: 'Only the owner can verify pickup' });
+    }
+
+    if (booking.pickupPin !== pin) {
+      return res.status(400).json({ error: 'Invalid Pickup PIN' });
+    }
+
+    booking.status = 'Rental Active';
+    await Equipment.findByIdAndUpdate(booking.equipmentId, { availability: 'Rented' });
+    await booking.save();
+
+    res.json({ booking, message: 'Pickup verified. Rental is now active.' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to verify pickup', details: err.message });
+  }
+};
+
+// Verify return PIN and end rental
+exports.verifyReturn = async (req, res) => {
+  try {
+    const { pin } = req.body;
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) return res.status(404).json({ error: 'Booking not found' });
+
+    if (booking.ownerId.toString() !== req.user.id) {
+      return res.status(403).json({ error: 'Only the owner can verify return' });
+    }
+
+    if (booking.returnPin !== pin) {
+      return res.status(400).json({ error: 'Invalid Return PIN' });
+    }
+
+    booking.status = 'Completed';
+    await Equipment.findByIdAndUpdate(booking.equipmentId, { availability: 'Available' });
+    await booking.save();
+
+    res.json({ booking, message: 'Return verified. Rental is now completed.' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to verify return', details: err.message });
   }
 };
 

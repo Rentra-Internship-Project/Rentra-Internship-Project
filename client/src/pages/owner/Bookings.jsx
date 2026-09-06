@@ -60,6 +60,34 @@ const Bookings = () => {
     }
   };
 
+  const handleVerifyPickup = async (id) => {
+    const pin = prompt("Enter Customer's 4-Digit Pickup PIN:");
+    if (!pin) return;
+    try {
+      await bookingService.verifyPickup(id, pin);
+      setBookings((prev) =>
+        prev.map((bk) => (bk.id === id ? { ...bk, status: 'Rental Active' } : bk))
+      );
+      alert('Pickup verified successfully!');
+    } catch (err) {
+      alert('Verification failed: ' + (err.response?.data?.error || err.message));
+    }
+  };
+
+  const handleVerifyReturn = async (id) => {
+    const pin = prompt("Enter Customer's 4-Digit Return PIN:");
+    if (!pin) return;
+    try {
+      await bookingService.verifyReturn(id, pin);
+      setBookings((prev) =>
+        prev.map((bk) => (bk.id === id ? { ...bk, status: 'Completed' } : bk))
+      );
+      alert('Return verified successfully! Escrow released.');
+    } catch (err) {
+      alert('Verification failed: ' + (err.response?.data?.error || err.message));
+    }
+  };
+
   const pendingCount = bookings.filter((bk) => bk.status === 'Pending Approval').length;
 
   return (
@@ -199,13 +227,22 @@ const Bookings = () => {
                             Mark Ready
                           </button>
                         )}
-                        {/* Complete — Return Requested */}
-                        {bk.status === 'Return Requested' && (
+                        {/* Verify Pickup — ONLY after Ready For Pickup */}
+                        {bk.status === 'Ready For Pickup' && (
                           <button
-                            onClick={() => handleStatusUpdate(bk.id, 'Completed')}
+                            onClick={() => handleVerifyPickup(bk.id)}
+                            className="px-2.5 py-1 rounded-[8px] bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-semibold transition-colors"
+                          >
+                            Verify Pickup
+                          </button>
+                        )}
+                        {/* Verify Return — Return Requested or Active */}
+                        {(bk.status === 'Return Requested' || bk.status === 'Rental Active') && (
+                          <button
+                            onClick={() => handleVerifyReturn(bk.id)}
                             className="px-2.5 py-1 rounded-[8px] bg-emerald-50 hover:bg-emerald-100 text-emerald-600 text-xs font-semibold transition-colors"
                           >
-                            Complete
+                            Verify Return
                           </button>
                         )}
                       </div>

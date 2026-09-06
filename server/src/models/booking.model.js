@@ -110,6 +110,12 @@ const bookingSchema = new mongoose.Schema(
       ],
       default: 'Pending Approval',
     },
+    pickupPin: {
+      type: String,
+    },
+    returnPin: {
+      type: String,
+    },
     depositStatus: {
       type: String,
       enum: ['Pending', 'Paid', 'Refunded'],

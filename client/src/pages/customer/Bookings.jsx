@@ -310,27 +310,17 @@ const Bookings = () => {
                               Pay Deposit
                             </Button>
                           )}
-                          {/* Mark Received — only when Ready For Pickup */}
+                          {/* Show Pickup PIN — only when Ready For Pickup */}
                           {bk.status === 'Ready For Pickup' && (
-                            <Button
-                              variant="primary"
-                              size="xs"
-                              icon={FiCheck}
-                              onClick={async () => {
-                                try {
-                                  await bookingService.updateStatus(bk.id, 'Rental Active');
-                                  // Update local state without reload
-                                  const updatedBookings = await bookingService.getMyBookings();
-                                  // Depending on how customerContext handles it, we might need a page reload, 
-                                  // but usually the customer module handles real-time updates via context or we can just reload for simplicity
-                                  window.location.reload();
-                                } catch (err) {
-                                  alert('Failed to mark received: ' + (err.response?.data?.error || err.message));
-                                }
-                              }}
-                            >
-                              Equipment Received
-                            </Button>
+                            <div className="bg-slate-100 text-slate-800 px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-200">
+                              Pickup PIN: {bk.pickupPin || 'N/A'}
+                            </div>
+                          )}
+                          {/* Show Return PIN — only when Active or Return Requested */}
+                          {(bk.status === 'Rental Active' || bk.status === 'Return Requested') && (
+                            <div className="bg-slate-100 text-slate-800 px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-200">
+                              Return PIN: {bk.returnPin || 'N/A'}
+                            </div>
                           )}
                           {/* Request Return — only when Rental Active */}
                           {bk.status === 'Rental Active' && (

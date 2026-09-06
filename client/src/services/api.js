@@ -107,7 +107,18 @@ export const bookingService = {
   // Create a new booking (customer only)
   create: (bookingData) => api.post('/bookings', bookingData),
   // Update status (role-based transitions validated server-side)
-  updateStatus: (id, status, extra) => api.put(`/bookings/${id}/status`, { status, ...extra }),
+  updateStatus: async (id, status, rejectionReason) => {
+    const res = await api.put(`/bookings/${id}/status`, { status, rejectionReason });
+    return res.data;
+  },
+  verifyPickup: async (id, pin) => {
+    const res = await api.put(`/bookings/${id}/verify-pickup`, { pin });
+    return res.data;
+  },
+  verifyReturn: async (id, pin) => {
+    const res = await api.put(`/bookings/${id}/verify-return`, { pin });
+    return res.data;
+  },
   // Confirm deposit after Razorpay payment
   confirmDeposit: (id, paymentData) => api.post(`/bookings/${id}/deposit`, paymentData),
   payRemainingBalance: (id, paymentData) => api.post(`/bookings/${id}/deposit`, paymentData),

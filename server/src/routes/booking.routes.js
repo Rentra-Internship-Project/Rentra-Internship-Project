@@ -30,8 +30,11 @@ router.post('/', authenticateToken, requireCustomer, bookingController.createBoo
 // Both: update booking status (controller validates role-based transitions)
 router.put('/:id/status', authenticateToken, bookingController.updateBookingStatus);
 
+// Owner: verify pickup PIN
+router.put('/:id/verify-pickup', authenticateToken, requireOwner, bookingController.verifyPickup);
 
-
+// Owner: verify return PIN
+router.put('/:id/verify-return', authenticateToken, requireOwner, bookingController.verifyReturn);
 // Owner: record inspection on return
 router.post('/:id/inspection', authenticateToken, bookingController.recordInspection);
 
