@@ -352,7 +352,7 @@ const Equipment = () => {
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="relative bg-white border border-[#E2E8F0] rounded-[20px] shadow-2xl p-6 w-full max-w-lg z-10 overflow-hidden"
+              className="relative bg-white border border-[#E2E8F0] rounded-[20px] shadow-2xl p-6 w-full max-w-lg z-10 overflow-x-auto overflow-y-hidden"
             >
               <button
                 onClick={() => setSelectedEqp(null)}
@@ -361,7 +361,7 @@ const Equipment = () => {
                 <FiXCircle className="text-xl" />
               </button>
 
-              <div className="-mx-6 -mt-6 mb-4 h-48 relative overflow-hidden bg-[#F8FAFC]">
+              <div className="-mx-6 -mt-6 mb-4 h-48 relative overflow-x-auto overflow-y-hidden bg-[#F8FAFC]">
                 <img src={selectedEqp.image} alt={selectedEqp.name} className="w-full h-full object-cover" />
                 <div className="absolute bottom-3 left-4 bg-[#0F172A]/80 backdrop-blur-md px-3 py-1 rounded-full text-white text-xs font-bold">
                   ₹{(selectedEqp.pricePerDay || 0).toLocaleString('en-IN')} / day
