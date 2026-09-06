@@ -145,17 +145,17 @@ const EquipmentDetails = () => {
           <FiArrowLeft className="text-base" /> Back to Browse
         </button>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button
             onClick={() => toggleWishlist(equipId)}
-            className={`p-2.5 rounded-[12px] border transition-all cursor-pointer flex items-center gap-2 text-xs font-bold ${
+            className={`p-2.5 rounded-[12px] border transition-all cursor-pointer flex items-center justify-center ${
               isWishlisted
                 ? 'bg-[#EF4444] text-white border-[#EF4444]'
                 : 'bg-white text-slate-700 border-[#E2E8F0] hover:bg-[#F8FAFC]'
             }`}
+            title={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
           >
             <FiHeart className={`text-base ${isWishlisted ? 'fill-current' : ''}`} />
-            <span>{isWishlisted ? 'Saved in Wishlist' : 'Add to Wishlist'}</span>
           </button>
 
           <button
@@ -166,17 +166,6 @@ const EquipmentDetails = () => {
             <FaWhatsapp className="text-base text-emerald-600" />
             <span className="hidden sm:inline">WhatsApp Quote</span>
           </button>
-
-          <Button
-            variant="primary"
-            size="md"
-            onClick={() => navigate(`/customer/booking-summary/${equipId}`, {
-              state: { includeOperator, operatorDailyRate }
-            })}
-            icon={FiArrowRight}
-          >
-            Book Equipment Now
-          </Button>
         </div>
       </div>
 
