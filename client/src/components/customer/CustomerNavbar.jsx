@@ -280,28 +280,6 @@ const CustomerNavbar = ({ setMobileOpen }) => {
           )}
         </div>
 
-        {/* Switch / Change Portal Button (Visible on Mobile & Desktop) */}
-        {(user?.role === 'OWNER' || profile?.role === 'OWNER') ? (
-          <button
-            onClick={() => navigate('/owner/dashboard')}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-[#5D5DEB] bg-[#5D5DEB]/10 rounded-full hover:bg-[#5D5DEB]/20 transition border border-[#5D5DEB]/20 cursor-pointer shrink-0 shadow-2xs"
-            title="Switch to Owner Portal"
-          >
-            <FiTruck className="text-sm shrink-0" />
-            <span className="text-[11px] sm:text-xs"><span className="hidden sm:inline">Switch to </span>Owner</span>
-          </button>
-        ) : (
-          <button
-            onClick={handleBecomeOwner}
-            disabled={switchingRole}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 rounded-full hover:bg-emerald-100 transition border border-emerald-200 cursor-pointer shrink-0 shadow-2xs disabled:opacity-50"
-            title="Change to Owner Mode"
-          >
-            <FiTruck className="text-sm shrink-0" />
-            <span className="text-[11px] sm:text-xs">{switchingRole ? 'Switching...' : <><span className="hidden sm:inline">Change to </span>Owner</>}</span>
-          </button>
-        )}
-
         {/* Customer Avatar & Profile */}
         <div
           onClick={() => navigate('/customer/profile')}
@@ -315,7 +293,7 @@ const CustomerNavbar = ({ setMobileOpen }) => {
               e.currentTarget.onerror = null;
               e.currentTarget.src = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300";
             }}
-            className="w-9 h-9 rounded-full object-cover ring-2 ring-[#CCCCFF] group-hover:ring-[#B8B8FF] transition-all"
+            className="w-9 h-9 shrink-0 aspect-square rounded-full object-cover ring-2 ring-[#CCCCFF] group-hover:ring-[#B8B8FF] transition-all"
           />
           <div className="hidden xl:block text-left">
             <p className="text-xs font-bold text-[#0F172A] leading-none group-hover:text-[#3B82F6] transition-colors">{profile.name}</p>
