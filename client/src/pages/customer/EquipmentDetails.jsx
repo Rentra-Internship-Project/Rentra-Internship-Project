@@ -146,22 +146,13 @@ const EquipmentDetails = () => {
         </button>
 
         <div className="flex items-center gap-2 sm:gap-3">
-          <button
-            onClick={() => toggleWishlist(equipId)}
-<<<<<<< HEAD
-            className={`p-2.5 rounded-[12px] border transition-all cursor-pointer flex items-center gap-2 ${isWishlisted ? 'bg-[#EF4444] text-white border-[#EF4444]' : 'bg-white text-slate-700 border-[#E2E8F0] hover:bg-[#F8FAFC]'} `}
-            aria-label="Toggle Wishlist"
-=======
-            className={`p-2.5 rounded-[12px] border transition-all cursor-pointer flex items-center justify-center ${
-              isWishlisted
-                ? 'bg-[#EF4444] text-white border-[#EF4444]'
-                : 'bg-white text-slate-700 border-[#E2E8F0] hover:bg-[#F8FAFC]'
-            }`}
-            title={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
->>>>>>> feat/mobile-ui-fixes
-          >
-            <FiHeart className={`text-base ${isWishlisted ? 'fill-current' : ''}`} />
-          </button>
+<button
+  onClick={() => toggleWishlist(equipId)}
+  className={`p-2.5 rounded-[12px] border transition-all cursor-pointer flex items-center justify-center ${isWishlisted ? 'bg-[#EF4444] text-white border-[#EF4444]' : 'bg-white text-slate-700 border-[#E2E8F0] hover:bg-[#F8FAFC]'}`}
+  aria-label={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
+>
+  <FiHeart className={`text-base ${isWishlisted ? 'fill-current' : ''}`} />
+</button>
 
           <button
             onClick={() => setIsShareModalOpen(true)}

@@ -262,11 +262,8 @@ const OwnerNavbar = ({ setMobileOpen }) => {
           )}
         </div>
 
-<<<<<<< HEAD
 
 
-=======
->>>>>>> feat/mobile-ui-fixes
         {/* Owner Avatar */}
         <div 
           onClick={() => navigate('/owner/profile')}
