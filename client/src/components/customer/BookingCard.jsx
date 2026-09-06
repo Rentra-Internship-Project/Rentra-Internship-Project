@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { FiCalendar, FiUser, FiArrowRight, FiCheckCircle, FiClock, FiXCircle } from 'react-icons/fi';
+import { FiCalendar, FiUser, FiArrowRight, FiCheckCircle, FiClock, FiXCircle, FiCreditCard } from 'react-icons/fi';
 import { FaRupeeSign } from 'react-icons/fa';
 import Button from '../common/Button';
 
@@ -19,7 +19,7 @@ const statusIcons = {
   Cancelled: FiXCircle,
 };
 
-const BookingCard = ({ booking, onCancel, onRequestReturn, onMarkReceived }) => {
+const BookingCard = ({ booking, onPayDeposit, onCancel, onRequestReturn, onMarkReceived }) => {
   const navigate = useNavigate();
   const StatusIcon = statusIcons[booking.status] || FiClock;
   const totalAmount = booking.totalValue ?? booking.totalAmount ?? 0;
@@ -78,7 +78,18 @@ const BookingCard = ({ booking, onCancel, onRequestReturn, onMarkReceived }) => 
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {booking.status === 'Approved' && onPayDeposit && (
+            <Button
+              variant="primary"
+              size="xs"
+              icon={FiCreditCard}
+              onClick={onPayDeposit}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white border-none shadow-sm"
+            >
+              Pay Deposit
+            </Button>
+          )}
           {['Pending', 'Approved', 'Deposit Paid'].includes(booking.status) && onCancel && (
             <Button
               variant="secondary"

@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiArrowLeft, FiCalendar, FiClock, FiCheckCircle, FiUser, FiMail, FiPhone, FiMapPin, FiShield, FiPrinter, FiCheck, FiX, FiLock, FiInfo, FiArrowRight, FiAlertCircle, FiStar } from 'react-icons/fi';
+import { FiArrowLeft, FiCalendar, FiClock, FiCheckCircle, FiUser, FiMail, FiPhone, FiMapPin, FiShield, FiPrinter, FiCheck, FiX, FiLock, FiInfo, FiArrowRight, FiAlertCircle, FiStar, FiCreditCard } from 'react-icons/fi';
 import { FaRupeeSign } from 'react-icons/fa';
 import { useCustomer } from '../../context/CustomerContext';
 import Button from '../../components/common/Button';
 import ConfirmModal from '../../components/common/ConfirmModal';
 import DigitalInspectionModal from '../../components/common/DigitalInspectionModal';
+import RazorpayPaymentModal from '../../components/customer/RazorpayPaymentModal';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
@@ -42,6 +43,7 @@ const BookingDetails = () => {
   const [isInspected, setIsInspected] = useState(false);
   const [invoiceDownloaded, setInvoiceDownloaded] = useState(false);
   const [isPayingRemaining, setIsPayingRemaining] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
   const canRate = ['Completed', 'Return Requested'].includes(booking?.status) && !booking?.rating;
 
@@ -506,9 +508,21 @@ const BookingDetails = () => {
 
               <div className="flex justify-between">
                 <span className="text-[#64748B]">Payment Status:</span>
-                <span className="font-bold text-[#22C55E]">{booking.depositStatus || 'Pending'}</span>
+                <span className="font-bold text-[#22C55E]">{booking.depositStatus || (booking.status === 'Deposit Paid' ? 'Paid' : 'Pending')}</span>
               </div>
             </div>
+
+            {booking.status === 'Approved' && (
+              <Button
+                variant="primary"
+                size="sm"
+                icon={FiCreditCard}
+                onClick={() => setIsPaymentModalOpen(true)}
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 shadow-sm"
+              >
+                Pay Security Deposit (₹{(booking.deposit || 0).toLocaleString()})
+              </Button>
+            )}
           </div>
 
           <div className="panel-card p-6 space-y-4">
@@ -602,6 +616,17 @@ const BookingDetails = () => {
         onConfirm={() => setIsInspected(true)}
         bookingId={booking.id}
       />
+
+      {isPaymentModalOpen && (
+        <RazorpayPaymentModal
+          booking={booking}
+          onClose={() => setIsPaymentModalOpen(false)}
+          onSuccess={(updatedBooking) => {
+            setIsPaymentModalOpen(false);
+            window.location.reload();
+          }}
+        />
+      )}
 
     </div>
   );

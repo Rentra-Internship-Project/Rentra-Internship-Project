@@ -23,7 +23,11 @@ const app = express();
 app.set('trust proxy', 1);
 
 // Middlewares
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
+  })
+);
 
 // CORS Configuration
 const configuredClients = (process.env.CLIENT_URL || 'http://localhost:5173')
