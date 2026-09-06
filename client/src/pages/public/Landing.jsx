@@ -12,7 +12,7 @@ const Landing = () => {
     <div className="min-h-screen bg-[#F8FAFC] font-sans text-[#0F172A] selection:bg-[#CCCCFF] selection:text-[#0F172A] flex flex-col">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-[#E2E8F0] shadow-sm">
-        <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 h-14 sm:h-20 flex items-center justify-between">
           <div className="flex items-center">
             <span className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0F172A]">.Rentra</span>
           </div>
