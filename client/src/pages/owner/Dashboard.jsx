@@ -135,7 +135,7 @@ const Dashboard = () => {
       {/* Quick Actions */}
       <div className="bg-white border border-[#E2E8F0] rounded-[20px] p-6 shadow-xs">
         <h3 className="text-sm font-bold uppercase tracking-wider text-[#64748B] mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-4 gap-2 sm:gap-3">
           {[
             { label: 'Add Equipment', icon: FiPlusCircle, path: '/owner/add-equipment', bg: 'bg-purple-50', color: 'text-purple-600' },
             { label: 'Manage Equipment', icon: FiSettings, path: '/owner/equipment', bg: 'bg-blue-50', color: 'text-[#3B82F6]' },
@@ -148,12 +148,14 @@ const Dashboard = () => {
                 key={action.label}
                 whileHover={{ y: -2 }}
                 onClick={() => navigate(action.path)}
-                className="flex flex-col items-center gap-2.5 p-4 rounded-[16px] border border-[#E2E8F0] hover:border-[#CCCCFF] bg-white hover:bg-[#F8FAFC] transition-all cursor-pointer"
+                className="flex flex-col sm:flex-row items-center sm:items-start gap-1.5 sm:gap-3 p-2 sm:p-4 rounded-[12px] sm:rounded-[16px] border border-[#E2E8F0] hover:border-[#CCCCFF] bg-white hover:bg-[#F8FAFC] transition-all text-center sm:text-left cursor-pointer"
               >
-                <div className={`p-3 rounded-[12px] ${action.bg} ${action.color}`}>
-                  <ActionIcon className="text-xl" />
+                <div className={`p-2 sm:p-3 rounded-[10px] sm:rounded-[12px] ${action.bg} ${action.color} shrink-0`}>
+                  <ActionIcon className="text-base sm:text-xl" />
                 </div>
-                <span className="text-xs font-semibold text-[#0F172A]">{action.label}</span>
+                <div className="flex items-center sm:items-start justify-center h-full">
+                  <span className="text-[10px] sm:text-xs font-semibold text-[#0F172A] mt-1 sm:mt-0 leading-tight">{action.label}</span>
+                </div>
               </motion.button>
             );
           })}

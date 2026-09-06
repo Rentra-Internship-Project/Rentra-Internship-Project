@@ -110,56 +110,56 @@ const Dashboard = () => {
       {/* Quick Actions Bar */}
       <div className="panel-card p-5">
         <h3 className="text-xs font-bold uppercase tracking-wider text-[#94A3B8] mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-4 gap-2 sm:gap-3">
           <button
             onClick={() => navigate('/customer/browse-equipment')}
-            className="flex items-center gap-3 p-3.5 rounded-[16px] bg-[#F8FAFC] border border-[#E2E8F0] hover:bg-[#CCCCFF]/20 hover:border-[#CCCCFF] transition-all text-left cursor-pointer group"
+            className="flex flex-col sm:flex-row items-center sm:items-start gap-1.5 sm:gap-3 p-2 sm:p-3.5 rounded-[12px] sm:rounded-[16px] bg-[#F8FAFC] border border-[#E2E8F0] hover:bg-[#CCCCFF]/20 hover:border-[#CCCCFF] transition-all text-center sm:text-left cursor-pointer group"
           >
-            <div className="w-10 h-10 rounded-[12px] bg-[#CCCCFF] flex items-center justify-center text-[#0F172A] shrink-0 font-bold group-hover:scale-105 transition-transform">
-              <FiTruck className="text-lg" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[12px] bg-[#CCCCFF] flex items-center justify-center text-[#0F172A] shrink-0 font-bold group-hover:scale-105 transition-transform">
+              <FiTruck className="text-base sm:text-lg" />
             </div>
-            <div>
-              <p className="text-xs font-bold text-[#0F172A]">Browse Equipment</p>
-              <p className="text-[10px] text-[#64748B]">Explore marketplace</p>
+            <div className="flex flex-col items-center sm:items-start justify-center h-full">
+              <p className="text-[10px] sm:text-xs font-bold text-[#0F172A] leading-tight mt-1 sm:mt-0">Browse</p>
+              <p className="text-[9px] sm:text-[10px] text-[#64748B] hidden sm:block">Explore marketplace</p>
             </div>
           </button>
 
           <button
             onClick={() => navigate('/customer/bookings')}
-            className="flex items-center gap-3 p-3.5 rounded-[16px] bg-[#F8FAFC] border border-[#E2E8F0] hover:bg-[#CCCCFF]/20 hover:border-[#CCCCFF] transition-all text-left cursor-pointer group"
+            className="flex flex-col sm:flex-row items-center sm:items-start gap-1.5 sm:gap-3 p-2 sm:p-3.5 rounded-[12px] sm:rounded-[16px] bg-[#F8FAFC] border border-[#E2E8F0] hover:bg-[#CCCCFF]/20 hover:border-[#CCCCFF] transition-all text-center sm:text-left cursor-pointer group"
           >
-            <div className="w-10 h-10 rounded-[12px] bg-[#3B82F6]/20 flex items-center justify-center text-[#3B82F6] shrink-0 font-bold group-hover:scale-105 transition-transform">
-              <FiCalendar className="text-lg" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[12px] bg-[#3B82F6]/20 flex items-center justify-center text-[#3B82F6] shrink-0 font-bold group-hover:scale-105 transition-transform">
+              <FiCalendar className="text-base sm:text-lg" />
             </div>
-            <div>
-              <p className="text-xs font-bold text-[#0F172A]">View Bookings</p>
-              <p className="text-[10px] text-[#64748B]">Track status</p>
+            <div className="flex flex-col items-center sm:items-start justify-center h-full">
+              <p className="text-[10px] sm:text-xs font-bold text-[#0F172A] leading-tight mt-1 sm:mt-0">Bookings</p>
+              <p className="text-[9px] sm:text-[10px] text-[#64748B] hidden sm:block">Track status</p>
             </div>
           </button>
 
           <button
             onClick={() => navigate('/customer/wishlist')}
-            className="flex items-center gap-3 p-3.5 rounded-[16px] bg-[#F8FAFC] border border-[#E2E8F0] hover:bg-[#CCCCFF]/20 hover:border-[#CCCCFF] transition-all text-left cursor-pointer group"
+            className="flex flex-col sm:flex-row items-center sm:items-start gap-1.5 sm:gap-3 p-2 sm:p-3.5 rounded-[12px] sm:rounded-[16px] bg-[#F8FAFC] border border-[#E2E8F0] hover:bg-[#CCCCFF]/20 hover:border-[#CCCCFF] transition-all text-center sm:text-left cursor-pointer group"
           >
-            <div className="w-10 h-10 rounded-[12px] bg-pink-100 flex items-center justify-center text-pink-600 shrink-0 font-bold group-hover:scale-105 transition-transform">
-              <FiHeart className="text-lg" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[12px] bg-pink-100 flex items-center justify-center text-pink-600 shrink-0 font-bold group-hover:scale-105 transition-transform">
+              <FiHeart className="text-base sm:text-lg" />
             </div>
-            <div>
-              <p className="text-xs font-bold text-[#0F172A]">Saved Wishlist</p>
-              <p className="text-[10px] text-[#64748B]">View favorites</p>
+            <div className="flex flex-col items-center sm:items-start justify-center h-full">
+              <p className="text-[10px] sm:text-xs font-bold text-[#0F172A] leading-tight mt-1 sm:mt-0">Wishlist</p>
+              <p className="text-[9px] sm:text-[10px] text-[#64748B] hidden sm:block">View favorites</p>
             </div>
           </button>
 
           <button
             onClick={() => navigate('/customer/profile')}
-            className="flex items-center gap-3 p-3.5 rounded-[16px] bg-[#F8FAFC] border border-[#E2E8F0] hover:bg-[#CCCCFF]/20 hover:border-[#CCCCFF] transition-all text-left cursor-pointer group"
+            className="flex flex-col sm:flex-row items-center sm:items-start gap-1.5 sm:gap-3 p-2 sm:p-3.5 rounded-[12px] sm:rounded-[16px] bg-[#F8FAFC] border border-[#E2E8F0] hover:bg-[#CCCCFF]/20 hover:border-[#CCCCFF] transition-all text-center sm:text-left cursor-pointer group"
           >
-            <div className="w-10 h-10 rounded-[12px] bg-[#22C55E]/20 flex items-center justify-center text-[#22C55E] shrink-0 font-bold group-hover:scale-105 transition-transform">
-              <FiUser className="text-lg" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[12px] bg-[#22C55E]/20 flex items-center justify-center text-[#22C55E] shrink-0 font-bold group-hover:scale-105 transition-transform">
+              <FiUser className="text-base sm:text-lg" />
             </div>
-            <div>
-              <p className="text-xs font-bold text-[#0F172A]">Update Profile</p>
-              <p className="text-[10px] text-[#64748B]">Manage account</p>
+            <div className="flex flex-col items-center sm:items-start justify-center h-full">
+              <p className="text-[10px] sm:text-xs font-bold text-[#0F172A] leading-tight mt-1 sm:mt-0">Profile</p>
+              <p className="text-[9px] sm:text-[10px] text-[#64748B] hidden sm:block">Manage account</p>
             </div>
           </button>
         </div>
