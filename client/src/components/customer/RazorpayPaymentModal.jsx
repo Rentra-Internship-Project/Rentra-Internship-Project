@@ -30,12 +30,17 @@ const RazorpayPaymentModal = ({ booking, onClose, onSuccess }) => {
   const totalValue = booking.totalValue || 0;
   const remainingCash = booking.remainingCash || totalValue - depositAmount;
 
-  // Pre-create Razorpay Order in the background when modal mounts.
+  // Pre-create Razorpay Order and dynamically preload checkout.js in background when modal mounts.
   // This ensures that when the user taps "Pay Now", rzp.open() executes
   // synchronously within the direct touch event window, completely bypassing Android's popup blocker.
   useEffect(() => {
     let isMounted = true;
     if (!bookingId) return;
+
+    // Dynamically preload Razorpay SDK on-demand only when payment modal is opened
+    loadRazorpayScript().catch((err) => {
+      console.warn('Razorpay script dynamic preload warning:', err);
+    });
 
     setIsPreloadingOrder(true);
     razorpayService
@@ -63,8 +68,8 @@ const RazorpayPaymentModal = ({ booking, onClose, onSuccess }) => {
 
       const existingScript = document.querySelector('script[src*="checkout.razorpay.com"]');
       if (existingScript) {
-        existingScript.addEventListener('load', () => resolve(true));
-        existingScript.addEventListener('error', () => resolve(false));
+        existingScript.addEventListener('load', () => resolve(true), { once: true });
+        existingScript.addEventListener('error', () => resolve(false), { once: true });
         return;
       }
 
