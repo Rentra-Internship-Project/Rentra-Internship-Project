@@ -323,7 +323,6 @@ exports.resetPassword = async (req, res) => {
     await user.save();
 
     res.json({ message: 'Password has been successfully reset. You can now log in.' });
-
   } catch (err) {
     res.status(500).json({ error: 'Failed to reset password', details: err.message });
   }

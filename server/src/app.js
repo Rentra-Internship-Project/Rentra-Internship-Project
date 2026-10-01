@@ -14,6 +14,7 @@ const razorpayRoutes = require('./routes/razorpay.routes');
 const categoryRoutes = require('./routes/category.routes');
 const notificationRoutes = require('./routes/notification.routes');
 const chatRoutes = require('./routes/chat.routes');
+const reviewRoutes = require('./routes/review.routes');
 const { authenticateToken } = require('./middleware/auth.middleware');
 const { pingHandler } = require('./routes/ping.routes');
 
@@ -96,7 +97,7 @@ app.use('/api/razorpay', razorpayRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/chat', chatRoutes);
-// Note: /api/escrow removed — Razorpay replaces Stripe
+app.use('/api/reviews', reviewRoutes);
 
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;

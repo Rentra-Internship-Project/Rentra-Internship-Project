@@ -277,13 +277,18 @@ exports.updateBookingStatus = async (req, res) => {
       booking.rejectionReason = rejectionReason;
     }
 
+    // When deposit is paid, equipment is effectively off the market for others
+    if (status === 'Deposit Paid') {
+      await Equipment.findByIdAndUpdate(booking.equipmentId, { availability: 'Rented' });
+    }
+
     // When rental becomes active, mark equipment as Rented
     if (status === 'Rental Active') {
       await Equipment.findByIdAndUpdate(booking.equipmentId, { availability: 'Rented' });
     }
 
-    // When completed or cancelled, make equipment Available again
-    if (status === 'Completed' || status === 'Cancelled') {
+    // When completed, cancelled, or rejected, make equipment Available again
+    if (status === 'Completed' || status === 'Cancelled' || status === 'Rejected') {
       await Equipment.findByIdAndUpdate(booking.equipmentId, { availability: 'Available' });
     }
 
