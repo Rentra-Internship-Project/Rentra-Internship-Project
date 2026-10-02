@@ -1,5 +1,11 @@
 const mongoose = require('mongoose');
 
+/**
+ * @module UserModel
+ * @description Mongoose schema and model for Rentra Users.
+ * Handles authentication credentials, role-based access control (RBAC),
+ * and user profile data across the platform.
+ */
 const userSchema = new mongoose.Schema(
   {
     name: {
