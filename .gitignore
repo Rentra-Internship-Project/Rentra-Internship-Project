@@ -150,3 +150,15 @@ Rentra_Industrial_Training_Report.docx
 rentra-mobile/
 
 server/env
+
+# Architecture diagram files (generated)
+architecture_diagram/
+viva.md
+
+# MemPalace per-project files (issue #185)
+mempalace.yaml
+entities.json
+
+# Launch video deliverables and intermediate frames
+brag-output/
+brag-output-*/
